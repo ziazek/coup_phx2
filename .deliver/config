@@ -4,8 +4,8 @@ BUILD_HOST="128.199.220.61"
 BUILD_USER="deploy"
 BUILD_AT="/tmp/edeliver/coup_phx2/builds"
 
-STAGING_HOSTS="128.199.220.61"
-STAGING_USER="deploy"
+PRODUCTION_HOSTS="128.199.220.61"
+PRODUCTION_USER="deploy"
 DELIVER_TO="/home/deploy"
 
 # For *Phoenix* projects, symlink prod.secret.exs to our tmp source
@@ -16,4 +16,22 @@ pre_erlang_get_and_update_deps() {
       ln -sfn '$_prod_secret_path' '$BUILD_AT/config/prod.secret.exs'
     "
   fi
+}
+
+pre_erlang_clean_compile() {
+  status "Running phoenix.digest" # log output prepended with "----->"
+  __sync_remote " # runs the commands on the build host
+    # [ -f ~/.profile ] && source ~/.profile # load profile (optional)
+    source ~/.profile
+    set -e # fail if any command fails (recommended)
+    cd '$BUILD_AT' # enter the build directory on the build host (required)
+    mkdir -p priv/static # required by the phoenix.digest task
+    yarn install
+
+    yarn deploy
+    # ./node_modules/bin/webpack build --production
+
+    # run your custom task
+    APP='$APP' MIX_ENV='$TARGET_MIX_ENV' $MIX_CMD phoenix.digest $SILENCE
+  "
 }
