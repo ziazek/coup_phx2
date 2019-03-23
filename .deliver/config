@@ -26,9 +26,8 @@ pre_erlang_clean_compile() {
     set -e # fail if any command fails (recommended)
     cd '$BUILD_AT' # enter the build directory on the build host (required)
     mkdir -p priv/static # required by the phoenix.digest task
-    yarn install
-
-    yarn deploy
+    cd assets && yarn install && yarn deploy
+    # yarn deploy
     # ./node_modules/bin/webpack build --production
 
     # run your custom task
