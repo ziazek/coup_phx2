@@ -1,3 +1,0 @@
-[submodule "private_deps/coup_engine"]
-	path = private_deps/coup_engine
-	url = git@github.com:ziazek/coup_engine.git
