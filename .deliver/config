@@ -30,7 +30,7 @@ pre_erlang_clean_compile() {
     # yarn deploy
     # ./node_modules/bin/webpack build --production
 
-    # run your custom task
-    APP='$APP' MIX_ENV='$TARGET_MIX_ENV' $MIX_CMD phoenix.digest $SILENCE
+    cd '$BUILD_AT'
+    APP='$APP' MIX_ENV='$TARGET_MIX_ENV' $MIX_CMD phx.digest $SILENCE
   "
 }
