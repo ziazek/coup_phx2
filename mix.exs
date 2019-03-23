@@ -5,7 +5,7 @@ defmodule CoupPhx2.MixProject do
     [
       app: :coup_phx2,
       version: "0.1.0",
-      elixir: "~> 1.5",
+      elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -42,7 +42,12 @@ defmodule CoupPhx2.MixProject do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
-      {:plug_cowboy, "~> 2.0"}
+      {:plug_cowboy, "~> 2.0"},
+      {:edeliver, ">= 1.6.0"},
+      {:distillery, "~> 2.0"},
+      {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},
+      {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
+      {:coup_engine, path: "./private_deps/coup_engine"}
     ]
   end
 
