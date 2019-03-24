@@ -10,8 +10,8 @@ use Mix.Config
 # which you should run after static files are built and
 # before starting your production server.
 config :coup_phx2, CoupPhx2Web.Endpoint,
-  http: [port: 8888],
-  url: [host: "coup.ziazek.com", port: 80],
+  http: [port: 8888, compress: true],
+  url: [host: "coup.ziazek.com", port: 443],
   server: true,
   root: ".",
   cache_static_manifest: "priv/static/cache_manifest.json",
