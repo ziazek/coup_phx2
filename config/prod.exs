@@ -11,7 +11,7 @@ use Mix.Config
 # before starting your production server.
 config :coup_phx2, CoupPhx2Web.Endpoint,
   http: [port: 8888],
-  url: [host: "localhost", port: 80],
+  url: [host: "localhost", port: 8888],
   server: true,
   root: ".",
   cache_static_manifest: "priv/static/cache_manifest.json",
