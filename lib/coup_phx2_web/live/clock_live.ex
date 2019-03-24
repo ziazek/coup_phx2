@@ -1,4 +1,7 @@
 defmodule CoupPhx2Web.ClockLive do
+  @moduledoc """
+  A clock from the live_view_examples repo. For verifying that LiveView is working.
+  """
   use Phoenix.LiveView
 
   def render(assigns) do
