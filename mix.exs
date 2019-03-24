@@ -4,7 +4,7 @@ defmodule CoupPhx2.MixProject do
   def project do
     [
       app: :coup_phx2,
-      version: "0.1.7",
+      version: "0.1.8",
       elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
@@ -46,7 +46,8 @@ defmodule CoupPhx2.MixProject do
       {:edeliver, ">= 1.6.0"},
       {:distillery, "~> 2.0"},
       {:phoenix_live_view, github: "phoenixframework/phoenix_live_view"},
-      {:calendar, "~> 0.17.4"},
+      # {:calendar, "~> 0.17.4"},
+      {:timex, "~> 3.5"},
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},
       {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false}
     ]

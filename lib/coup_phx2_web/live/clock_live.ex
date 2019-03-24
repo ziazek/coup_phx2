@@ -1,11 +1,10 @@
 defmodule CoupPhx2Web.ClockLive do
   use Phoenix.LiveView
-  import Calendar.Strftime
 
   def render(assigns) do
     ~L"""
     <div>
-      <h2 phx-click="boom">It's <%= strftime!(@date, "%r") %></h2>
+      <h2 phx-click="boom">It's <%= Timex.format!(@date, "{UNIX}") %></h2>
     </div>
     """
   end
@@ -25,6 +24,6 @@ defmodule CoupPhx2Web.ClockLive do
   end
 
   defp put_date(socket) do
-    assign(socket, date: :calendar.local_time())
+    assign(socket, date: Timex.local() |> Timex.to_datetime("Asia/Singapore"))
   end
 end
