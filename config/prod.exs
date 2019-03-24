@@ -11,7 +11,7 @@ use Mix.Config
 # before starting your production server.
 config :coup_phx2, CoupPhx2Web.Endpoint,
   http: [port: 8888],
-  url: [host: "localhost", port: 8888],
+  url: [host: "coup.ziazek.com", port: 80],
   server: true,
   root: ".",
   cache_static_manifest: "priv/static/cache_manifest.json",
@@ -59,7 +59,7 @@ config :logger, level: :info
 # If you are doing OTP releases, you need to instruct Phoenix
 # to start the server for all endpoints:
 #
-config :phoenix, :serve_endpoints, true
+# config :phoenix, :serve_endpoints, true
 #
 # Alternatively, you can configure exactly which server to
 # start per endpoint:
