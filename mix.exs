@@ -46,8 +46,7 @@ defmodule CoupPhx2.MixProject do
       {:edeliver, ">= 1.6.0"},
       {:distillery, "~> 2.0"},
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},
-      {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
-      {:coup_engine, "0.1.0", git: "git@github.com:ziazek/coup_engine.git"}
+      {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false}
     ]
   end
 
