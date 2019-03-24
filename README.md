@@ -1,6 +1,6 @@
 # CoupPhx2
 
-To update coup_engine
 ```
-git submodule update --remote
+mix edeliver build release production --verbose
+mix edeliver deploy release to production
 ```
