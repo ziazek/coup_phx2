@@ -5,6 +5,8 @@ defmodule CoupPhx2Web.Endpoint do
     websocket: true,
     longpoll: false
 
+  socket "/live", Phoenix.LiveView.Socket, websocket: true
+
   # Serve at "/" the static files from "priv/static" directory.
   #
   # You should set gzip to true if you are running phx.digest
@@ -12,7 +14,7 @@ defmodule CoupPhx2Web.Endpoint do
   plug Plug.Static,
     at: "/",
     from: :coup_phx2,
-    gzip: true,
+    gzip: false,
     only: ~w(css fonts images js favicon.ico robots.txt)
 
   # Code reloading can be explicitly enabled under the

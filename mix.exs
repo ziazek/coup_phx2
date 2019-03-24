@@ -4,7 +4,7 @@ defmodule CoupPhx2.MixProject do
   def project do
     [
       app: :coup_phx2,
-      version: "0.1.6",
+      version: "0.1.7",
       elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
@@ -33,7 +33,7 @@ defmodule CoupPhx2.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.4.2"},
+      {:phoenix, "~> 1.4.2", override: true},
       {:phoenix_pubsub, "~> 1.1"},
       {:phoenix_ecto, "~> 4.0"},
       {:ecto_sql, "~> 3.0"},
@@ -45,6 +45,8 @@ defmodule CoupPhx2.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:edeliver, ">= 1.6.0"},
       {:distillery, "~> 2.0"},
+      {:phoenix_live_view, github: "phoenixframework/phoenix_live_view"},
+      {:calendar, "~> 0.17.4"},
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},
       {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false}
     ]

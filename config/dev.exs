@@ -52,7 +52,8 @@ config :coup_phx2, CoupPhx2Web.Endpoint,
       ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$},
       ~r{priv/gettext/.*(po)$},
       ~r{lib/coup_phx2_web/views/.*(ex)$},
-      ~r{lib/coup_phx2_web/templates/.*(eex)$}
+      ~r{lib/coup_phx2_web/templates/.*(eex)$},
+      ~r{lib/coup_phx2_web/live/.*(ex)$}
     ]
   ]
 

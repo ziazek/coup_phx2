@@ -41,6 +41,7 @@ defmodule CoupPhx2Web do
 
       import CoupPhx2Web.ErrorHelpers
       import CoupPhx2Web.Gettext
+      import Phoenix.LiveView, only: [live_render: 2, live_render: 3]
       alias CoupPhx2Web.Router.Helpers, as: Routes
     end
   end
@@ -50,6 +51,7 @@ defmodule CoupPhx2Web do
       use Phoenix.Router
       import Plug.Conn
       import Phoenix.Controller
+      import Phoenix.LiveView.Router
     end
   end
 
