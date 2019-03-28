@@ -3,7 +3,7 @@ defmodule CoupEngine.Board do
   The Board
   """
 
-  @spec hello(binary) :: binary
+  @spec hello(String.t()) :: String.t()
   def hello(name) do
     "Hello #{name}, from CoupEngine.Board"
   end

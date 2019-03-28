@@ -5,12 +5,12 @@ defmodule CoupEngine.Game do
   use GenServer
   alias CoupEngine.Rules
 
-  @spec init(binary()) :: {:ok, map()}
+  @spec init(String.t()) :: {:ok, map()}
   def init(name) do
     {:ok, %{players: [%{name: name, role: "creator"}], deck: [], discard: [], rules: %Rules{}}}
   end
 
-  @spec handle_call({:add_player, binary()}, any(), map()) :: {:reply, :ok | :error, map()}
+  @spec handle_call({:add_player, String.t()}, any(), map()) :: {:reply, :ok | :error, map()}
   def handle_call({:add_player, name}, _from, %{players: players} = state_data) do
     updated_players = players ++ [%{name: name, role: "player"}]
 
