@@ -14,7 +14,7 @@ defmodule CoupEngine.GameTest do
                 ],
                 deck: [],
                 discard: [],
-                rules: %Rules{}
+                rules: %Rules{state: :adding_players}
               }}
   end
 
@@ -68,12 +68,53 @@ defmodule CoupEngine.GameTest do
           ]
         })
 
-      assert result == {:reply, :error, "maximum number of players reached"}
+      {:reply, {:error, reason}, state_data} = result
+
+      assert reason == "maximum number of players reached"
+      assert state_data == expected_state
     end
   end
 
   describe "start_game" do
+    test "given sufficient players, should return :ok and state :game_started" do
+      state =
+        initial_state(%{
+          players: [
+            %{role: "creator", name: "TH"},
+            %{role: "player", name: "Ken"}
+          ]
+        })
+
+      result = Game.handle_call(:start_game, "_pid", state)
+
+      expected_state =
+        initial_state(%{
+          players: [
+            %{role: "creator", name: "TH"},
+            %{role: "player", name: "Ken"}
+          ],
+          rules: %Rules{state: :game_started}
+        })
+
+      assert result == {:reply, :ok, expected_state}
+    end
+
     test "given insufficient players, should return :error" do
+      state =
+        initial_state(%{
+          players: [
+            %{role: "creator", name: "TH"}
+          ]
+        })
+
+      result = Game.handle_call(:start_game, "_pid", state)
+
+      expected_state = state
+
+      {:reply, {:error, reason}, state_data} = result
+
+      assert reason == "insufficient players"
+      assert state_data == expected_state
     end
   end
 
@@ -82,7 +123,7 @@ defmodule CoupEngine.GameTest do
       players: [],
       deck: [],
       discard: [],
-      rules: %Rules{}
+      rules: %Rules{state: :adding_players}
     }
     |> Map.merge(map_to_merge)
   end
