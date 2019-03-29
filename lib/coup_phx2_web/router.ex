@@ -18,7 +18,9 @@ defmodule CoupPhx2Web.Router do
   scope "/", CoupPhx2Web do
     pipe_through :browser
 
-    get "/", PageController, :index
+    live("/", HomeLive)
+    get("/save_name", PageController, :save_name)
+    live("/game/:name", GameLive, session: [:user_id, :path_params])
     live("/clock", ClockLive)
   end
 
