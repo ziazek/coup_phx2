@@ -25,7 +25,6 @@ defmodule CoupPhx2Web.HomeLive do
   end
 
   def handle_event("new_game", _path, socket) do
-    # {:noreply, socket}
     random_id = Coup.IdGenerator.randstring(6)
 
     {:stop,
