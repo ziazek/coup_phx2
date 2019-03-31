@@ -1,16 +1,21 @@
-defmodule CoupEngine.GameTest do
+defmodule CoupEngine.Game1StartTest do
   use ExUnit.Case, async: true
 
   alias CoupEngine.{Game, Rules}
 
   test "init/1 should return the initial state" do
-    result = Game.init("TH")
+    result = Game.init({"game_id1", "session_id1", "Player 1"})
 
     assert result ==
              {:ok,
               %{
+                game_name: "game_id1",
                 players: [
-                  %{role: "creator", name: "TH"}
+                  %{
+                    role: "creator",
+                    name: "Player 1",
+                    session_id: "session_id1"
+                  }
                 ],
                 deck: [],
                 discard: [],
@@ -23,17 +28,29 @@ defmodule CoupEngine.GameTest do
       state =
         initial_state(%{
           players: [
-            %{role: "creator", name: "TH"}
+            %{
+              role: "creator",
+              name: "Player 1",
+              session_id: "session_id1"
+            }
           ]
         })
 
-      result = Game.handle_call({:add_player, "Naz"}, "_pid", state)
+      result = Game.handle_call({:add_player, "sessionid2", "Player 2"}, "_pid", state)
 
       expected_state =
         initial_state(%{
           players: [
-            %{role: "creator", name: "TH"},
-            %{role: "player", name: "Naz"}
+            %{
+              role: "creator",
+              name: "Player 1",
+              session_id: "session_id1"
+            },
+            %{
+              role: "player",
+              name: "Player 2",
+              session_id: "sessionid2"
+            }
           ]
         })
 
@@ -46,25 +63,25 @@ defmodule CoupEngine.GameTest do
         initial_state(%{
           players: [
             %{role: "creator", name: "TH"},
-            %{role: "member", name: "A1"},
-            %{role: "member", name: "A2"},
-            %{role: "member", name: "A3"},
-            %{role: "member", name: "A4"},
-            %{role: "member", name: "A5"}
+            %{role: "player", name: "A1"},
+            %{role: "player", name: "A2"},
+            %{role: "player", name: "A3"},
+            %{role: "player", name: "A4"},
+            %{role: "player", name: "A5"}
           ]
         })
 
-      result = Game.handle_call({:add_player, "LateGuy"}, "_pid", state)
+      result = Game.handle_call({:add_player, "session_id_x", "LateGuy"}, "_pid", state)
 
       expected_state =
         initial_state(%{
           players: [
             %{role: "creator", name: "TH"},
-            %{role: "member", name: "A1"},
-            %{role: "member", name: "A2"},
-            %{role: "member", name: "A3"},
-            %{role: "member", name: "A4"},
-            %{role: "member", name: "A5"}
+            %{role: "player", name: "A1"},
+            %{role: "player", name: "A2"},
+            %{role: "player", name: "A3"},
+            %{role: "player", name: "A4"},
+            %{role: "player", name: "A5"}
           ]
         })
 

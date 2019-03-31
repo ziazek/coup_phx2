@@ -5,9 +5,10 @@ defmodule CoupPhx2Web.PageController do
     render(conn, "index.html")
   end
 
-  def save_name(conn, %{"game" => game} = _params) do
+  def save_name(conn, %{"game" => game, "player_name" => player_name} = params) do
     conn
-    |> put_session(:user_id, get_session(conn, :user_id) || Ecto.UUID.generate())
+    |> put_session(:session_id, get_session(conn, :session_id) || Ecto.UUID.generate())
+    |> put_session(:name, player_name)
     |> redirect(to: "/game/#{game}")
   end
 end

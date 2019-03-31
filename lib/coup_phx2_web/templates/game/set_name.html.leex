@@ -1,4 +1,4 @@
-<h2>Coup</h2>
+<h2>Joining game: <%= @game %></h2>
 
 <p><%= Timex.format!(@date, "{UNIX}") %></p>
 
@@ -14,8 +14,6 @@
   <%= error_tag f, :name %>
 
   <div>
-    <%= submit "New Game", disabled: !@changeset.valid?, phx_disable_with: "Launching..." %>
+    <%= submit "Join Game", disabled: !@changeset.valid?, phx_disable_with: "Launching..." %>
   </div>
 <% end %>
-
-<!-- <button phx-click="new_game" class="btn btn-primary" type="button" name="new_game">New game</button> -->

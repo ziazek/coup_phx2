@@ -4,10 +4,13 @@ defmodule CoupPhx2Web.GameLive do
   """
   use Phoenix.LiveView
 
+  alias CoupEngine.{Game, GameSupervisor}
+
   def render(assigns) do
     ~L"""
     <div>
-      <small>Session ID: <%= @user_id %></small>
+      <p><small>Session ID: <%= @session_id %></small></p>
+      <p><small>Name: <%= @name %></small></p>
       <h2 phx-click="boom">It's <%= Timex.format!(@date, "{UNIX}") %></h2>
     </div>
     """
@@ -16,30 +19,50 @@ defmodule CoupPhx2Web.GameLive do
   @doc """
   Redirect to set a session UUID if none exists.
   """
-  def mount(%{user_id: nil, path_params: path_params} = session, socket) do
+  def mount(%{session_id: nil, path_params: path_params} = session, socket) do
     %{"name" => game_name} = path_params
 
     {:stop,
      socket
-     |> redirect(
-       to:
-         CoupPhx2Web.Router.Helpers.page_path(
-           CoupPhx2Web.Endpoint,
-           :save_name,
-           game: game_name
-         )
-     )}
+     |> redirect(to: "/set_name/#{game_name}")}
   end
 
-  def mount(%{user_id: user_id, path_params: path_params} = _session, socket) do
+  def mount(%{session_id: session_id, name: name, path_params: path_params} = _session, socket) do
     if connected?(socket), do: :timer.send_interval(1000, self(), :tick)
 
     %{"name" => game_name} = path_params
 
+    game_pid =
+      case GameSupervisor.start_game({game_name, session_id, name}) do
+        {:ok, pid} ->
+          pid
+
+        {:error, {:already_started, pid}} ->
+          Game.add_player(pid, session_id, name)
+          pid
+      end
+
+    Phoenix.PubSub.subscribe(:game_pubsub, game_name)
+
     socket =
       socket
       |> put_date()
-      |> assign(user_id: user_id)
+      |> assign(session_id: session_id)
+      |> assign(name: name)
+      |> assign(game_pid: game_pid)
+      |> assign(players: [])
+
+    {:ok, socket}
+  end
+
+  def handle_info(:player_joined, socket) do
+    players = Game.list_players(socket.assigns.game_pid)
+
+    IO.inspect(players, label: "players")
+
+    socket =
+      socket
+      |> assign(players: players)
 
     {:ok, socket}
   end
