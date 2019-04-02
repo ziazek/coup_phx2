@@ -4,7 +4,8 @@ defmodule CoupEngine.Game do
   """
 
   # Child spec for supervisor
-  use GenServer, start: {__MODULE__, :start_link, []}, restart: :transient
+  # , start: {__MODULE__, :start_link, []}, restart: :transient
+  use GenServer
   alias CoupEngine.Rules
 
   ### CLIENT ###
@@ -42,8 +43,8 @@ defmodule CoupEngine.Game do
   @spec handle_call({:add_player, String.t(), String.t()}, any(), map()) ::
           {:reply, :ok | :error, map()}
   def handle_call({:add_player, session_id, player_name}, _from, %{players: players} = state_data) do
-    with {:ok, rules} <- Rules.check(state_data.rules, :add_player, length(players)) do
-      # TODO: don't add if the session_id exists
+    with {:ok, rules} <- Rules.check(state_data.rules, :add_player, length(players)),
+         :ok <- session_id_does_not_exist(session_id, players) do
       updated_players =
         players ++
           [
@@ -67,7 +68,7 @@ defmodule CoupEngine.Game do
 
   # TODO: test this
   def handle_call(:list_players, _from, %{players: players} = state_data) do
-    state_data |> reply_success(%{players: players})
+    state_data |> reply_success(players)
   end
 
   def handle_call(:start_game, _from, %{players: players} = state_data) do
@@ -83,7 +84,18 @@ defmodule CoupEngine.Game do
     end
   end
 
+  ### SERVER UTILITIES
+
   defp reply_success(state_data, reply) do
     {:reply, reply, state_data}
+  end
+
+  ### PRIVATE
+
+  defp session_id_does_not_exist(session_id, players) do
+    case Enum.find(players, fn player -> player.session_id == session_id end) do
+      nil -> :ok
+      _found -> {:error, "player exists"}
+    end
   end
 end

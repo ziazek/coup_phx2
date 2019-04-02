@@ -6,20 +6,21 @@ defmodule CoupPhx2Web.GameLive do
 
   alias CoupEngine.{Game, GameSupervisor}
 
-  def render(assigns) do
-    ~L"""
-    <div>
-      <p><small>Session ID: <%= @session_id %></small></p>
-      <p><small>Name: <%= @name %></small></p>
-      <h2 phx-click="boom">It's <%= Timex.format!(@date, "{UNIX}") %></h2>
-    </div>
-    """
-  end
+  def render(assigns), do: CoupPhx2Web.GameView.render("game.html", assigns)
+  # def render(assigns) do
+  #   ~L"""
+  #   <div>
+  #     <p><small>Session ID: <%= @session_id %></small></p>
+  #     <p><small>Name: <%= @name %></small></p>
+  #     <h2 phx-click="boom">It's <%= Timex.format!(@date, "{UNIX}") %></h2>
+  #   </div>
+  #   """
+  # end
 
   @doc """
   Redirect to set a session UUID if none exists.
   """
-  def mount(%{session_id: nil, path_params: path_params} = session, socket) do
+  def mount(%{session_id: nil, path_params: path_params} = _session, socket) do
     %{"name" => game_name} = path_params
 
     {:stop,
@@ -50,7 +51,7 @@ defmodule CoupPhx2Web.GameLive do
       |> assign(session_id: session_id)
       |> assign(name: name)
       |> assign(game_pid: game_pid)
-      |> assign(players: [])
+      |> assign(players: Game.list_players(game_pid))
 
     {:ok, socket}
   end
@@ -58,13 +59,11 @@ defmodule CoupPhx2Web.GameLive do
   def handle_info(:player_joined, socket) do
     players = Game.list_players(socket.assigns.game_pid)
 
-    IO.inspect(players, label: "players")
-
     socket =
       socket
       |> assign(players: players)
 
-    {:ok, socket}
+    {:noreply, socket}
   end
 
   def handle_info(:tick, socket) do

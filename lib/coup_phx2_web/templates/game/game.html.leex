@@ -1,0 +1,15 @@
+<div>
+  <p phx-click="boom">It's <%= Timex.format!(@date, "{UNIX}") %></p>
+
+  <div class="alert alert-secondary">
+    <h4>Players</h4>
+    <%= for player <- @players do %>
+    <p>
+      <%= player.name %> (<%= player.session_id %>)
+      <%= if player.session_id == @session_id do %>
+      <strong>(You)</strong>
+      <% end %>
+    </p>
+    <% end %>
+  </div>
+</div>

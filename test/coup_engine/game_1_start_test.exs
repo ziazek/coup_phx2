@@ -62,12 +62,12 @@ defmodule CoupEngine.Game1StartTest do
       state =
         initial_state(%{
           players: [
-            %{role: "creator", name: "TH"},
-            %{role: "player", name: "A1"},
-            %{role: "player", name: "A2"},
-            %{role: "player", name: "A3"},
-            %{role: "player", name: "A4"},
-            %{role: "player", name: "A5"}
+            %{role: "creator", name: "TH", session_id: "session_id1"},
+            %{role: "player", name: "A1", session_id: "session_id2"},
+            %{role: "player", name: "A2", session_id: "session_id3"},
+            %{role: "player", name: "A3", session_id: "session_id4"},
+            %{role: "player", name: "A4", session_id: "session_id5"},
+            %{role: "player", name: "A5", session_id: "session_id6"}
           ]
         })
 
@@ -76,12 +76,12 @@ defmodule CoupEngine.Game1StartTest do
       expected_state =
         initial_state(%{
           players: [
-            %{role: "creator", name: "TH"},
-            %{role: "player", name: "A1"},
-            %{role: "player", name: "A2"},
-            %{role: "player", name: "A3"},
-            %{role: "player", name: "A4"},
-            %{role: "player", name: "A5"}
+            %{role: "creator", name: "TH", session_id: "session_id1"},
+            %{role: "player", name: "A1", session_id: "session_id2"},
+            %{role: "player", name: "A2", session_id: "session_id3"},
+            %{role: "player", name: "A3", session_id: "session_id4"},
+            %{role: "player", name: "A4", session_id: "session_id5"},
+            %{role: "player", name: "A5", session_id: "session_id6"}
           ]
         })
 
@@ -89,6 +89,22 @@ defmodule CoupEngine.Game1StartTest do
 
       assert reason == "maximum number of players reached"
       assert state_data == expected_state
+    end
+
+    test "given duplicate session_id, should not add player" do
+      state =
+        initial_state(%{
+          players: [
+            %{role: "creator", name: "TH", session_id: "session_id1"},
+            %{role: "player", name: "A1", session_id: "session_id2"}
+          ]
+        })
+
+      result = Game.handle_call({:add_player, "session_id2", "A1"}, "_pid", state)
+
+      expected_state = state
+
+      assert result == {:reply, {:error, "player exists"}, expected_state}
     end
   end
 
@@ -137,6 +153,7 @@ defmodule CoupEngine.Game1StartTest do
 
   defp initial_state(map_to_merge) do
     %{
+      game_name: "",
       players: [],
       deck: [],
       discard: [],

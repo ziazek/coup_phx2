@@ -1,4 +1,7 @@
 defmodule CoupPhx2.User do
+  @moduledoc """
+  User model. currently not backed by db
+  """
   use Ecto.Schema
   import Ecto.Changeset
 
