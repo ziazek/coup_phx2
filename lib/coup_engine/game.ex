@@ -21,8 +21,14 @@ defmodule CoupEngine.Game do
   def add_player(game, session_id, player_name),
     do: GenServer.call(game, {:add_player, session_id, player_name})
 
+  def get_player(game, session_id), do: GenServer.call(game, {:get_player, session_id})
+
+  def get_game_state(game), do: GenServer.call(game, :get_game_state)
+
   def list_players(game),
     do: GenServer.call(game, :list_players)
+
+  def start_game(game), do: GenServer.call(game, :start_game)
 
   ### SERVER ###
 
@@ -66,6 +72,15 @@ defmodule CoupEngine.Game do
     end
   end
 
+  def handle_call({:get_player, session_id}, _from, %{players: players} = state_data) do
+    player = Enum.find(players, fn p -> p.session_id == session_id end)
+    state_data |> reply_success(player)
+  end
+
+  def handle_call(:get_game_state, _from, %{rules: %Rules{state: state}} = state_data) do
+    state_data |> reply_success(state)
+  end
+
   # TODO: test this
   def handle_call(:list_players, _from, %{players: players} = state_data) do
     state_data |> reply_success(players)
@@ -76,6 +91,8 @@ defmodule CoupEngine.Game do
       # TODO: send to self
       # Process.send_after(self(), :shuffle_deck, 1_000)
       # then handle_info
+      Phoenix.PubSub.broadcast(:game_pubsub, state_data.game_name, :game_started)
+
       state_data
       |> Map.put(:rules, rules)
       |> reply_success(:ok)

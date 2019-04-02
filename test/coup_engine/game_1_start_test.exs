@@ -108,6 +108,32 @@ defmodule CoupEngine.Game1StartTest do
     end
   end
 
+  describe "get_player" do
+    test "given a session_id, should return the player" do
+      state =
+        initial_state(%{
+          players: [
+            %{role: "creator", name: "TH", session_id: "session_id1"},
+            %{role: "player", name: "A1", session_id: "session_id2"}
+          ]
+        })
+
+      result = Game.handle_call({:get_player, "session_id2"}, "_pid", state)
+
+      assert result == {:reply, %{role: "player", name: "A1", session_id: "session_id2"}, state}
+    end
+  end
+
+  describe "get_game_state" do
+    test "should return game state" do
+      state = initial_state(%{rules: %Rules{state: :some_game_state}})
+
+      result = Game.handle_call(:get_game_state, "_pid", state)
+
+      assert result == {:reply, :some_game_state, state}
+    end
+  end
+
   describe "start_game" do
     test "given sufficient players, should return :ok and state :game_started" do
       state =

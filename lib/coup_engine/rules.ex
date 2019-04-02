@@ -31,4 +31,8 @@ defmodule CoupEngine.Rules do
 
   def check(%Rules{state: :adding_players} = rules, :start_game, _players_count),
     do: {:error, "insufficient players"}
+
+  #### Catchall ####
+
+  def check(_, _, _), do: {:error, "action not found"}
 end

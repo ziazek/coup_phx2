@@ -7,15 +7,6 @@ defmodule CoupPhx2Web.GameLive do
   alias CoupEngine.{Game, GameSupervisor}
 
   def render(assigns), do: CoupPhx2Web.GameView.render("game.html", assigns)
-  # def render(assigns) do
-  #   ~L"""
-  #   <div>
-  #     <p><small>Session ID: <%= @session_id %></small></p>
-  #     <p><small>Name: <%= @name %></small></p>
-  #     <h2 phx-click="boom">It's <%= Timex.format!(@date, "{UNIX}") %></h2>
-  #   </div>
-  #   """
-  # end
 
   @doc """
   Redirect to set a session UUID if none exists.
@@ -45,36 +36,50 @@ defmodule CoupPhx2Web.GameLive do
 
     Phoenix.PubSub.subscribe(:game_pubsub, game_name)
 
+    current_player = Game.get_player(game_pid, session_id)
+
     socket =
       socket
       |> put_date()
-      |> assign(session_id: session_id)
-      |> assign(name: name)
+      |> assign(session_id: current_player.session_id)
+      |> assign(name: current_player.name)
+      |> assign(role: current_player.role)
       |> assign(game_pid: game_pid)
-      |> assign(players: Game.list_players(game_pid))
+      |> fetch()
 
     {:ok, socket}
   end
 
+  ### EVENT LISTENERS
+
   def handle_info(:player_joined, socket) do
-    players = Game.list_players(socket.assigns.game_pid)
+    {:noreply, fetch(socket)}
+  end
 
-    socket =
-      socket
-      |> assign(players: players)
-
-    {:noreply, socket}
+  def handle_info(:game_started, socket) do
+    {:noreply, fetch(socket)}
   end
 
   def handle_info(:tick, socket) do
     {:noreply, put_date(socket)}
   end
 
-  def handle_event("nav", _path, socket) do
+  ### EVENTS
+
+  def handle_event("start_game", _path, socket) do
+    Game.start_game(socket.assigns.game_pid)
     {:noreply, socket}
   end
 
+  ### HELPERS
+
   defp put_date(socket) do
     assign(socket, date: Timex.local() |> Timex.to_datetime("Asia/Singapore"))
+  end
+
+  defp fetch(socket) do
+    socket
+    |> assign(players: Game.list_players(socket.assigns.game_pid))
+    |> assign(state: Game.get_game_state(socket.assigns.game_pid))
   end
 end
