@@ -1,4 +1,7 @@
 <div>
+  <%= if @error do %>
+  <p class="alert alert-danger" role="alert"><%= @error %></p>
+  <% end %>
   <p phx-click="boom">It's <%= Timex.format!(@date, "{UNIX}") %></p>
 
   <%= if @role == "creator" do %>

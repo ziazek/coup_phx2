@@ -44,6 +44,7 @@ defmodule CoupPhx2Web.GameLive do
       |> assign(session_id: current_player.session_id)
       |> assign(name: current_player.name)
       |> assign(role: current_player.role)
+      |> assign(error: nil)
       |> assign(game_pid: game_pid)
       |> fetch()
 
@@ -67,8 +68,13 @@ defmodule CoupPhx2Web.GameLive do
   ### EVENTS
 
   def handle_event("start_game", _path, socket) do
-    Game.start_game(socket.assigns.game_pid)
-    {:noreply, socket}
+    case Game.start_game(socket.assigns.game_pid) do
+      :ok ->
+        {:noreply, socket |> assign(:error, nil)}
+
+      {:error, reason} ->
+        {:noreply, socket |> assign(:error, reason)}
+    end
   end
 
   ### HELPERS
