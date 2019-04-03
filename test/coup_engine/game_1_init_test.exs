@@ -1,5 +1,5 @@
 defmodule CoupEngine.Game1InitTest do
-  use ExUnit.Case, async: true
+  use CoupPhx2Web.GameCase, async: true
 
   alias CoupEngine.{Game, Rules}
 
@@ -167,12 +167,22 @@ defmodule CoupEngine.Game1InitTest do
   end
 
   describe "get_game_state" do
-    test "should return game state" do
+    test "should return game Rules' state" do
       state = initial_state(%{rules: %Rules{state: :some_game_state}})
 
       result = Game.handle_call(:get_game_state, "_pid", state)
 
       assert result == {:reply, :some_game_state, state}
+    end
+  end
+
+  describe "get_game_data" do
+    test "should return game's state data" do
+      state = initial_state()
+
+      result = Game.handle_call(:get_game_data, "_pid", state)
+
+      assert result == {:reply, state, state}
     end
   end
 
@@ -217,16 +227,5 @@ defmodule CoupEngine.Game1InitTest do
       assert reason == "insufficient players"
       assert state_data == expected_state
     end
-  end
-
-  defp initial_state(map_to_merge) do
-    %{
-      game_name: "",
-      players: [],
-      deck: [],
-      discard: [],
-      rules: %Rules{state: :adding_players}
-    }
-    |> Map.merge(map_to_merge)
   end
 end

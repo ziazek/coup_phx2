@@ -20,7 +20,7 @@ defmodule CoupEngine.Rules do
       when players_count < @max_players,
       do: {:ok, rules}
 
-  def check(%Rules{state: :adding_players} = rules, :add_player, _players_count),
+  def check(%Rules{state: :adding_players} = _rules, :add_player, _players_count),
     do: {:error, "maximum number of players reached"}
 
   #### Start game ####
@@ -29,10 +29,15 @@ defmodule CoupEngine.Rules do
       when players_count >= @min_players,
       do: {:ok, %Rules{rules | state: :game_started}}
 
-  def check(%Rules{state: :adding_players} = rules, :start_game, _players_count),
+  def check(%Rules{state: :adding_players} = _rules, :start_game, _players_count),
     do: {:error, "insufficient players"}
 
-  #### Catchall ####
-
   def check(_, _, _), do: {:error, "action not found"}
+
+  #### Shuffle deck ####
+
+  def check(%Rules{state: :game_started} = rules, :shuffle),
+    do: {:ok, %Rules{rules | state: :deck_shuffled}}
+
+  def check(_, _), do: {:error, "action not found"}
 end

@@ -19,5 +19,13 @@
       <% end %>
     </p>
     <% end %>
+
+    <hr>
+    <h4>Deck</h4>
+    <ul>
+      <%= for card <- @data.deck do %>
+      <li><%= card.type %></li>
+      <% end %>
+    </ul>
   </div>
 </div>

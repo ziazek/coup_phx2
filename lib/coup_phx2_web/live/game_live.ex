@@ -21,6 +21,9 @@ defmodule CoupPhx2Web.GameLive do
      |> redirect(to: "/set_name/#{game_name}")}
   end
 
+  @doc """
+  Initializes the page on first load
+  """
   def mount(%{session_id: session_id, name: name, path_params: path_params} = _session, socket) do
     if connected?(socket), do: :timer.send_interval(1000, self(), :tick)
 
@@ -56,11 +59,30 @@ defmodule CoupPhx2Web.GameLive do
   ### EVENT LISTENERS
 
   def handle_info(:player_joined, socket) do
-    {:noreply, fetch(socket)}
+    socket =
+      socket
+      |> fetch()
+      |> append_toast(:info, "Player joined.")
+
+    {:noreply, socket}
   end
 
   def handle_info(:game_started, socket) do
-    {:noreply, fetch(socket)}
+    socket =
+      socket
+      |> fetch()
+      |> append_toast(:info, "Game started!")
+
+    {:noreply, socket}
+  end
+
+  def handle_info(:deck_shuffled, socket) do
+    socket =
+      socket
+      |> fetch()
+      |> append_toast(:info, "Deck shuffled.")
+
+    {:noreply, socket}
   end
 
   def handle_info(:tick, socket) do
@@ -111,5 +133,6 @@ defmodule CoupPhx2Web.GameLive do
     socket
     |> assign(players: Game.list_players(socket.assigns.game_pid))
     |> assign(state: Game.get_game_state(socket.assigns.game_pid))
+    |> assign(data: Game.get_game_data(socket.assigns.game_pid))
   end
 end

@@ -23,8 +23,8 @@ defmodule CoupEngine.Game do
     do: GenServer.call(game, {:add_player, session_id, player_name})
 
   def get_player(game, session_id), do: GenServer.call(game, {:get_player, session_id})
-
   def get_game_state(game), do: GenServer.call(game, :get_game_state)
+  def get_game_data(game), do: GenServer.call(game, :get_game_data)
 
   def list_players(game),
     do: GenServer.call(game, :list_players)
@@ -82,15 +82,18 @@ defmodule CoupEngine.Game do
     state_data |> reply_success(state)
   end
 
+  def handle_call(:get_game_data, _from, state_data) do
+    state_data |> reply_success(state_data)
+  end
+
   def handle_call(:list_players, _from, %{players: players} = state_data) do
     state_data |> reply_success(players)
   end
 
   def handle_call(:start_game, _from, %{players: players} = state_data) do
     with {:ok, rules} <- Rules.check(state_data.rules, :start_game, length(players)) do
-      # TODO: send to self
-      # Process.send_after(self(), :shuffle_deck, 1_000)
-      # then handle_info
+      # next step: shuffle
+      Process.send_after(self(), :shuffle, 1_000)
       Phoenix.PubSub.broadcast(:game_pubsub, state_data.game_name, :game_started)
 
       state_data
@@ -98,6 +101,21 @@ defmodule CoupEngine.Game do
       |> reply_success(:ok)
     else
       {:error, reason} -> {:reply, {:error, reason}, state_data}
+    end
+  end
+
+  def handle_info(:shuffle, %{deck: deck} = state_data) do
+    with {:ok, rules} <- Rules.check(state_data.rules, :shuffle) do
+      Phoenix.PubSub.broadcast(:game_pubsub, state_data.game_name, :deck_shuffled)
+
+      updated_state_data =
+        state_data
+        |> Map.put(:deck, Enum.shuffle(deck))
+        |> Map.put(:rules, rules)
+
+      {:noreply, updated_state_data}
+    else
+      {:error, _reason} -> {:noreply, state_data}
     end
   end
 
