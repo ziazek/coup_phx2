@@ -1,4 +1,4 @@
-defmodule CoupEngine.Game1StartTest do
+defmodule CoupEngine.Game1InitTest do
   use ExUnit.Case, async: true
 
   alias CoupEngine.{Game, Rules}
@@ -6,21 +6,42 @@ defmodule CoupEngine.Game1StartTest do
   test "init/1 should return the initial state" do
     result = Game.init({"game_id1", "session_id1", "Player 1"})
 
-    assert result ==
-             {:ok,
-              %{
-                game_name: "game_id1",
-                players: [
-                  %{
-                    role: "creator",
-                    name: "Player 1",
-                    session_id: "session_id1"
-                  }
-                ],
-                deck: [],
-                discard: [],
-                rules: %Rules{state: :adding_players}
-              }}
+    {:ok,
+     %{
+       game_name: "game_id1",
+       players: players,
+       deck: deck,
+       discard: [],
+       rules: %Rules{state: :adding_players}
+     }} = result
+
+    assert players == [
+             %{
+               role: "creator",
+               name: "Player 1",
+               session_id: "session_id1"
+             }
+           ]
+
+    assert deck == [
+             %{type: "Captain"},
+             %{type: "Captain"},
+             %{type: "Captain"},
+             %{type: "Duke"},
+             %{type: "Duke"},
+             %{type: "Duke"},
+             %{type: "Ambassador"},
+             %{type: "Ambassador"},
+             %{type: "Ambassador"},
+             %{type: "Assassin"},
+             %{type: "Assassin"},
+             %{type: "Assassin"},
+             %{type: "Contessa"},
+             %{type: "Contessa"},
+             %{type: "Contessa"}
+           ]
+
+    assert length(deck) == 15
   end
 
   describe "add_player" do
@@ -121,6 +142,27 @@ defmodule CoupEngine.Game1StartTest do
       result = Game.handle_call({:get_player, "session_id2"}, "_pid", state)
 
       assert result == {:reply, %{role: "player", name: "A1", session_id: "session_id2"}, state}
+    end
+  end
+
+  describe "list_players" do
+    test "should list players" do
+      state =
+        initial_state(%{
+          players: [
+            %{role: "creator", name: "TH", session_id: "session_id1"},
+            %{role: "player", name: "A1", session_id: "session_id2"}
+          ]
+        })
+
+      result = Game.handle_call(:list_players, "_pid", state)
+
+      assert result ==
+               {:reply,
+                [
+                  %{role: "creator", name: "TH", session_id: "session_id1"},
+                  %{role: "player", name: "A1", session_id: "session_id2"}
+                ], state}
     end
   end
 

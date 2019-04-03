@@ -6,6 +6,7 @@ defmodule CoupEngine.Game do
   # Child spec for supervisor
   # , start: {__MODULE__, :start_link, []}, restart: :transient
   use GenServer
+  alias CoupEngine.Deck
   alias CoupEngine.Rules
 
   ### CLIENT ###
@@ -40,7 +41,7 @@ defmodule CoupEngine.Game do
        players: [
          %{name: player_name, session_id: session_id, role: "creator"}
        ],
-       deck: [],
+       deck: Deck.build(3),
        discard: [],
        rules: %Rules{state: :adding_players}
      }}
@@ -81,7 +82,6 @@ defmodule CoupEngine.Game do
     state_data |> reply_success(state)
   end
 
-  # TODO: test this
   def handle_call(:list_players, _from, %{players: players} = state_data) do
     state_data |> reply_success(players)
   end

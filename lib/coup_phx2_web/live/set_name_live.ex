@@ -4,6 +4,7 @@ defmodule CoupPhx2Web.SetNameLive do
   """
   use Phoenix.LiveView
   alias CoupPhx2.User
+  alias CoupPhx2Web.Router.Helpers
 
   def render(assigns), do: CoupPhx2Web.GameView.render("set_name.html", assigns)
 
@@ -41,7 +42,7 @@ defmodule CoupPhx2Web.SetNameLive do
        |> put_flash(:info, "joined game")
        |> redirect(
          to:
-           CoupPhx2Web.Router.Helpers.page_path(
+           Helpers.page_path(
              CoupPhx2Web.Endpoint,
              :save_name,
              game: socket.assigns.game,

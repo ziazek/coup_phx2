@@ -1,6 +1,6 @@
 <div>
-  <%= if @error do %>
-  <p class="alert alert-danger" role="alert"><%= @error %></p>
+  <%= for {toast_type, toast_body, _expiry} <- @toasts do %>
+  <p class="alert alert-<%= toast_type %>" role="alert"><%= toast_body %></p>
   <% end %>
   <p phx-click="boom">It's <%= Timex.format!(@date, "{UNIX}") %></p>
 

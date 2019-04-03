@@ -44,7 +44,7 @@ select {
   background-color: #fcf8e3;
   border-color: #faebcc;
 }
-.alert-danger {
+.alert-danger, .alert-error {
   color: #a94442;
   background-color: #f2dede;
   border-color: #ebccd1;

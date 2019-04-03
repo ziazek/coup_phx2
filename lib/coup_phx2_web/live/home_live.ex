@@ -4,6 +4,7 @@ defmodule CoupPhx2Web.HomeLive do
   """
   use Phoenix.LiveView
   alias CoupPhx2.User
+  alias CoupPhx2Web.Router.Helpers
 
   def render(assigns), do: CoupPhx2Web.GameView.render("home.html", assigns)
 
@@ -42,7 +43,7 @@ defmodule CoupPhx2Web.HomeLive do
        |> put_flash(:info, "game created")
        |> redirect(
          to:
-           CoupPhx2Web.Router.Helpers.page_path(
+           Helpers.page_path(
              CoupPhx2Web.Endpoint,
              :save_name,
              game: random_id,
