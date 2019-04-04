@@ -10,20 +10,22 @@
   <%= for player_chunk <- @player_chunks do %>
   <div class="columns is-mobile">
     <%= for player <- player_chunk do %>
+    <%= if player == :spacer do %>
+    <div class="column"></div>
+    <% else %>
     <div class="column">
-      <h4 class="is-size-4">
-        <%= player.name %>
-      </h4>
-      <strong>Hand:</strong>
-      <%= for card <- player.hand do %>
-      <span><%= card.type %></span>
+      <%= if player.session_id == @session_id do %>
+      <%= render "player.html", player: player %>
+      <% else %>
+      <%= render "other_player.html", player: player %>
       <% end %>
     </div>
+    <% end %>
     <% end %>
   </div>
   <% end %>
 
-  <div class="content is-small notification is-warning" phx-click="toast_test">
+  <div class="content is-small notification is-info" phx-click="toast_test">
     <div class="columns">
 
       <div class="column">

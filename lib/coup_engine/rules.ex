@@ -11,15 +11,17 @@ defmodule CoupEngine.Rules do
   @min_players 2
   @max_players 6
 
-  defstruct state: :initialized
+  defstruct state: :initialized, current_player: 0
 
   @type t :: %Rules{
-          state: atom()
+          state: atom(),
+          current_player: integer()
         }
 
   #### Add players ####
 
-  @spec check(Rules.t(), atom(), pos_integer()) :: {:ok, Rules.t()} | {:error, String.t()}
+  @spec check(Rules.t(), atom(), pos_integer() | atom()) ::
+          {:ok, Rules.t()} | {:error, String.t()}
   def check(%Rules{state: :adding_players} = rules, :add_player, players_count)
       when players_count < @max_players,
       do: {:ok, rules}
@@ -36,6 +38,14 @@ defmodule CoupEngine.Rules do
   def check(%Rules{state: :adding_players} = _rules, :start_game, _players_count),
     do: {:error, "insufficient players"}
 
+  #### Attempt action ####
+
+  def check(%Rules{state: :player_action} = rules, :attempt_action, :take_one_coin),
+    do: {:ok, %Rules{rules | state: :action_success}}
+
+  def check(%Rules{state: :player_action} = rules, :attempt_action, _),
+    do: {:ok, %Rules{rules | state: :opponent_responses}}
+
   def check(_, _, _), do: {:error, "action not found"}
 
   #### Shuffle deck ####
@@ -50,6 +60,11 @@ defmodule CoupEngine.Rules do
 
   def check(%Rules{state: :drawing_cards} = rules, :draw_card),
     do: {:ok, %Rules{rules | state: :drawing_cards}}
+
+  #### Start turn ####
+
+  def check(%Rules{state: :cards_drawn} = rules, :start_turn),
+    do: {:ok, %Rules{rules | state: :player_action}}
 
   def check(_, _), do: {:error, "action not found"}
 

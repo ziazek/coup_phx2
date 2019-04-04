@@ -163,7 +163,7 @@ defmodule CoupPhx2Web.GameLive do
 
   defp fetch(socket) do
     players = Game.list_players(socket.assigns.game_pid)
-    player_chunks = players |> Enum.chunk_every(3)
+    player_chunks = players |> Enum.chunk_every(3, 3, [:spacer, :spacer])
 
     socket
     |> assign(players: players)

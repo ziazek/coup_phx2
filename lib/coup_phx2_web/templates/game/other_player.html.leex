@@ -1,0 +1,11 @@
+<div class="other-player-wrapper has-background-warning has-text-grey-dark p-xs p-xs p-r-sm p-l-sm">
+  <h4 class="is-size-5">
+    <%= @player.name %>
+  </h4>
+  <p><span class="has-text-weight-bold">Hand:</span></p>
+  <ul>
+    <%= for card <- @player.hand do %>
+    <li>(card)</li>
+    <% end %>
+  </ul>
+</div>

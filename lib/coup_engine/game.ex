@@ -6,7 +6,7 @@ defmodule CoupEngine.Game do
   # Child spec for supervisor
   # , start: {__MODULE__, :start_link, []}, restart: :transient
   use GenServer
-  alias CoupEngine.{Deck, Player, Rules}
+  alias CoupEngine.{Deck, Player, Rules, Turn}
 
   ### CLIENT ###
 
@@ -103,6 +103,18 @@ defmodule CoupEngine.Game do
     end
   end
 
+  def handle_call({:attempt_action, action}, _from, %{turn: turn, players: players} = state_data) do
+    do_attempt_action(action, turn, players, state_data)
+  end
+
+  def handle_call(
+        {:attempt_action, action, target_player_index},
+        _from,
+        %{turn: turn, players: players} = state_data
+      ) do
+    do_attempt_action(action, turn, players, state_data, target_player_index)
+  end
+
   def handle_info(:shuffle, %{deck: deck} = state_data) do
     with {:ok, rules} <- Rules.check(state_data.rules, :shuffle) do
       Phoenix.PubSub.broadcast(:game_pubsub, state_data.game_name, :deck_shuffled)
@@ -139,6 +151,19 @@ defmodule CoupEngine.Game do
     end
   end
 
+  def handle_info({:start_turn, player_index}, %{players: players} = state_data) do
+    with {:ok, rules} <- Rules.check(state_data.rules, :start_turn) do
+      updated_state_data =
+        state_data
+        |> Map.put(:turn, Turn.build(players, player_index))
+        |> Map.put(:rules, rules)
+
+      {:noreply, updated_state_data}
+    else
+      {:error, _reason} -> {:noreply, state_data}
+    end
+  end
+
   ### SERVER UTILITIES
 
   defp reply_success(state_data, reply) do
@@ -146,6 +171,33 @@ defmodule CoupEngine.Game do
   end
 
   ### PRIVATE
+
+  defp do_attempt_action(action, turn, players, state_data, target_player_index \\ nil) do
+    with {:ok, rules} <- Rules.check(state_data.rules, :attempt_action, action),
+         {:ok, character} <- Turn.get_claimed_character(action),
+         :ok <- Turn.check_coins(action, turn.player.coins),
+         {:ok, updated_player} <- Turn.deduct_coins_for_attempted_action(turn.player, action) do
+      Phoenix.PubSub.broadcast(:game_pubsub, state_data.game_name, :action_attempted)
+
+      turn =
+        turn
+        |> Map.put(:action, action)
+        |> Map.put(:claimed_character, character)
+        |> Map.put(:player, updated_player)
+        |> Map.put(:target_player_index, target_player_index)
+
+      players = List.replace_at(players, turn.player_index, updated_player)
+
+      state_data
+      |> Map.put(:turn, turn)
+      |> Map.put(:players, players)
+      |> Map.put(:rules, rules)
+      |> reply_success(:ok)
+    else
+      {:error, reason} -> {:reply, {:error, reason}, state_data}
+      _ -> {:reply, :error, state_data}
+    end
+  end
 
   defp session_id_does_not_exist(session_id, players) do
     case Enum.find(players, fn player -> player.session_id == session_id end) do
