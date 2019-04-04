@@ -11,4 +11,9 @@ defmodule CoupEngine.Deck do
       %{type: type}
     end
   end
+
+  @spec draw_top_card([card()]) :: {:ok, card(), [card()]}
+  def draw_top_card([head | tail] = _deck) do
+    {:ok, head, tail}
+  end
 end

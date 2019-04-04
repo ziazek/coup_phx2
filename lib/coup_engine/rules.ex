@@ -1,6 +1,10 @@
 defmodule CoupEngine.Rules do
   @moduledoc """
   The Rules act as a finite state machine for the Game.
+
+  - adding_players
+  - game_started
+  - deck_shuffled
   """
   alias __MODULE__
 
@@ -39,5 +43,26 @@ defmodule CoupEngine.Rules do
   def check(%Rules{state: :game_started} = rules, :shuffle),
     do: {:ok, %Rules{rules | state: :deck_shuffled}}
 
+  #### Draw card ####
+
+  def check(%Rules{state: :deck_shuffled} = rules, :draw_card),
+    do: {:ok, %Rules{rules | state: :drawing_cards}}
+
+  def check(%Rules{state: :drawing_cards} = rules, :draw_card),
+    do: {:ok, %Rules{rules | state: :drawing_cards}}
+
   def check(_, _), do: {:error, "action not found"}
+
+  @doc """
+  Checks whether all players have 2 cards
+  """
+  def check_cards_drawn(%Rules{state: :drawing_cards} = rules, players) do
+    all_have_2_cards = Enum.all?(players, fn player -> length(player.hand) == 2 end)
+
+    if all_have_2_cards do
+      {:ok, %Rules{rules | state: :cards_drawn}}
+    else
+      {:ok, rules}
+    end
+  end
 end

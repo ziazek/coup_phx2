@@ -9,12 +9,14 @@
     <!-- </div> -->
   <% end %>
 
-  <%= label f, :name %>
-  <%= text_input f, :name %>
-  <%= error_tag f, :name %>
+  <div class="field">
+    <%= label f, :name, class: "label" %>
+    <%= text_input f, :name, class: "input", autofocus: true %>
+    <%= error_tag f, :name %>
+  </div>
 
   <div>
-    <%= submit "New Game", disabled: !@changeset.valid?, phx_disable_with: "Launching..." %>
+    <%= submit "New Game", class: "button is-primary is-rounded", disabled: !@changeset.valid?, phx_disable_with: "Launching..." %>
   </div>
 <% end %>
 

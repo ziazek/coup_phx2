@@ -1,0 +1,17 @@
+.toast-container
+  position: fixed
+  bottom: 0.5rem
+  right: 0.5rem
+  // left: 0.5rem
+  text-align: right
+  z-index: 1000
+  .toast
+    display: inline-block
+    clear: both
+    margin: 0.25rem 0
+    opacity: 0.9
+    transition: opacity .2s, font-size .5s .15s, margin .5s .15s, padding .5s .15s
+    &.exiting
+      font-size: 0
+      opacity: 0
+      padding: 0

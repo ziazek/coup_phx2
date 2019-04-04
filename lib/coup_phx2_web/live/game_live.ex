@@ -7,6 +7,7 @@ defmodule CoupPhx2Web.GameLive do
   alias CoupEngine.{Game, GameSupervisor}
 
   @toast_expiry 5000
+  @toast_animation 600
 
   def render(assigns), do: CoupPhx2Web.GameView.render("game.html", assigns)
 
@@ -25,7 +26,7 @@ defmodule CoupPhx2Web.GameLive do
   Initializes the page on first load
   """
   def mount(%{session_id: session_id, name: name, path_params: path_params} = _session, socket) do
-    if connected?(socket), do: :timer.send_interval(1000, self(), :tick)
+    if connected?(socket), do: :timer.send_interval(250, self(), :tick)
 
     %{"name" => game_name} = path_params
 
@@ -85,6 +86,15 @@ defmodule CoupPhx2Web.GameLive do
     {:noreply, socket}
   end
 
+  def handle_info({:card_drawn, player}, socket) do
+    socket =
+      socket
+      |> fetch()
+      |> append_toast(:info, "#{player.name} drew a card.")
+
+    {:noreply, socket}
+  end
+
   def handle_info(:tick, socket) do
     socket =
       socket
@@ -94,7 +104,7 @@ defmodule CoupPhx2Web.GameLive do
     {:noreply, socket}
   end
 
-  ### EVENTS
+  ### EVENTS (clicks)
 
   def handle_event("start_game", _path, socket) do
     case Game.start_game(socket.assigns.game_pid) do
@@ -102,8 +112,17 @@ defmodule CoupPhx2Web.GameLive do
         {:noreply, socket}
 
       {:error, reason} ->
-        {:noreply, socket |> append_toast(:error, reason)}
+        {:noreply, socket |> append_toast(:danger, reason)}
     end
+  end
+
+  # DEBUG CSS
+  def handle_event("toast_test", _path, socket) do
+    socket =
+      socket
+      |> append_toast(:info, "test test #{:rand.uniform(999_999)}")
+
+    {:noreply, socket}
   end
 
   ### HELPERS
@@ -116,22 +135,39 @@ defmodule CoupPhx2Web.GameLive do
     toasts = socket.assigns.toasts
     expiry = Timex.shift(Timex.now(), milliseconds: @toast_expiry)
 
+    toast = %{type: type, body: body, expiry: expiry, exiting: ""}
+
     socket
-    |> assign(toasts: toasts ++ [{type, body, expiry}])
+    |> assign(toasts: toasts ++ [toast])
   end
 
   defp expire_toasts(socket) do
     toasts =
       socket.assigns.toasts
-      |> Enum.filter(fn {_type, _body, expiry} -> Timex.after?(expiry, Timex.now()) end)
+      |> Enum.map(&add_exiting/1)
+      |> Enum.filter(fn %{expiry: expiry} -> Timex.after?(expiry, Timex.now()) end)
 
     socket
     |> assign(toasts: toasts)
   end
 
+  defp add_exiting(%{expiry: expiry} = toast) do
+    exiting_time = Timex.shift(expiry, milliseconds: -@toast_animation)
+
+    if Timex.before?(exiting_time, Timex.now()) do
+      %{toast | exiting: "exiting"}
+    else
+      toast
+    end
+  end
+
   defp fetch(socket) do
+    players = Game.list_players(socket.assigns.game_pid)
+    player_chunks = players |> Enum.chunk_every(3)
+
     socket
-    |> assign(players: Game.list_players(socket.assigns.game_pid))
+    |> assign(players: players)
+    |> assign(player_chunks: player_chunks)
     |> assign(state: Game.get_game_state(socket.assigns.game_pid))
     |> assign(data: Game.get_game_data(socket.assigns.game_pid))
   end

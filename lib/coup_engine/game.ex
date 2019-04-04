@@ -6,8 +6,7 @@ defmodule CoupEngine.Game do
   # Child spec for supervisor
   # , start: {__MODULE__, :start_link, []}, restart: :transient
   use GenServer
-  alias CoupEngine.Deck
-  alias CoupEngine.Rules
+  alias CoupEngine.{Deck, Player, Rules}
 
   ### CLIENT ###
 
@@ -39,7 +38,7 @@ defmodule CoupEngine.Game do
      %{
        game_name: game_name,
        players: [
-         %{name: player_name, session_id: session_id, role: "creator"}
+         %Player{name: player_name, session_id: session_id, role: "creator", hand: []}
        ],
        deck: Deck.build(3),
        discard: [],
@@ -55,10 +54,11 @@ defmodule CoupEngine.Game do
       updated_players =
         players ++
           [
-            %{
+            %Player{
               name: player_name,
               session_id: session_id,
-              role: "player"
+              role: "player",
+              hand: []
             }
           ]
 
@@ -92,7 +92,6 @@ defmodule CoupEngine.Game do
 
   def handle_call(:start_game, _from, %{players: players} = state_data) do
     with {:ok, rules} <- Rules.check(state_data.rules, :start_game, length(players)) do
-      # next step: shuffle
       Process.send_after(self(), :shuffle, 1_000)
       Phoenix.PubSub.broadcast(:game_pubsub, state_data.game_name, :game_started)
 
@@ -107,10 +106,31 @@ defmodule CoupEngine.Game do
   def handle_info(:shuffle, %{deck: deck} = state_data) do
     with {:ok, rules} <- Rules.check(state_data.rules, :shuffle) do
       Phoenix.PubSub.broadcast(:game_pubsub, state_data.game_name, :deck_shuffled)
+      Process.send_after(self(), {:draw_card, 0}, 1_000)
 
       updated_state_data =
         state_data
         |> Map.put(:deck, Enum.shuffle(deck))
+        |> Map.put(:rules, rules)
+
+      {:noreply, updated_state_data}
+    else
+      {:error, _reason} -> {:noreply, state_data}
+    end
+  end
+
+  def handle_info({:draw_card, player_index}, %{players: players, deck: deck} = state_data) do
+    with {:ok, rules} <- Rules.check(state_data.rules, :draw_card),
+         {:ok, card, deck_rem} <- Deck.draw_top_card(deck),
+         {:ok, player, players} <- Player.add_to_hand(players, player_index, card),
+         {:ok, rules} <- Rules.check_cards_drawn(rules, players) do
+      next_player_draw_card(rules, players, player_index)
+      Phoenix.PubSub.broadcast(:game_pubsub, state_data.game_name, {:card_drawn, player})
+
+      updated_state_data =
+        state_data
+        |> Map.put(:deck, deck_rem)
+        |> Map.put(:players, players)
         |> Map.put(:rules, rules)
 
       {:noreply, updated_state_data}
@@ -133,4 +153,12 @@ defmodule CoupEngine.Game do
       _found -> {:error, "player exists"}
     end
   end
+
+  defp next_player_draw_card(%Rules{state: :drawing_cards}, players, player_index) do
+    next_index = if player_index == length(players) - 1, do: 0, else: player_index + 1
+
+    Process.send_after(self(), {:draw_card, next_index}, 1_000)
+  end
+
+  defp next_player_draw_card(_, _, _), do: :do_nothing
 end

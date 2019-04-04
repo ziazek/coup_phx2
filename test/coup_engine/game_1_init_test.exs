@@ -1,7 +1,7 @@
 defmodule CoupEngine.Game1InitTest do
   use CoupPhx2Web.GameCase, async: true
 
-  alias CoupEngine.{Game, Rules}
+  alias CoupEngine.{Game, Player, Rules}
 
   test "init/1 should return the initial state" do
     result = Game.init({"game_id1", "session_id1", "Player 1"})
@@ -16,10 +16,11 @@ defmodule CoupEngine.Game1InitTest do
      }} = result
 
     assert players == [
-             %{
+             %Player{
                role: "creator",
                name: "Player 1",
-               session_id: "session_id1"
+               session_id: "session_id1",
+               hand: []
              }
            ]
 
@@ -49,10 +50,11 @@ defmodule CoupEngine.Game1InitTest do
       state =
         initial_state(%{
           players: [
-            %{
+            %Player{
               role: "creator",
               name: "Player 1",
-              session_id: "session_id1"
+              session_id: "session_id1",
+              hand: []
             }
           ]
         })
@@ -62,15 +64,17 @@ defmodule CoupEngine.Game1InitTest do
       expected_state =
         initial_state(%{
           players: [
-            %{
+            %Player{
               role: "creator",
               name: "Player 1",
-              session_id: "session_id1"
+              session_id: "session_id1",
+              hand: []
             },
-            %{
+            %Player{
               role: "player",
               name: "Player 2",
-              session_id: "sessionid2"
+              session_id: "sessionid2",
+              hand: []
             }
           ]
         })
@@ -83,12 +87,12 @@ defmodule CoupEngine.Game1InitTest do
       state =
         initial_state(%{
           players: [
-            %{role: "creator", name: "TH", session_id: "session_id1"},
-            %{role: "player", name: "A1", session_id: "session_id2"},
-            %{role: "player", name: "A2", session_id: "session_id3"},
-            %{role: "player", name: "A3", session_id: "session_id4"},
-            %{role: "player", name: "A4", session_id: "session_id5"},
-            %{role: "player", name: "A5", session_id: "session_id6"}
+            %Player{role: "creator", name: "TH", session_id: "session_id1"},
+            %Player{role: "player", name: "A1", session_id: "session_id2"},
+            %Player{role: "player", name: "A2", session_id: "session_id3"},
+            %Player{role: "player", name: "A3", session_id: "session_id4"},
+            %Player{role: "player", name: "A4", session_id: "session_id5"},
+            %Player{role: "player", name: "A5", session_id: "session_id6"}
           ]
         })
 
@@ -97,12 +101,12 @@ defmodule CoupEngine.Game1InitTest do
       expected_state =
         initial_state(%{
           players: [
-            %{role: "creator", name: "TH", session_id: "session_id1"},
-            %{role: "player", name: "A1", session_id: "session_id2"},
-            %{role: "player", name: "A2", session_id: "session_id3"},
-            %{role: "player", name: "A3", session_id: "session_id4"},
-            %{role: "player", name: "A4", session_id: "session_id5"},
-            %{role: "player", name: "A5", session_id: "session_id6"}
+            %Player{role: "creator", name: "TH", session_id: "session_id1"},
+            %Player{role: "player", name: "A1", session_id: "session_id2"},
+            %Player{role: "player", name: "A2", session_id: "session_id3"},
+            %Player{role: "player", name: "A3", session_id: "session_id4"},
+            %Player{role: "player", name: "A4", session_id: "session_id5"},
+            %Player{role: "player", name: "A5", session_id: "session_id6"}
           ]
         })
 
@@ -116,8 +120,8 @@ defmodule CoupEngine.Game1InitTest do
       state =
         initial_state(%{
           players: [
-            %{role: "creator", name: "TH", session_id: "session_id1"},
-            %{role: "player", name: "A1", session_id: "session_id2"}
+            %Player{role: "creator", name: "TH", session_id: "session_id1"},
+            %Player{role: "player", name: "A1", session_id: "session_id2"}
           ]
         })
 
@@ -134,14 +138,15 @@ defmodule CoupEngine.Game1InitTest do
       state =
         initial_state(%{
           players: [
-            %{role: "creator", name: "TH", session_id: "session_id1"},
-            %{role: "player", name: "A1", session_id: "session_id2"}
+            %Player{role: "creator", name: "TH", session_id: "session_id1"},
+            %Player{role: "player", name: "A1", session_id: "session_id2"}
           ]
         })
 
       result = Game.handle_call({:get_player, "session_id2"}, "_pid", state)
 
-      assert result == {:reply, %{role: "player", name: "A1", session_id: "session_id2"}, state}
+      assert result ==
+               {:reply, %Player{role: "player", name: "A1", session_id: "session_id2"}, state}
     end
   end
 
@@ -150,8 +155,8 @@ defmodule CoupEngine.Game1InitTest do
       state =
         initial_state(%{
           players: [
-            %{role: "creator", name: "TH", session_id: "session_id1"},
-            %{role: "player", name: "A1", session_id: "session_id2"}
+            %Player{role: "creator", name: "TH", session_id: "session_id1"},
+            %Player{role: "player", name: "A1", session_id: "session_id2"}
           ]
         })
 
@@ -160,8 +165,8 @@ defmodule CoupEngine.Game1InitTest do
       assert result ==
                {:reply,
                 [
-                  %{role: "creator", name: "TH", session_id: "session_id1"},
-                  %{role: "player", name: "A1", session_id: "session_id2"}
+                  %Player{role: "creator", name: "TH", session_id: "session_id1"},
+                  %Player{role: "player", name: "A1", session_id: "session_id2"}
                 ], state}
     end
   end
@@ -191,8 +196,8 @@ defmodule CoupEngine.Game1InitTest do
       state =
         initial_state(%{
           players: [
-            %{role: "creator", name: "TH"},
-            %{role: "player", name: "Ken"}
+            %Player{role: "creator", name: "TH"},
+            %Player{role: "player", name: "Ken"}
           ]
         })
 
@@ -201,8 +206,8 @@ defmodule CoupEngine.Game1InitTest do
       expected_state =
         initial_state(%{
           players: [
-            %{role: "creator", name: "TH"},
-            %{role: "player", name: "Ken"}
+            %Player{role: "creator", name: "TH"},
+            %Player{role: "player", name: "Ken"}
           ],
           rules: %Rules{state: :game_started}
         })
@@ -214,7 +219,7 @@ defmodule CoupEngine.Game1InitTest do
       state =
         initial_state(%{
           players: [
-            %{role: "creator", name: "TH"}
+            %Player{role: "creator", name: "TH"}
           ]
         })
 
