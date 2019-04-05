@@ -1,0 +1,10 @@
+<%= if length(@current_player.possible_actions) > 0 do %>
+<div class="actions p-sm has-background-info">
+  <h4 class="has-text-weight-bold has-text-white m-b-sm">Choose an action</h4>
+  <%= for possible_action <- @current_player.possible_actions do %>
+  <button class="button" phx-click="attempt_action" phx-value="<%= possible_action.action %>">
+    <%= possible_action.action %>
+  </button>
+  <% end %>
+</div>
+<% end %>

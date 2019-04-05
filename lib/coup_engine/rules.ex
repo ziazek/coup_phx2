@@ -10,6 +10,7 @@ defmodule CoupEngine.Rules do
 
   @min_players 2
   @max_players 6
+  @coup_coin_limit 10
 
   defstruct state: :initialized, current_player: 0
 
@@ -43,7 +44,35 @@ defmodule CoupEngine.Rules do
   def check(%Rules{state: :player_action} = rules, :attempt_action, :take_one_coin),
     do: {:ok, %Rules{rules | state: :action_success}}
 
+  def check(%Rules{state: :player_action} = rules, :attempt_action, :coup),
+    do: {:ok, %Rules{rules | state: :select_target}}
+
+  def check(%Rules{state: :player_action} = rules, :attempt_action, :assassinate),
+    do: {:ok, %Rules{rules | state: :select_target}}
+
+  def check(%Rules{state: :player_action} = rules, :attempt_action, :steal),
+    do: {:ok, %Rules{rules | state: :select_target}}
+
   def check(%Rules{state: :player_action} = rules, :attempt_action, _),
+    do: {:ok, %Rules{rules | state: :opponent_responses}}
+
+  #### Select target ####
+
+  def check(%Rules{state: :select_target} = rules, :set_target, :coup),
+    do: {:ok, %Rules{rules | state: :action_success}}
+
+  def check(%Rules{state: :select_target} = rules, :set_target, :assassinate),
+    do: {:ok, %Rules{rules | state: :opponent_responses}}
+
+  def check(%Rules{state: :select_target} = rules, :set_target, :steal),
+    do: {:ok, %Rules{rules | state: :opponent_responses}}
+
+  #### Opponent response ####
+
+  def check(%Rules{state: :opponent_responses} = rules, :opponent_response, :challenge),
+    do: {:ok, %Rules{rules | state: :player_challenged}}
+
+  def check(%Rules{state: :opponent_responses} = rules, :opponent_response, {:block, _character}),
     do: {:ok, %Rules{rules | state: :opponent_responses}}
 
   def check(_, _, _), do: {:error, "action not found"}
@@ -63,6 +92,10 @@ defmodule CoupEngine.Rules do
 
   #### Start turn ####
 
+  # def check(%Rules{state: :cards_drawn} = rules, :start_turn, player_coins)
+  #     when player_coins >= @coup_coin_limit,
+  #     do: {:ok, %Rules{rules | state: :player_action_must_coup}}
+  #
   def check(%Rules{state: :cards_drawn} = rules, :start_turn),
     do: {:ok, %Rules{rules | state: :player_action}}
 
@@ -80,4 +113,13 @@ defmodule CoupEngine.Rules do
       {:ok, rules}
     end
   end
+
+  @doc """
+  Checks whether the current session_id can block
+  """
+  def check_can_block(target_id, session_id, {:block, _character}) when target_id != session_id,
+    do: {:error, "invalid response"}
+
+  def check_can_block(target_id, session_id, {:block, _character}), do: :ok
+  def check_can_block(_, _, _), do: :ok
 end

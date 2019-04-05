@@ -5,6 +5,8 @@ defmodule CoupPhx2Web.GameLive do
   use Phoenix.LiveView
 
   alias CoupEngine.{Game, GameSupervisor}
+  alias __MODULE__
+  alias GameLive.Helper
 
   @toast_expiry 5000
   @toast_animation 600
@@ -95,6 +97,15 @@ defmodule CoupPhx2Web.GameLive do
     {:noreply, socket}
   end
 
+  def handle_info({:turn_started, player}, socket) do
+    socket =
+      socket
+      |> fetch()
+      |> append_toast(:info, "It's #{player.name}'s turn.")
+
+    {:noreply, socket}
+  end
+
   def handle_info(:tick, socket) do
     socket =
       socket
@@ -106,7 +117,7 @@ defmodule CoupPhx2Web.GameLive do
 
   ### EVENTS (clicks)
 
-  def handle_event("start_game", _path, socket) do
+  def handle_event("start_game", _value, socket) do
     case Game.start_game(socket.assigns.game_pid) do
       :ok ->
         {:noreply, socket}
@@ -117,10 +128,10 @@ defmodule CoupPhx2Web.GameLive do
   end
 
   # DEBUG CSS
-  def handle_event("toast_test", _path, socket) do
+  def handle_event("toast_test", value, socket) do
     socket =
       socket
-      |> append_toast(:info, "test test #{:rand.uniform(999_999)}")
+      |> append_toast(:info, "test test #{value} #{:rand.uniform(999_999)}")
 
     {:noreply, socket}
   end
@@ -163,12 +174,21 @@ defmodule CoupPhx2Web.GameLive do
 
   defp fetch(socket) do
     players = Game.list_players(socket.assigns.game_pid)
+
+    current_player =
+      players |> Enum.find(fn player -> player.session_id == socket.assigns.session_id end)
+
     player_chunks = players |> Enum.chunk_every(3, 3, [:spacer, :spacer])
+    data = Game.get_game_data(socket.assigns.game_pid)
+    player_turn = Helper.is_player_turn(data, socket.assigns.session_id)
 
     socket
     |> assign(players: players)
+    |> assign(current_player: current_player)
     |> assign(player_chunks: player_chunks)
     |> assign(state: Game.get_game_state(socket.assigns.game_pid))
-    |> assign(data: Game.get_game_data(socket.assigns.game_pid))
+    |> assign(data: data)
+    |> assign(turn: data.turn)
+    |> assign(player_turn: data)
   end
 end

@@ -15,9 +15,9 @@
     <% else %>
     <div class="column">
       <%= if player.session_id == @session_id do %>
-      <%= render "player.html", player: player %>
+      <%= render "_player.html", player: player, data: @data %>
       <% else %>
-      <%= render "other_player.html", player: player %>
+      <%= render "_other_player.html", player: player, data: @data %>
       <% end %>
     </div>
     <% end %>
@@ -25,7 +25,19 @@
   </div>
   <% end %>
 
-  <div class="content is-small notification is-info" phx-click="toast_test">
+  <div class="columns">
+    <div class="column">
+      <%= render "_actions.html", current_player: @current_player %>
+    </div>
+  </div>
+
+  <div class="columns">
+    <div class="column">
+      <%= render "_responses.html", current_player: @current_player %>
+    </div>
+  </div>
+
+  <div class="content is-small notification has-background-grey-lighter">
     <div class="columns">
 
       <div class="column">
@@ -35,7 +47,7 @@
         </h4>
         <h4>Players</h4>
         <%= for player <- @players do %>
-        <p>
+        <p phx-click="toast_test" phx-value="<%= player.name %>">
           <%= player.name %> (
           <%= player.session_id %>, role:
           <%= player.role %>)
