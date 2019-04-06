@@ -9,8 +9,10 @@ defmodule CoupPhx2.Application do
     # List all child processes to be supervised
     children = [
       {Registry, keys: :unique, name: Registry.Game},
+      {Registry, keys: :unique, name: Registry.Concept},
       {Phoenix.PubSub.PG2, name: :game_pubsub},
       CoupEngine.GameSupervisor,
+      Concept.GameSupervisor,
       # Start the Ecto repository
       CoupPhx2.Repo,
       # Start the endpoint when the application starts

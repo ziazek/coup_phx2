@@ -22,6 +22,7 @@ defmodule CoupPhx2Web.Router do
     get("/save_name", PageController, :save_name)
     live("/set_name/:game", SetNameLive, session: [:path_params])
     live("/game/:name", GameLive, session: [:session_id, :name, :path_params])
+    live("/concept/:name", ConceptLive, session: [:session_id, :name, :path_params])
     live("/clock", ClockLive)
   end
 
