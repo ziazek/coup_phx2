@@ -1,22 +1,59 @@
-<div class="game-container">
-  <p class="text-xs fadeInUp animated" phx-click="boom">It's
-    <%= Timex.format!(@date, "{UNIX}") %>
-    <button class="btn btn-blue" phx-click="next_step">
-      Next
-    </button>
-  </p>
+<div class="game-container flex flex-col">
+  <div class="meta">
 
-  <div class="flex bg-grey-lighter">
+    <p class="text-xs fadeInUp animated" phx-click="boom">It's
+      <%= Timex.format!(@date, "{UNIX}") %>
+      <button class="btn btn-blue" phx-click="next_step">
+        Next
+      </button>
+    </p>
+  </div>
+
+  <!-- <div class="game-layout flex flex-col"> -->
+
+  <div class="flex flex-wrap player-wrapper bg-grey-lighter">
     <%= for player <- @data.players do %>
-    <div class="<%= player.classes %> text-grey-darker text-center bg-grey-light px-4 py-2 m-2"><%= player.name %>
-      <div class="cards flex justify-center mt-3">
-      <%= for card <- player.hand do %>
-        <div class="card text-center fadeInUp animated bg-orange-light rounded text-xs pt-4 m-2">
-          <%= card.type %>
-        </div>
-      <% end %>
+    <div class="<%= player.classes %> text-grey-darker text-center m-1">
+      <div class="player-inner-wrapper">
+        <svg viewBox="0 0 100 100">
+          <rect x="0" y="0" width="100" height="100" rx="10" ry="10" fill="#DDD"></rect>
+          <text x="10" y="20" class="text-xs"><%= player.name %></text>
+          <text class="coins-count" x="80" y="20" class="text-xs"><%= player.coins %></text>
+          <rect class="card-placeholder" x="10" y="40" width="35" height="50" rx="5" ry="5"></rect>
+          <rect class="card-placeholder" x="55" y="40" width="35" height="50" rx="5" ry="5"></rect>
+          <%= for {card, index} <- Enum.with_index(player.hand) do %>
+          <%= if index == 0 do %>
+          <rect class="card fadeInUp animated" x="10" y="40" width="35" height="50" rx="5" ry="5" fill="orange"></rect>
+          <% end %>
+          <%= if index == 1 do %>
+          <rect class="card fadeInUp animated" x="55" y="40" width="35" height="50" rx="5" ry="5" fill="orange"></rect>
+          <% end %>
+          <% end %>
+        </svg>
       </div>
     </div>
     <% end %>
   </div>
+  <div class="my-hand bg-blue flex flex-grow items-center justify-around py-2">
+    <div class="card1 bg-blue-darker"></div>
+    <div class="card2 bg-blue-darker"></div>
+  </div>
+  <div class="toast-wrapper bg-indigo-lighter flex items-center justify-center py-2">
+    <div class="toast-content text-lg">It's Gorilla's turn.</div>
+  </div>
+  <div class="turn-wrapper bg-red flex items-center justify-center py-1">
+    <div class="turn-item"></div>
+    <div class="turn-item"></div>
+    <div class="turn-item"></div>
+    <div class="turn-item"></div>
+  </div>
+  <div class="actions-wrapper bg-green flex items-center justify-around py-1">
+    <div class="action-item"></div>
+    <div class="action-item"></div>
+    <div class="action-item"></div>
+    <div class="action-item"></div>
+    <div class="action-item"></div>
+    <div class="action-item"></div>
+  </div>
+  <!-- </div> -->
 </div>

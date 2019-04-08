@@ -35,7 +35,7 @@ defmodule Concept.Game do
 
   def handle_call(:next_step, _from, state_data) do
     Phoenix.PubSub.broadcast(:game_pubsub, state_data.game_name, :state_updated)
-    step(state_data.next_step, state_data) |> reply_success(:ok)
+    state_data.next_step |> step(state_data) |> reply_success(:ok)
   end
 
   ### SERVER UTILITIES
@@ -58,13 +58,28 @@ defmodule Concept.Game do
     |> Map.merge(%{
       next_step: :adduser2,
       players: [
-        %{name: "Penguin", session_id: "session1", role: "creator", hand: [], classes: "player"},
-        %{name: "Giraffe", session_id: "session2", role: "player", hand: [], classes: "player"},
+        %{
+          name: "Penguin",
+          session_id: "session1",
+          role: "creator",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "Giraffe",
+          session_id: "session2",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
         %{
           name: "<pending>",
           session_id: nil,
           role: "player",
           hand: [],
+          coins: 0,
           classes: "player collapsed"
         }
       ]
@@ -76,14 +91,36 @@ defmodule Concept.Game do
     |> Map.merge(%{
       next_step: :adduser3,
       players: [
-        %{name: "Penguin", session_id: "session1", role: "creator", hand: [], classes: "player"},
-        %{name: "Giraffe", session_id: "session2", role: "player", hand: [], classes: "player"},
-        %{name: "Monkey", session_id: "session3", role: "player", hand: [], classes: "player"},
+        %{
+          name: "Penguin",
+          session_id: "session1",
+          role: "creator",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "Giraffe",
+          session_id: "session2",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "Zebra",
+          session_id: "session3",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
         %{
           name: "<pending>",
           session_id: nil,
           role: "player",
           hand: [],
+          coins: 0,
           classes: "player collapsed"
         }
       ]
@@ -95,15 +132,44 @@ defmodule Concept.Game do
     |> Map.merge(%{
       next_step: :adduser4,
       players: [
-        %{name: "Penguin", session_id: "session1", role: "creator", hand: [], classes: "player"},
-        %{name: "Giraffe", session_id: "session2", role: "player", hand: [], classes: "player"},
-        %{name: "Monkey", session_id: "session3", role: "player", hand: [], classes: "player"},
-        %{name: "Gorilla", session_id: "session4", role: "player", hand: [], classes: "player"},
+        %{
+          name: "Penguin",
+          session_id: "session1",
+          role: "creator",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "Giraffe",
+          session_id: "session2",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "Zebra",
+          session_id: "session3",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "Gorilla",
+          session_id: "session4",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
         %{
           name: "<pending>",
           session_id: nil,
           role: "player",
           hand: [],
+          coins: 0,
           classes: "player collapsed"
         }
       ]
@@ -115,16 +181,52 @@ defmodule Concept.Game do
     |> Map.merge(%{
       next_step: :adduser5,
       players: [
-        %{name: "Penguin", session_id: "session1", role: "creator", hand: [], classes: "player"},
-        %{name: "Giraffe", session_id: "session2", role: "player", hand: [], classes: "player"},
-        %{name: "Monkey", session_id: "session3", role: "player", hand: [], classes: "player"},
-        %{name: "Gorilla", session_id: "session4", role: "player", hand: [], classes: "player"},
-        %{name: "SeaLion", session_id: "session5", role: "player", hand: [], classes: "player"},
+        %{
+          name: "Penguin",
+          session_id: "session1",
+          role: "creator",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "Giraffe",
+          session_id: "session2",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "Zebra",
+          session_id: "session3",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "Gorilla",
+          session_id: "session4",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "SeaLion",
+          session_id: "session5",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
         %{
           name: "<pending>",
           session_id: nil,
           role: "player",
           hand: [],
+          coins: 0,
           classes: "player collapsed"
         }
       ]
@@ -136,12 +238,54 @@ defmodule Concept.Game do
     |> Map.merge(%{
       next_step: :addcard1,
       players: [
-        %{name: "Penguin", session_id: "session1", role: "creator", hand: [], classes: "player"},
-        %{name: "Giraffe", session_id: "session2", role: "player", hand: [], classes: "player"},
-        %{name: "Monkey", session_id: "session3", role: "player", hand: [], classes: "player"},
-        %{name: "Gorilla", session_id: "session4", role: "player", hand: [], classes: "player"},
-        %{name: "SeaLion", session_id: "session5", role: "player", hand: [], classes: "player"},
-        %{name: "Bear", session_id: "session6", role: "player", hand: [], classes: "player"}
+        %{
+          name: "Penguin",
+          session_id: "session1",
+          role: "creator",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "Giraffe",
+          session_id: "session2",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "Zebra",
+          session_id: "session3",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "Gorilla",
+          session_id: "session4",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "SeaLion",
+          session_id: "session5",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "Bear",
+          session_id: "session6",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        }
       ]
     })
   end
@@ -150,6 +294,16 @@ defmodule Concept.Game do
     state
     |> Map.merge(%{
       next_step: :addcard2,
+      current_player: %{
+        name: "Penguin",
+        session_id: "session1",
+        role: "creator",
+        hand: [
+          %{type: "Captain"}
+        ],
+        coins: 0,
+        classes: "player"
+      },
       players: [
         %{
           name: "Penguin",
@@ -158,13 +312,49 @@ defmodule Concept.Game do
           hand: [
             %{type: "Captain"}
           ],
+          coins: 0,
           classes: "player"
         },
-        %{name: "Giraffe", session_id: "session2", role: "player", hand: [], classes: "player"},
-        %{name: "Monkey", session_id: "session3", role: "player", hand: [], classes: "player"},
-        %{name: "Gorilla", session_id: "session4", role: "player", hand: [], classes: "player"},
-        %{name: "SeaLion", session_id: "session5", role: "player", hand: [], classes: "player"},
-        %{name: "Bear", session_id: "session6", role: "player", hand: [], classes: "player"}
+        %{
+          name: "Giraffe",
+          session_id: "session2",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "Zebra",
+          session_id: "session3",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "Gorilla",
+          session_id: "session4",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "SeaLion",
+          session_id: "session5",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "Bear",
+          session_id: "session6",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        }
       ]
     })
   end
@@ -173,6 +363,17 @@ defmodule Concept.Game do
     state
     |> Map.merge(%{
       next_step: :addcard3,
+      current_player: %{
+        name: "Penguin",
+        session_id: "session1",
+        role: "creator",
+        hand: [
+          %{type: "Captain"},
+          %{type: "Contessa"}
+        ],
+        coins: 0,
+        classes: "player"
+      },
       players: [
         %{
           name: "Penguin",
@@ -182,13 +383,49 @@ defmodule Concept.Game do
             %{type: "Captain"},
             %{type: "Contessa"}
           ],
+          coins: 0,
           classes: "player"
         },
-        %{name: "Giraffe", session_id: "session2", role: "player", hand: [], classes: "player"},
-        %{name: "Monkey", session_id: "session3", role: "player", hand: [], classes: "player"},
-        %{name: "Gorilla", session_id: "session4", role: "player", hand: [], classes: "player"},
-        %{name: "SeaLion", session_id: "session5", role: "player", hand: [], classes: "player"},
-        %{name: "Bear", session_id: "session6", role: "player", hand: [], classes: "player"}
+        %{
+          name: "Giraffe",
+          session_id: "session2",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "Zebra",
+          session_id: "session3",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "Gorilla",
+          session_id: "session4",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "SeaLion",
+          session_id: "session5",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "Bear",
+          session_id: "session6",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        }
       ]
     })
   end
@@ -206,6 +443,7 @@ defmodule Concept.Game do
             %{type: "Captain"},
             %{type: "Contessa"}
           ],
+          coins: 0,
           classes: "player"
         },
         %{
@@ -213,15 +451,44 @@ defmodule Concept.Game do
           session_id: "session2",
           role: "player",
           hand: [
-            %{type: "Captain"},
+            %{type: "Assassn"},
             %{type: "Contessa"}
           ],
+          coins: 0,
           classes: "player"
         },
-        %{name: "Monkey", session_id: "session3", role: "player", hand: [], classes: "player"},
-        %{name: "Gorilla", session_id: "session4", role: "player", hand: [], classes: "player"},
-        %{name: "SeaLion", session_id: "session5", role: "player", hand: [], classes: "player"},
-        %{name: "Bear", session_id: "session6", role: "player", hand: [], classes: "player"}
+        %{
+          name: "Zebra",
+          session_id: "session3",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "Gorilla",
+          session_id: "session4",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "SeaLion",
+          session_id: "session5",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
+        %{
+          name: "Bear",
+          session_id: "session6",
+          role: "player",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        }
       ]
     })
   end
@@ -230,13 +497,29 @@ defmodule Concept.Game do
     %{
       game_name: "CONCEPT1",
       next_step: :adduser1,
+      current_player: %{
+        name: "Penguin",
+        session_id: "session1",
+        role: "creator",
+        hand: [],
+        coins: 0,
+        classes: "player"
+      },
       players: [
-        %{name: "Penguin", session_id: "session1", role: "creator", hand: [], classes: "player"},
+        %{
+          name: "Penguin",
+          session_id: "session1",
+          role: "creator",
+          hand: [],
+          coins: 0,
+          classes: "player"
+        },
         %{
           name: "<pending>",
           session_id: nil,
           role: "player",
           hand: [],
+          coins: 0,
           classes: "player collapsed"
         }
       ],

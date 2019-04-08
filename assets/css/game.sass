@@ -1,33 +1,84 @@
-.toast-container
-  position: fixed
-  bottom: 0.5rem
-  right: 0.5rem
-  // left: 0.5rem
-  text-align: right
-  z-index: 1000
-  .toast
-    display: inline-block
-    clear: both
-    margin: 0.25rem 0
-    opacity: 0.9
-    transition: opacity .2s, font-size .5s .15s, margin .5s .15s, padding .5s .15s
-    &.exiting
-      font-size: 0
-      opacity: 0
-      padding: 0
-
-.player-wrapper, .other-player-wrapper
-  border-radius: 0.25rem
+.game-container
+  height: 95vh
 
 .player
   transition: flex 1s ease-out
   flex: 1
   overflow: hidden
+  min-width: 5rem
+  max-width: 5rem
   &.collapsed
     flex: 0
     padding: 0
     margin: 0
 
+    .player-inner-wrapper
+      width: 0%
+      height: 0
+
+  .player-inner-wrapper
+    transition: width 0.5s ease-out
+    width: 100%
+
+  .card-placeholder
+    fill: rgba(0, 0, 0, 0.1)
+    stroke: rgba(0, 0, 0, 0.3)
+    stroke-dasharray: 4
+
   .card
-    height: 80px
-    width: 60px
+    fill: config('colors.orange-base')
+    stroke: config('colors.orange-dark')
+  .coins-count
+    font-weight: bolder
+
+.my-hand
+  &-svg
+    height: auto
+    min-width: 60vw
+
+  .card1, .card2
+    margin: 1rem
+    height: 180px
+    width: 130px
+
+.turn-wrapper
+  &-svg
+    height: auto
+    min-width: 60vw
+
+  .turn-item
+    background-color: config('colors.red-darker')
+    height: 40px
+    width: 40px
+    margin: 0.5rem
+
+.actions-wrapper
+  flex-wrap: wrap
+  &-svg
+    height: auto
+    min-width: 60vw
+
+  .action-item
+    background-color: config('colors.green-darker')
+    height: 50px
+    width: 50px
+    margin: 0.5rem
+
+
+// .toast-container
+//   position: fixed
+//   bottom: 0.5rem
+//   right: 0.5rem
+//   // left: 0.5rem
+//   text-align: right
+//   z-index: 1000
+//   .toast
+//     display: inline-block
+//     clear: both
+//     margin: 0.25rem 0
+//     opacity: 0.9
+//     transition: opacity .2s, font-size .5s .15s, margin .5s .15s, padding .5s .15s
+//     &.exiting
+//       font-size: 0
+//       opacity: 0
+//       padding: 0
