@@ -57,6 +57,10 @@ defmodule Concept.Game do
     state
     |> Map.merge(%{
       next_step: :adduser2,
+      toast: [
+        %{body: "Waiting for players", classes: "fadeOutUp animated exiting"},
+        %{body: "Giraffe has joined.", classes: "fadeInUp animated"}
+      ],
       players: [
         %{
           name: "Penguin",
@@ -497,6 +501,9 @@ defmodule Concept.Game do
     %{
       game_name: "CONCEPT1",
       next_step: :adduser1,
+      toast: [
+        %{body: "Waiting for players", classes: "fadeInUp animated"}
+      ],
       current_player: %{
         name: "Penguin",
         session_id: "session1",

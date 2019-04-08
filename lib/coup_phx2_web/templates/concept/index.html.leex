@@ -34,20 +34,46 @@
     </div>
     <% end %>
   </div>
-  <div class="my-hand bg-blue flex flex-grow items-center justify-around py-2">
-    <div class="card1 bg-blue-darker"></div>
-    <div class="card2 bg-blue-darker"></div>
+  <div class="my-hand bg-blue-lighter flex flex-grow items-center justify-around py-2">
+    <div class="my-card">
+      <svg viewbox="0 0 70 100">
+        <rect class="card-placeholder" x="0" y="0" width="70" height="100" rx="5" ry="5"></rect>
+        <%= case Enum.at(@data.current_player.hand, 0) do %>
+        <%= nil -> %>
+        <%= card -> %>
+        <g class="fadeInUp animated">
+          <rect class="card " x="0" y="0" width="70" height="100" rx="5" ry="5" fill="orange"></rect>
+          <text class="card-text text-xs" text-anchor="middle" x="35" y="50"><%= card.type %></text>
+        </g>
+        <% end %>
+      </svg>
+    </div>
+    <div class="my-card">
+      <svg viewbox="0 0 70 100">
+        <rect class="card-placeholder" x="0" y="0" width="70" height="100" rx="5" ry="5"></rect>
+        <%= case Enum.at(@data.current_player.hand, 1) do %>
+        <%= nil -> %>
+        <%= card -> %>
+        <g class="fadeInUp animated">
+          <rect class="card " x="0" y="0" width="70" height="100" rx="5" ry="5" fill="orange"></rect>
+          <text class="card-text text-xs" text-anchor="middle" x="35" y="50"><%= card.type %></text>
+        </g>
+        <% end %>
+      </svg>
+    </div>
   </div>
-  <div class="toast-wrapper bg-indigo-lighter flex items-center justify-center py-2">
-    <div class="toast-content text-lg">It's Gorilla's turn.</div>
+  <div class="toast-wrapper bg-indigo-lighter flex flex-col items-center justify-center py-2">
+    <%= for toast <- @data.toast do %>
+    <div class="toast-content text-indigo-darker <%= toast.classes %>"><%= toast.body %></div>
+    <% end %>
   </div>
-  <div class="turn-wrapper bg-red flex items-center justify-center py-1">
+  <div class="turn-wrapper bg-pink-light flex items-center justify-center py-1">
     <div class="turn-item"></div>
     <div class="turn-item"></div>
     <div class="turn-item"></div>
     <div class="turn-item"></div>
   </div>
-  <div class="actions-wrapper bg-green flex items-center justify-around py-1">
+  <div class="actions-wrapper bg-green-light flex items-center justify-around py-3">
     <div class="action-item"></div>
     <div class="action-item"></div>
     <div class="action-item"></div>
