@@ -1,5 +1,22 @@
 <div class="game-container">
-  <p class="text-xs" phx-click="boom">It's
+  <p class="text-xs fadeInUp animated" phx-click="boom">It's
     <%= Timex.format!(@date, "{UNIX}") %>
+    <button class="btn btn-blue" phx-click="next_step">
+      Next
+    </button>
   </p>
+
+  <div class="flex bg-grey-lighter">
+    <%= for player <- @data.players do %>
+    <div class="<%= player.classes %> text-grey-darker text-center bg-grey-light px-4 py-2 m-2"><%= player.name %>
+      <div class="cards flex justify-center mt-3">
+      <%= for card <- player.hand do %>
+        <div class="card text-center fadeInUp animated bg-orange-light rounded text-xs pt-4 m-2">
+          <%= card.type %>
+        </div>
+      <% end %>
+      </div>
+    </div>
+    <% end %>
+  </div>
 </div>

@@ -25,7 +25,7 @@ defmodule CoupPhx2Web.ConceptLive do
   Initializes the page on first load
   """
   def mount(%{session_id: session_id, name: name, path_params: path_params} = _session, socket) do
-    if connected?(socket), do: :timer.send_interval(250, self(), :tick)
+    # if connected?(socket), do: :timer.send_interval(250, self(), :tick)
 
     %{"name" => game_name} = path_params
 
@@ -35,7 +35,7 @@ defmodule CoupPhx2Web.ConceptLive do
           pid
 
         {:error, {:already_started, pid}} ->
-          Game.add_player(pid, session_id, name)
+          # Game.add_player(pid, session_id, name)
           pid
       end
 
@@ -59,6 +59,17 @@ defmodule CoupPhx2Web.ConceptLive do
     {:noreply, socket}
   end
 
+  def handle_info(:state_updated, socket) do
+    {:noreply, socket |> fetch()}
+  end
+
+  ### CLICK EVENTS
+
+  def handle_event("next_step", _value, socket) do
+    Game.next_step(socket.assigns.game_pid)
+    {:noreply, socket}
+  end
+
   ### HELPERS
 
   defp put_date(socket) do
@@ -67,6 +78,7 @@ defmodule CoupPhx2Web.ConceptLive do
 
   defp fetch(socket) do
     data = Game.get_game_data(socket.assigns.game_pid)
+    IO.inspect(data, label: "data")
 
     socket
     |> assign(data: data)

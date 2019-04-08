@@ -18,3 +18,16 @@
 
 .player-wrapper, .other-player-wrapper
   border-radius: 0.25rem
+
+.player
+  transition: flex 1s ease-out
+  flex: 1
+  overflow: hidden
+  &.collapsed
+    flex: 0
+    padding: 0
+    margin: 0
+
+  .card
+    height: 80px
+    width: 60px

@@ -4,7 +4,8 @@
 @charset "utf-8"
 @import "../../deps/phoenix_live_view/assets/css/live_view.css"
 // @import "node_modules/bulma/bulma"
-@import "spacing"
+@import "../node_modules/animate.css/animate.css"
+// @import "spacing"
 @import "loader"
 @import "game"
 
@@ -78,6 +79,11 @@
  * @import "utilities/skew-transforms";
  */
 
+.btn
+  @apply font-bold py-2 px-4 rounded
 
-.main-section
-  padding: 0.5rem
+.btn-blue
+  @apply bg-blue text-white
+
+.btn-blue:hover
+  @apply bg-blue-dark
