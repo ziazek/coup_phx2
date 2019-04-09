@@ -54,27 +54,46 @@
       height: 0
 
 .turn-wrapper
-  &-svg
-    height: auto
-    min-width: 60vw
+  .divider
+    height: 1rem
+    width: 1rem
+    .rightcaret
+      fill: config('colors.red')
 
   .turn-item
-    background-color: config('colors.red-darker')
-    height: 40px
-    width: 40px
+    background-color: config('colors.red-lighter')
+    height: 3rem
+    width: 2.4rem
     margin: 0.5rem
+
+  .turn-label
+    font-size: 0.3rem
 
 .actions-wrapper
   flex-wrap: wrap
-  &-svg
-    height: auto
-    min-width: 60vw
 
   .action-item
-    background-color: config('colors.green-darker')
-    height: 50px
-    width: 50px
-    margin: 0.3rem
+    background-color: config('colors.green-lighter')
+    height: 3.5rem
+    width: 2.8rem
+    margin: 0.2rem
+    transition: all 1s ease-out
+    &.disabled
+      opacity: 0.3
+      transform: translate(0, 0.2rem)
+
+  .action-icon
+    width: 100%
+    height: auto
+
+  .action-label
+    font-size: 0.3rem
+
+// Icons
+
+.question-icon
+  circle, path
+    fill: config('colors.grey-darker')
 
 
 // .toast-container
