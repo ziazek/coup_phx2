@@ -1,0 +1,6 @@
+<%= if Map.get(@card, :state) == "dead" do %>
+<rect class="card fadeInUp animated dead" x="<%= @x %>" y="40" width="35" height="50" rx="5" ry="5" ></rect>
+<text class="card-text" text-anchor="middle" x="<%= @x + 16 %>" y="65"><%= @card.type %></text>
+<% else %>
+<rect class="card fadeInUp animated" x="<%= @x %>" y="40" width="35" height="50" rx="5" ry="5" ></rect>
+<% end %>

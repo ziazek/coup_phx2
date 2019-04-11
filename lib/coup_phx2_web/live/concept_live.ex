@@ -78,6 +78,7 @@ defmodule CoupPhx2Web.ConceptLive do
 
   defp fetch(socket) do
     data = Game.get_game_data(socket.assigns.game_pid)
+    # IO.inspect(data, label: "data")
 
     socket
     |> assign(data: data)

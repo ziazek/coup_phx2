@@ -1,0 +1,73 @@
+<%= if Map.get(@data.current_player, :display_state) == "change_card" do %>
+
+<div class="change-card relative bg-blue-lighter flex flex-col flex-grow items-center justify-center py-2 cards-count-<%= Map.get(@data.current_player, :change_card_hand, []) |> length() %>">
+  <div class="change-card-wrapper flex">
+    <%= for card <- Map.get(@data.current_player, :change_card_hand, []) do %>
+    <%= if card.state == "selected" do %>
+    <div class="my-card selected">
+    <% else %>
+    <div class="my-card">
+    <% end %>
+      <svg viewbox="0 0 70 100">
+        <g class="fadeInUp animated">
+          <rect class="card " x="0" y="0" width="70" height="100" rx="5" ry="5"></rect>
+          <text class="card-text text-xs" text-anchor="middle" x="35" y="50">
+            <%= card.type %>
+          </text>
+        </g>
+      </svg>
+    </div>
+    <% end %>
+  </div>
+  <div class="button-wrapper text-center mt-4">
+    <div class="text-base my-2">Select 2 cards.</div>
+    <button class="btn btn-green">Proceed</button>
+  </div>
+  <%= render "_overlay.html", data: @data, show_on: ["select_target"] %>
+</div>
+
+<% end %>
+
+<%= if Map.get(@data.current_player, :display_state) != "change_card" do %>
+
+<div class="my-hand relative bg-blue-lighter flex flex-grow items-center justify-center py-2">
+  <div class="my-card">
+    <svg viewbox="0 0 70 100">
+      <rect class="card-placeholder" x="0" y="0" width="70" height="100" rx="5" ry="5"></rect>
+      <%= case Enum.at(@data.current_player.hand, 0) do %>
+      <%= nil -> %>
+      <%= card -> %>
+      <%= if Map.get(card, :state) == "dead" do %>
+      <g class="fadeInUp animated dead">
+      <% else %>
+      <g class="fadeInUp animated">
+      <% end %>
+        <rect class="card" x="0" y="0" width="70" height="100" rx="5" ry="5"></rect>
+        <text class="card-text text-xs" text-anchor="middle" x="35" y="50">
+          <%= card.type %></text>
+      </g>
+      <% end %>
+    </svg>
+  </div>
+  <div class="my-card">
+    <svg viewbox="0 0 70 100">
+      <rect class="card-placeholder" x="0" y="0" width="70" height="100" rx="5" ry="5"></rect>
+      <%= case Enum.at(@data.current_player.hand, 1) do %>
+      <%= nil -> %>
+      <%= card -> %>
+      <%= if Map.get(card, :state) == "dead" do %>
+      <g class="fadeInUp animated dead">
+      <% else %>
+      <g class="fadeInUp animated">
+      <% end %>
+        <rect class="card" x="0" y="0" width="70" height="100" rx="5" ry="5"></rect>
+        <text class="card-text text-xs" text-anchor="middle" x="35" y="50">
+          <%= card.type %></text>
+      </g>
+      <% end %>
+    </svg>
+  </div>
+  <%= render "_overlay.html", data: @data, show_on: ["select_target"] %>
+</div>
+
+<% end %>

@@ -1,6 +1,5 @@
 <div class="game-container flex flex-col">
   <div class="meta">
-
     <p class="text-xs fadeInUp animated" phx-click="boom">It's
       <%= Timex.format!(@date, "{UNIX}") %>
       <button class="btn btn-blue" phx-click="next_step">
@@ -9,129 +8,59 @@
     </p>
   </div>
 
-  <!-- <div class="game-layout flex flex-col"> -->
+  <div class="player-wrapper relative flex bg-grey-lighter">
+    <div class="players flex flex-grow flex-wrap">
+      <%= render "_players.html", data: @data %>
+    </div><!-- /players -->
+    <div class="deck m-1">
+      <svg viewBox="0 0 100 100">
+        <rect class="deck-bg" x="0" y="0" width="100" height="100" rx="10" ry="10"></rect>
+        <text x="10" y="20" class="text-xs">Deck</text>
+        <!-- <rect class="card-placeholder" x="10" y="40" width="35" height="50" rx="5" ry="5"></rect> -->
+        <rect class="card fadeIn animated fast" x="32.5" y="40" width="35" height="50" rx="5" ry="5" fill="orange"></rect>
+        <text class="card-text text-xs" text-anchor="middle" x="50" y="70">
+          <%= @data.deck |> length() %></text>
+      </svg>
+    </div>
+    <%= render "_overlay.html", data: @data, show_on: ["change_card"] %>
+  </div>
+  <%= render "_myhand.html", data: @data %>
 
-  <div class="flex flex-wrap player-wrapper bg-grey-lighter">
-    <%= for player <- @data.players do %>
-    <div class="<%= player.classes %> text-grey-darker text-center m-1">
-      <div class="player-inner-wrapper">
-        <svg viewBox="0 0 100 100">
-          <rect x="0" y="0" width="100" height="100" rx="10" ry="10" fill="#DDD"></rect>
-          <text x="10" y="20" class="text-xs"><%= player.name %></text>
-          <text class="coins-count" x="80" y="20" class="text-xs"><%= player.coins %></text>
-          <rect class="card-placeholder" x="10" y="40" width="35" height="50" rx="5" ry="5"></rect>
-          <rect class="card-placeholder" x="55" y="40" width="35" height="50" rx="5" ry="5"></rect>
-          <%= for {card, index} <- Enum.with_index(player.hand) do %>
-          <%= if index == 0 do %>
-          <rect class="card fadeInUp animated" x="10" y="40" width="35" height="50" rx="5" ry="5" fill="orange"></rect>
+  <div class="toast-wrapper relative bg-indigo-lighter flex flex-col items-center justify-center py-2">
+    <%= for toast <- @data.toast do %>
+    <div class="toast-content text-indigo-darker <%= toast.classes %>">
+      <%= toast.body %>
+    </div>
+    <% end %>
+    <!-- <div class="overlay fadeIn animated faster"></div> -->
+  </div>
+  <div class="turn-wrapper relative bg-pink-light flex items-center justify-center py-1">
+    <%= render "_turn.html", data: @data %>
+    <%= render "_overlay.html", data: @data, show_on: ["select_target", "change_card"] %>
+  </div>
+  <div class="actions-wrapper relative bg-green-light flex items-center justify-around py-3 px-2">
+    <%= if Map.get(@data.current_player, :actions_panel_mode) == "responses" do %>
+    <div class="responses flex bounceIn animated">
+      <% else %>
+      <div class="responses flex fadeOut animated hide">
+        <% end %>
+        <%= render "_responses.html", data: @data %>
+      </div>
+
+      <%= if Map.get(@data.current_player, :actions_panel_mode) == "actions" do %>
+      <div class="actions flex bounceIn animated">
+        <% else %>
+        <div class="actions flex fadeOut animated hide">
           <% end %>
-          <%= if index == 1 do %>
-          <rect class="card fadeInUp animated" x="55" y="40" width="35" height="50" rx="5" ry="5" fill="orange"></rect>
-          <% end %>
-          <% end %>
-        </svg>
+          <%= render "_actions.html", data: @data %>
+        </div>
+
+        <%= if Map.get(@data.current_player, :actions_panel_mode) == "actions_disabled" do %>
+        <div class="actions flex">
+          <%= render "_actions_disabled.html", data: @data %>
+        </div>
+        <% end %>
+
+        <%= render "_overlay.html", data: @data, show_on: ["select_target", "change_card"] %>
       </div>
     </div>
-    <% end %>
-  </div>
-  <div class="my-hand bg-blue-lighter flex flex-grow items-center justify-around py-2">
-    <div class="my-card">
-      <svg viewbox="0 0 70 100">
-        <rect class="card-placeholder" x="0" y="0" width="70" height="100" rx="5" ry="5"></rect>
-        <%= case Enum.at(@data.current_player.hand, 0) do %>
-        <%= nil -> %>
-        <%= card -> %>
-        <g class="fadeInUp animated">
-          <rect class="card " x="0" y="0" width="70" height="100" rx="5" ry="5" fill="orange"></rect>
-          <text class="card-text text-xs" text-anchor="middle" x="35" y="50"><%= card.type %></text>
-        </g>
-        <% end %>
-      </svg>
-    </div>
-    <div class="my-card">
-      <svg viewbox="0 0 70 100">
-        <rect class="card-placeholder" x="0" y="0" width="70" height="100" rx="5" ry="5"></rect>
-        <%= case Enum.at(@data.current_player.hand, 1) do %>
-        <%= nil -> %>
-        <%= card -> %>
-        <g class="fadeInUp animated">
-          <rect class="card " x="0" y="0" width="70" height="100" rx="5" ry="5" fill="orange"></rect>
-          <text class="card-text text-xs" text-anchor="middle" x="35" y="50"><%= card.type %></text>
-        </g>
-        <% end %>
-      </svg>
-    </div>
-  </div>
-  <div class="toast-wrapper bg-indigo-lighter flex flex-col items-center justify-center py-2">
-    <%= for toast <- @data.toast do %>
-    <div class="toast-content text-indigo-darker <%= toast.classes %>"><%= toast.body %></div>
-    <% end %>
-  </div>
-  <div class="turn-wrapper bg-pink-light flex items-center justify-center py-1">
-    <div class="turn-item text-center pb-1">
-      <%= render "_thinking_svg.html" %>
-      <div class="turn-label uppercase">Penguin</div>
-    </div>
-    <div class="divider">
-      <%= render "_rightcaret_svg.html" %>
-    </div>
-    <div class="turn-item text-center pb-1">
-      <%# render "_steal_svg.html" %>
-      <%= render "_question_svg.html" %>
-      <div class="turn-label uppercase">Steal</div>
-    </div>
-    <div class="divider">
-      <%= render "_rightcaret_svg.html" %>
-    </div>
-    <div class="turn-item text-center pb-1">
-      <%= render "_target_svg.html" %>
-      <div class="turn-label uppercase">Gorilla</div>
-    </div>
-    <div class="divider">
-      <%= render "_rightcaret_svg.html" %>
-    </div>
-    <div class="turn-item text-center pb-1">
-      <%= render "_thinking_svg.html" %>
-      <div class="turn-label uppercase">Thinking...</div>
-    </div>
-  </div>
-  <div class="actions-wrapper bg-green-light flex items-center justify-around py-3 px-2">
-    <div class="action-item text-center pb-1">
-      <%= render "_challenge_svg.html" %>
-      <div class="action-label uppercase text-green-darker">Challenge</div>
-    </div>
-    <div class="action-item text-center pb-1">
-      <%= render "_block_svg.html" %>
-      <div class="action-label uppercase text-green-darker">Block</div>
-    </div>
-    <!-- <div class="action-item text-center pb-1 disabled">
-      <%= render "_coup_svg.html" %>
-      <div class="action-label uppercase text-green-darker">Coup</div>
-    </div>
-    <div class="action-item text-center pb-1">
-      <%= render "_1coin_svg.html" %>
-      <div class="action-label uppercase text-green-darker">1 Coin</div>
-    </div>
-    <div class="action-item text-center pb-1">
-      <%= render "_foreignaid_svg.html" %>
-      <div class="action-label uppercase text-green-darker">Foreign Aid</div>
-    </div>
-    <div class="action-item text-center pb-1">
-      <%= render "_3coins_svg.html" %>
-      <div class="action-label uppercase text-green-darker">3 Coins</div>
-    </div>
-    <div class="action-item text-center pb-1">
-      <%= render "_steal_svg.html" %>
-      <div class="action-label uppercase text-green-darker">Steal</div>
-    </div>
-    <div class="action-item text-center pb-1">
-      <%= render "_assassinate_svg.html" %>
-      <div class="action-label uppercase text-green-darker">Assassinate</div>
-    </div>
-    <div class="action-item text-center pb-1">
-      <%= render "_changecard_svg.html" %>
-      <div class="action-label uppercase text-green-darker">Change Card</div>
-    </div> -->
-  </div>
-  <!-- </div> -->
-</div>

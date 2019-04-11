@@ -1,6 +1,14 @@
 .game-container
   height: 95vh
 
+.deck
+  min-width: 5rem
+  .deck-bg
+    fill: config('colors.teal-lighter')
+  .card-text
+    fill: config('colors.white')
+    font-size: 1.2rem
+
 .player
   transition: flex 1s ease-out
   flex: 1
@@ -23,9 +31,18 @@
   .coins-count
     font-weight: bolder
 
+  .card-text
+    fill: white
+    font-size: 0.4rem
+
+
 .card
-  fill: config('colors.orange-base')
+  fill: config('colors.orange')
   stroke: config('colors.orange-dark')
+  &.dead
+    fill: config('colors.blue')
+    stroke: config('colors.blue-dark')
+
 
 .card-placeholder
   fill: rgba(0, 0, 0, 0.1)
@@ -45,8 +62,54 @@
     .card-text
       fill: config('colors.white')
 
+    .dead
+      .card
+        fill: config('colors.grey')
+        stroke: config('colors.blue-dark')
+
+      .card-text
+        fill: config('colors.grey-lighter')
+
+
     .card-placeholder
       stroke-dasharray: 6
+
+.change-card
+  &.cards-count-2
+    .my-card
+      margin: 1rem
+      height: auto
+      min-width: 30vw
+
+  &.cards-count-3
+    .my-card
+      margin: 0.8rem
+      height: auto
+      min-width: 20vw
+
+  &.cards-count-4
+    .my-card
+      margin: 0.5rem
+      height: auto
+      min-width: 18vw
+
+  .my-card
+    transition: all 0.5s ease-out
+    &.selected
+      transform: translateY(-0.5rem)
+
+  .card
+    fill: config('colors.blue')
+    stroke: config('colors.blue-dark')
+
+  .selected
+    .card
+      stroke: config('colors.yellow')
+      stroke-width: 3
+
+  .card-text
+    fill: config('colors.white')
+
 
 .toast-wrapper
   .toast-content
@@ -61,16 +124,19 @@
       fill: config('colors.red')
 
   .turn-item
-    background-color: config('colors.red-lighter')
+    // background-color: config('colors.red-lighter')
     height: 3rem
     width: 2.4rem
     margin: 0.5rem
+    &.pending
+      height: 2.4rem
 
   .turn-label
     font-size: 0.3rem
 
 .actions-wrapper
   flex-wrap: wrap
+  min-height: 5rem
 
   .action-item
     background-color: config('colors.green-lighter')
@@ -87,13 +153,28 @@
     height: auto
 
   .action-label
-    font-size: 0.3rem
+    font-size: 0.2rem
+
+  .reactions, .actions
+    position: absolute
+
+.overlay
+  background: rgba(0,0,0, 0.6)
+  position: absolute
+  top: 0
+  bottom: 0
+  left: 0
+  right: 0
 
 // Icons
 
 .question-icon
   circle, path
     fill: config('colors.grey-darker')
+
+.dotted-circle
+  // fill: config('colors.grey-dark')
+  fill: config('colors.red')
 
 
 // .toast-container
