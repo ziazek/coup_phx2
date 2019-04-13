@@ -1,9 +1,5 @@
 <%= for action <- Map.get(@data.current_player, :actions, []) do %>
-<%= if action.state == "enabled" do %>
-  <div class="action-item text-center pb-1">
-<% else %>
-  <div class="action-item text-center pb-1 disabled">
-<% end %>
+<div class="action-item text-center pb-1 disabled">
   <%= render "_#{Map.get(action, :action)}_svg.html" %>
   <div class="action-label uppercase text-green-darker"><%= action.label %></div>
 </div>

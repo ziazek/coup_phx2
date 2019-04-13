@@ -1,81 +1,67 @@
-<div class="game-container">
-  <p phx-click="boom">It's
-    <%= Timex.format!(@date, "{UNIX}") %>
-  </p>
+<div class="game-container flex flex-col">
+  <div class="meta">
+    <p class="text-xs fadeInUp animated" phx-click="boom">It's
+      <%= Timex.format!(@date, "{UNIX}") %>
+      <button class="btn btn-blue" phx-click="next_step">
+        Next
+      </button>
+    </p>
+  </div>
 
-  <%= if @role == "creator" && @state == :adding_players do %>
-  <button class="button is-info m-t-sm m-b-sm" phx-click="start_game">Start Game</button>
-  <% end %>
+  <div class="player-wrapper relative flex bg-grey-lighter">
+    <div class="players flex flex-grow flex-wrap">
+      <%= render "_players.html", data: @data %>
+    </div><!-- /players -->
+    <div class="deck m-1">
+      <svg viewBox="0 0 100 100">
+        <rect class="deck-bg" x="0" y="0" width="100" height="100" rx="10" ry="10"></rect>
+        <text x="10" y="20" class="text-xs">Deck</text>
+        <rect class="card fadeIn animated fast" x="32.5" y="40" width="35" height="50" rx="5" ry="5" fill="orange"></rect>
+        <text class="card-text text-xs" text-anchor="middle" x="50" y="70">
+          <%= @data.deck |> length() %></text>
+      </svg>
+    </div>
+    <%= render "_overlay.html", data: @data, show_on: ["change_card"] %>
+  </div>
+  <%= render "_myhand.html", data: @data %>
 
-  <%= for player_chunk <- @player_chunks do %>
-  <div class="columns is-mobile">
-    <%= for player <- player_chunk do %>
-    <%= if player == :spacer do %>
-    <div class="column"></div>
-    <% else %>
-    <div class="column">
-      <%= if player.session_id == @session_id do %>
-      <%= render "_player.html", player: player, data: @data %>
+  <div class="toast-wrapper relative bg-blue-lighter flex flex-col items-center justify-center py-2">
+    <%= for toast <- @data.toast do %>
+    <div class="toast-content text-indigo-darker <%= toast.classes %>">
+      <%= toast.body %>
+    </div>
+    <% end %>
+    <!-- <div class="overlay fadeIn animated faster"></div> -->
+  </div>
+  <div class="turn-wrapper relative bg-pink-light flex items-center justify-center py-1">
+    <%= render "_turn.html", data: @data %>
+    <%= render "_overlay.html", data: @data, show_on: ["select_target", "change_card"] %>
+  </div>
+  <div class="actions-wrapper relative bg-green-light flex items-center justify-around py-3 px-2">
+    <%= if Map.get(@data.current_player, :actions_panel_mode) == "responses" do %>
+    <div class="responses flex bounceIn animated">
       <% else %>
-      <%= render "_other_player.html", player: player, data: @data %>
-      <% end %>
-    </div>
-    <% end %>
-    <% end %>
-  </div>
-  <% end %>
-
-  <div class="columns">
-    <div class="column">
-      <%= render "_actions.html", current_player: @current_player %>
-    </div>
-  </div>
-
-  <div class="columns">
-    <div class="column">
-      <%= render "_responses.html", current_player: @current_player %>
-    </div>
-  </div>
-
-  <div class="content is-small notification has-background-grey-lighter">
-    <div class="columns">
-
-      <div class="column">
-
-        <h4>Game state:
-          <%= @state %>
-        </h4>
-        <h4>Players</h4>
-        <%= for player <- @players do %>
-        <p phx-click="toast_test" phx-value="<%= player.name %>">
-          <%= player.name %> (
-          <%= player.session_id %>, role:
-          <%= player.role %>)
-          <%= if player.session_id == @session_id do %>
-          <strong>(You)</strong>
-          <% end %>
-        </p>
+      <div class="responses flex fadeOut animated hide">
         <% end %>
+        <%= render "_responses.html", data: @data %>
       </div>
-      <div class="column">
-        <!-- DEBUG -->
-        <h4>Deck</h4>
-        <ul>
-          <%= for card <- @data.deck do %>
-          <li>
-            <%= card.type %>
-          </li>
-          <% end %>
-        </ul>
-      </div>
-    </div>
-  </div>
-  <div class="toast-container">
-    <%= for %{type: type, body: body, exiting: exiting} <- Enum.reverse(@toasts) do %>
-    <div class="toast notification is-<%= type %> <%= exiting %> is-pulled-right is-unselectable" role="alert">
-      <%= body %>
-    </div>
-    <% end %>
-  </div>
 
+      <%= if Map.get(@data.current_player, :actions_panel_mode) == "actions" do %>
+      <div class="actions flex bounceIn animated">
+        <% else %>
+        <div class="actions flex fadeOut animated hide">
+          <% end %>
+          <%= render "_actions.html", data: @data %>
+        </div>
+
+        <%= if Map.get(@data.current_player, :actions_panel_mode) == "actions_disabled" do %>
+        <div class="actions flex">
+          <%= render "_actions_disabled.html", data: @data %>
+        </div>
+        <% end %>
+
+        <%= render "_overlay.html", data: @data, show_on: ["select_target", "change_card"] %>
+      </div>
+    </div>
+  </div>
 </div>

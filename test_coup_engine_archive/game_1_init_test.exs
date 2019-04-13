@@ -1,7 +1,7 @@
-defmodule CoupEngine.GameInitTest do
+defmodule CoupEngineArchive.GameInitTest do
   use CoupPhx2Web.GameCase, async: true
 
-  alias CoupEngine.{Game, Player, Rules}
+  alias CoupEngineArchive.{Game, Player, Rules}
 
   test "init/1 should return the initial state" do
     result = Game.init({"game_id1", "session_id1", "Player 1"})

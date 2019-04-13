@@ -1,4 +1,4 @@
-defmodule CoupEngine.PossibleResponse do
+defmodule CoupEngineArchive.PossibleResponse do
   @moduledoc """
   Player possible responses
   """

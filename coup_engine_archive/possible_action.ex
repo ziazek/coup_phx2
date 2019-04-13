@@ -1,4 +1,4 @@
-defmodule CoupEngine.PossibleAction do
+defmodule CoupEngineArchive.PossibleAction do
   @moduledoc """
   Possible action for current user
   """

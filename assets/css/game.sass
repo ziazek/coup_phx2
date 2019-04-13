@@ -1,6 +1,9 @@
 .game-container
   height: 95vh
 
+.bluebg
+  background-image: linear-gradient(rgba(188, 222, 250, 0), rgba(188, 222, 250, 1))
+
 .deck
   min-width: 5rem
   .deck-bg
@@ -64,12 +67,9 @@
 
     .dead
       .card
+        opacity: 0.3
         fill: config('colors.grey')
-        stroke: config('colors.blue-dark')
-
-      .card-text
-        fill: config('colors.grey-lighter')
-
+        // stroke: config('colors.blue-dark')
 
     .card-placeholder
       stroke-dasharray: 6

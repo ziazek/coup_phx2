@@ -1,4 +1,4 @@
-defmodule CoupEngine.GamePlayerActionTest do
+defmodule CoupEngineArchive.GamePlayerActionTest do
   use CoupPhx2Web.GameCase, async: true
 
   alias CoupEngine.{Game, Player, PossibleAction, PossibleResponse, Response, Rules, Turn}

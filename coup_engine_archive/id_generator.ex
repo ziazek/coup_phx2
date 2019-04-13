@@ -1,4 +1,4 @@
-defmodule Coup.IdGenerator do
+defmodule CoupEngineArchive.IdGenerator do
   @moduledoc """
   Generates a random string of any length.
   """

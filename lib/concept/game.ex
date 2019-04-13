@@ -701,6 +701,7 @@ defmodule Concept.Game do
         actions_panel_mode: "actions_disabled",
         display_state: "default",
         actions: default_actions,
+        responses: [],
         coins: 0,
         classes: "player"
       },
@@ -763,7 +764,6 @@ defmodule Concept.Game do
         action: "3coins",
         label: "3 coins",
         state: "disabled"
-        # show exclamation mark if this is "unsafe" (is a bluff)
       },
       %{
         action: "steal",

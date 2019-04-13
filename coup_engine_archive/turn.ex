@@ -1,4 +1,4 @@
-defmodule CoupEngine.Turn do
+defmodule CoupEngineArchive.Turn do
   @moduledoc """
   A player's turn. Keeps track of current player's claimed character and the claimed character of anyone who blocks any action.
   """
@@ -11,7 +11,7 @@ defmodule CoupEngine.Turn do
             opponent_responses: []
 
   alias __MODULE__
-  alias CoupEngine.{Response, Player}
+  alias CoupEngineArchive.{Response, Player}
 
   @spec build([%Player{}], integer()) :: %Turn{}
   def build(players, player_index) do

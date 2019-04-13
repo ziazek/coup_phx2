@@ -1,4 +1,4 @@
-defmodule CoupEngine.Response do
+defmodule CoupEngineArchive.Response do
   @moduledoc """
   Opponent response in a Turn
   """

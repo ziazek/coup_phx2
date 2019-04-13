@@ -20,13 +20,7 @@ defmodule CoupPhx2Web.GameCase do
       alias CoupEngine.{Game, Rules}
 
       defp initial_state(map_to_merge \\ %{}) do
-        %{
-          game_name: "",
-          players: [],
-          deck: [],
-          discard: [],
-          rules: %Rules{state: :adding_players}
-        }
+        %{}
         |> Map.merge(map_to_merge)
       end
     end
