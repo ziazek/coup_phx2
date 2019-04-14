@@ -6,10 +6,6 @@ defmodule CoupPhx2Web.GameLive do
 
   alias CoupEngine.{Game, GameSupervisor}
   alias __MODULE__
-  alias GameLive.Helper
-
-  @toast_expiry 5000
-  @toast_animation 600
 
   def render(assigns), do: CoupPhx2Web.GameView.render("game.html", assigns)
 
@@ -44,151 +40,36 @@ defmodule CoupPhx2Web.GameLive do
 
     Phoenix.PubSub.subscribe(:game_pubsub, game_name)
 
-    current_player = Game.get_player(game_pid, session_id)
-
     socket =
       socket
       |> put_date()
-      |> assign(session_id: current_player.session_id)
-      |> assign(name: current_player.name)
-      |> assign(role: current_player.role)
-      |> assign(toasts: [])
+      |> assign(session_id: session_id)
       |> assign(game_pid: game_pid)
       |> fetch()
 
     {:ok, socket}
   end
 
-  ### EVENT LISTENERS
-
-  def handle_info(:player_joined, socket) do
-    socket =
-      socket
-      |> fetch()
-      |> append_toast(:info, "Player joined.")
-
-    {:noreply, socket}
-  end
-
-  def handle_info(:game_started, socket) do
-    socket =
-      socket
-      |> fetch()
-      |> append_toast(:info, "Game started!")
-
-    {:noreply, socket}
-  end
-
-  def handle_info(:deck_shuffled, socket) do
-    socket =
-      socket
-      |> fetch()
-      |> append_toast(:info, "Deck shuffled.")
-
-    {:noreply, socket}
-  end
-
-  def handle_info({:card_drawn, player}, socket) do
-    socket =
-      socket
-      |> fetch()
-      |> append_toast(:info, "#{player.name} drew a card.")
-
-    {:noreply, socket}
-  end
-
-  def handle_info({:turn_started, player}, socket) do
-    socket =
-      socket
-      |> fetch()
-      |> append_toast(:info, "It's #{player.name}'s turn.")
-
-    {:noreply, socket}
-  end
+  ### EVENTS ###
 
   def handle_info(:tick, socket) do
     socket =
       socket
       |> put_date()
-      |> expire_toasts()
 
     {:noreply, socket}
   end
 
-  ### EVENTS (clicks)
-
-  def handle_event("start_game", _value, socket) do
-    case Game.start_game(socket.assigns.game_pid) do
-      :ok ->
-        {:noreply, socket}
-
-      {:error, reason} ->
-        {:noreply, socket |> append_toast(:danger, reason)}
-    end
-  end
-
-  # DEBUG CSS
-  def handle_event("toast_test", value, socket) do
-    socket =
-      socket
-      |> append_toast(:info, "test test #{value} #{:rand.uniform(999_999)}")
-
-    {:noreply, socket}
-  end
-
-  ### HELPERS
+  ### PRIVATE ###
 
   defp put_date(socket) do
     assign(socket, date: Timex.local() |> Timex.to_datetime("Asia/Singapore"))
   end
 
-  defp append_toast(socket, type, body) do
-    toasts = socket.assigns.toasts
-    expiry = Timex.shift(Timex.now(), milliseconds: @toast_expiry)
-
-    toast = %{type: type, body: body, expiry: expiry, exiting: ""}
-
-    socket
-    |> assign(toasts: toasts ++ [toast])
-  end
-
-  defp expire_toasts(socket) do
-    toasts =
-      socket.assigns.toasts
-      |> Enum.map(&add_exiting/1)
-      |> Enum.filter(fn %{expiry: expiry} -> Timex.after?(expiry, Timex.now()) end)
-
-    socket
-    |> assign(toasts: toasts)
-  end
-
-  defp add_exiting(%{expiry: expiry} = toast) do
-    exiting_time = Timex.shift(expiry, milliseconds: -@toast_animation)
-
-    if Timex.before?(exiting_time, Timex.now()) do
-      %{toast | exiting: "exiting"}
-    else
-      toast
-    end
-  end
-
   defp fetch(socket) do
-    players = Game.list_players(socket.assigns.game_pid)
-
-    current_player =
-      players |> Enum.find(fn player -> player.session_id == socket.assigns.session_id end)
-
-    player_chunks = players |> Enum.chunk_every(3, 3, [:spacer, :spacer])
-    data = Game.get_game_data(socket.assigns.game_pid)
-    player_turn = Helper.is_player_turn(data, socket.assigns.session_id)
+    data = Game.get_game_data(socket.assigns.game_pid, socket.assigns.session_id)
 
     socket
-    |> assign(players: players)
-    |> assign(current_player: current_player)
-    |> assign(player_chunks: player_chunks)
-    |> assign(state: Game.get_game_state(socket.assigns.game_pid))
     |> assign(data: data)
-    |> assign(turn: data.turn)
-    |> assign(player_turn: data)
   end
 end

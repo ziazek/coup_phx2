@@ -26,8 +26,12 @@
   <%= render "_myhand.html", data: @data %>
 
   <div class="toast-wrapper relative bg-blue-lighter flex flex-col items-center justify-center py-2">
-    <%= for toast <- @data.toast do %>
-    <div class="toast-content text-indigo-darker <%= toast.classes %>">
+    <%= for {toast, index} <- Enum.with_index(@data.toast) do %>
+    <%= if index == 0 do %>
+    <div class="toast-content text-indigo-darker fadeInUp animated">
+    <% else %>
+    <div class="toast-content text-indigo-darker fadeOutUp animated">
+    <% end %>
       <%= toast.body %>
     </div>
     <% end %>

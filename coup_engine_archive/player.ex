@@ -9,7 +9,8 @@ defmodule CoupEngineArchive.Player do
             hand: [],
             coins: 0,
             possible_actions: [],
-            possible_responses: []
+            possible_responses: [],
+            state: nil
 
   alias __MODULE__
   alias CoupEngineArchive.{PossibleAction, PossibleResponse}

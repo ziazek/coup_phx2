@@ -16,3 +16,5 @@ config :coup_phx2, CoupPhx2.Repo,
   database: "coup_phx2_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+config :coup_phx2, :game_pubsub, PubSubMock

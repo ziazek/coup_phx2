@@ -1,23 +1,28 @@
 defmodule CoupEngine.InitTest do
   use CoupPhx2Web.GameCase, async: true
 
-  alias CoupEngine.{Game, Action, Card, Player}
+  alias CoupEngine.{Game, Action, Card, Player, Toast}
 
   describe "init/1 initial game data" do
     setup do
       result = Game.init({"game_id1", "session_id1", "GroupCreator"})
 
-      {:ok, %{game_name: game_name, players: players, deck: deck, state: state}} = result
+      {:ok, %{game_name: game_name, players: players, deck: deck, state: state, toast: toast}} =
+        result
 
-      {:ok, %{game_name: game_name, players: players, deck: deck, state: state}}
+      {:ok, %{game_name: game_name, players: players, deck: deck, state: state, toast: toast}}
     end
 
     test "should contain game name", %{game_name: game_name} do
       assert game_name == "game_id1"
     end
 
-    test "should have state init", %{state: state} do
-      assert state == "init"
+    test "should have state adding_players", %{state: state} do
+      assert state == "adding_players"
+    end
+
+    test "should have a toast 'Waiting for players'", %{toast: toast} do
+      assert toast == [%Toast{body: "Waiting for players"}]
     end
 
     test "should have a complete deck of 15 cards", %{deck: deck} do

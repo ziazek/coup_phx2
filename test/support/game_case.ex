@@ -17,10 +17,12 @@ defmodule CoupPhx2Web.GameCase do
 
   using do
     quote do
-      alias CoupEngine.{Game, Rules}
+      alias CoupEngine.{Game}
 
       defp initial_state(map_to_merge \\ %{}) do
-        %{}
+        {:ok, state} = Game.init({"game_id1", "session_id1", "GroupCreator"})
+
+        state
         |> Map.merge(map_to_merge)
       end
     end

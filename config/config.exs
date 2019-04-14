@@ -20,6 +20,9 @@ config :coup_phx2, CoupPhx2Web.Endpoint,
     signing_salt: "7szqDN2zJXwIMjq1naqRn582kxSXApT3"
   ]
 
+# Configures game pubsub
+config :coup_phx2, :game_pubsub, Phoenix.PubSub
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

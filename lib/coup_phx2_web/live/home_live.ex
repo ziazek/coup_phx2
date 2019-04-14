@@ -36,7 +36,7 @@ defmodule CoupPhx2Web.HomeLive do
       |> User.changeset(params)
 
     if changeset.valid? do
-      random_id = Coup.IdGenerator.randstring(6)
+      random_id = CoupEngine.IdGenerator.randstring(6)
 
       {:stop,
        socket
