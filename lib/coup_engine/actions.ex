@@ -1,10 +1,19 @@
-defmodule CoupEngine.ActionFactory do
+defmodule CoupEngine.Actions do
   @moduledoc """
   Generates lists of actions, responses
   """
 
   alias CoupEngine.Action
 
+  @spec enable_actions_for_coins(non_neg_integer()) :: [%Action{}]
+  def enable_actions_for_coins(coins) do
+    default_actions()
+    |> Enum.map(fn action ->
+      action |> Map.put(:state, "enabled")
+    end)
+  end
+
+  @spec default_actions() :: [%Action{}]
   def default_actions() do
     [
       %Action{
@@ -45,6 +54,7 @@ defmodule CoupEngine.ActionFactory do
     ]
   end
 
+  @spec default_responses() :: [%Action{}]
   def default_responses() do
     [
       %Action{

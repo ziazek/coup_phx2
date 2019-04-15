@@ -12,6 +12,7 @@ defmodule CoupEngine.GameStateMachine do
   def check("game_started", :shuffle), do: {:ok, "deck_shuffled"}
   def check("deck_shuffled", :draw_card), do: {:ok, "drawing_cards"}
   def check("drawing_cards", :draw_card), do: {:ok, "drawing_cards"}
+  def check("cards_drawn", :start_turn), do: {:ok, "player_action"}
   def check(_, _), do: {:error, "invalid game state"}
 
   @spec check(String.t(), atom(), pos_integer()) :: {:ok, String.t()} | {:error, String.t()}

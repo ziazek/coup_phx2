@@ -12,18 +12,19 @@ defmodule CoupEngine.Player do
             actions_panel_mode: "actions_disabled",
             display_state: "default",
             actions: [],
-            responses: []
+            responses: [],
+            state: nil
 
   alias __MODULE__
-  alias CoupEngine.{ActionFactory, Card}
+  alias CoupEngine.{Actions, Card}
 
   @spec initialize(String.t(), String.t(), map()) :: %__MODULE__{}
   def initialize(session_id, player_name, attrs) do
     %Player{
       session_id: session_id,
       name: player_name,
-      actions: ActionFactory.default_actions(),
-      responses: ActionFactory.default_responses()
+      actions: Actions.default_actions(),
+      responses: Actions.default_responses()
     }
     |> Map.merge(attrs)
   end

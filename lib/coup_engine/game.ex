@@ -5,7 +5,7 @@ defmodule CoupEngine.Game do
 
   use GenServer
 
-  alias CoupEngine.{Deck, Player, GameStateMachine, Toast, Turn}
+  alias CoupEngine.{Deck, GameStateMachine, Player, Players, Toast, Turn}
 
   @pubsub Application.get_env(:coup_phx2, :game_pubsub)
   @process Application.get_env(:coup_phx2, :game_process)
@@ -141,18 +141,38 @@ defmodule CoupEngine.Game do
          {:ok, card, deck_rem} <- Deck.draw_top_card(deck),
          {:ok, player, players} <- Player.add_to_hand(players, player_index, card),
          {:ok, next_state} <- GameStateMachine.check_cards_drawn(next_state, players) do
-      next_player_draw_card(next_state, players, player_index)
-
-      toast =
-        if next_state == "cards_drawn" do
-          toast |> Toast.add("All players have drawn their cards.")
-        else
-          toast |> Toast.add("#{player.name} drew a card.")
-        end
+      draw_card_or_start_turn(next_state, players, player_index)
+      toast = draw_card_toast(toast, next_state, player)
 
       state_data
       |> Map.put(:deck, deck_rem)
       |> Map.put(:players, players)
+      |> Map.put(:toast, toast)
+      |> Map.put(:state, next_state)
+      |> noreply(:broadcast_change)
+    else
+      {:error, reason} ->
+        toast = toast |> Toast.add(reason)
+        state_data = state_data |> Map.put(:toast, toast)
+        {:noreply, state_data}
+    end
+  end
+
+  @spec handle_info({:start_turn, non_neg_integer()}, map()) ::
+          {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
+  def handle_info(
+        {:start_turn, player_index},
+        %{players: players, toast: toast, turn: turn} = state_data
+      ) do
+    with {:ok, next_state} <- GameStateMachine.check(state_data.state, :start_turn),
+         {:ok, players} <- Players.start_turn(players, player_index),
+         {:ok, updated_turn} <- Turn.build(turn, players, player_index) do
+      player = players |> Enum.at(player_index)
+      toast = toast |> Toast.add("It's #{player.name}'s turn.")
+
+      state_data
+      |> Map.put(:players, players)
+      |> Map.put(:turn, updated_turn)
       |> Map.put(:toast, toast)
       |> Map.put(:state, next_state)
       |> noreply(:broadcast_change)
@@ -198,11 +218,25 @@ defmodule CoupEngine.Game do
     end
   end
 
+  defp draw_card_or_start_turn("drawing_cards", players, player_index) do
+    next_player_draw_card("drawing_cards", players, player_index)
+  end
+
+  defp draw_card_or_start_turn("cards_drawn", _, _) do
+    @process.send_after(self(), {:start_turn, 0}, 1000)
+  end
+
   defp next_player_draw_card("drawing_cards", players, player_index) do
     next_index = if player_index == length(players) - 1, do: 0, else: player_index + 1
 
     @process.send_after(self(), {:draw_card, next_index}, 1_000)
   end
 
-  defp next_player_draw_card(_rules, _, _), do: :do_nothing
+  defp draw_card_toast(toast, next_state, player) do
+    if next_state == "cards_drawn" do
+      toast |> Toast.add("All players have drawn their cards.")
+    else
+      toast |> Toast.add("#{player.name} drew a card.")
+    end
+  end
 end

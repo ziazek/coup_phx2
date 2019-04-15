@@ -1,8 +1,10 @@
-<div class="action-item text-center pb-1">
-  <%= render "_challenge_svg.html" %>
-  <div class="action-label uppercase text-green-darker">Challenge</div>
+<%= for action <- Map.get(@data.current_player, :responses, []) do %>
+<%= if action.state == "enabled" do %>
+  <div class="action-item text-center pb-1">
+<% else %>
+  <div class="action-item text-center pb-1 disabled">
+<% end %>
+  <%= render "_#{Map.get(action, :action)}_svg.html" %>
+  <div class="action-label uppercase text-green-darker"><%= action.label %></div>
 </div>
-<div class="action-item text-center pb-1">
-  <%= render "_block_svg.html" %>
-  <div class="action-label uppercase text-green-darker">Block</div>
-</div>
+<% end %>

@@ -1,10 +1,10 @@
 <%# Player %>
-<%= if @data.turn.player.state == "pending" do %>
+<%= if Map.get(@data.turn.player, :state) == "pending" do %>
 <div class="turn-item pending text-center pb-1">
   <%= render "_dottedcircle_svg.html" %>
 </div>
 <% end %>
-<%= if @data.turn.player.state == "ok" do %>
+<%= if Map.get(@data.turn.player, :state) == "ok" do %>
 <div class="turn-item text-center pb-1">
   <%= render "_thinking_svg.html" %>
   <div class="turn-label uppercase"><%= @data.turn.player.name %></div>
