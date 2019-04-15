@@ -15,7 +15,7 @@ defmodule CoupPhx2Web.SetNameLive do
       socket
       |> put_date()
       |> assign(%{
-        changeset: User.changeset(%User{}, %{name: "Your name"}),
+        changeset: User.changeset(%User{}, %{name: ""}),
         game: game
       })
 

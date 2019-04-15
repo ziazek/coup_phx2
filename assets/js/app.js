@@ -11,6 +11,7 @@ import css from "../css/app.sass"
 //
 import "phoenix_html"
 import LiveSocket from "phoenix_live_view"
+// import LiveSocket from "./live_view"
 
 let liveSocket = new LiveSocket("/live")
 liveSocket.connect()

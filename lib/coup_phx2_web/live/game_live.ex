@@ -52,11 +52,29 @@ defmodule CoupPhx2Web.GameLive do
 
   ### EVENTS ###
 
+  def handle_event("start_game", _value, socket) do
+    case Game.start_game(socket.assigns.game_pid) do
+      :ok ->
+        {:noreply, socket}
+
+      {:error, reason} ->
+        {:noreply, socket}
+        # {:noreply, socket |> append_toast(:danger, reason)}
+    end
+  end
+
   def handle_info(:tick, socket) do
     socket =
       socket
       |> put_date()
 
+    {:noreply, socket}
+  end
+
+  ### SUBSCRIBED EVENTS ###
+
+  def handle_info(:game_data_changed, socket) do
+    socket = socket |> fetch()
     {:noreply, socket}
   end
 

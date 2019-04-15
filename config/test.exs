@@ -18,3 +18,4 @@ config :coup_phx2, CoupPhx2.Repo,
   pool: Ecto.Adapters.SQL.Sandbox
 
 config :coup_phx2, :game_pubsub, PubSubMock
+config :coup_phx2, :game_process, ProcessMock

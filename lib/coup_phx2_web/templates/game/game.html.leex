@@ -2,9 +2,6 @@
   <div class="meta">
     <p class="text-xs fadeInUp animated" phx-click="boom">It's
       <%= Timex.format!(@date, "{UNIX}") %>
-      <button class="btn btn-blue" phx-click="next_step">
-        Next
-      </button>
     </p>
   </div>
 
@@ -27,16 +24,16 @@
 
   <div class="toast-wrapper relative bg-blue-lighter flex flex-col items-center justify-center py-2">
     <%= for {toast, index} <- Enum.with_index(@data.toast) do %>
-    <%= if index == 0 do %>
-    <div class="toast-content text-indigo-darker fadeInUp animated">
+    <%= if index == (length(@data.toast) -1 ) do %>
+    <div class="toast-content text-indigo-darker fadeInUp animated fast">
     <% else %>
-    <div class="toast-content text-indigo-darker fadeOutUp animated">
+    <div class="toast-content text-indigo-darker fadeOutUp animated fast">
     <% end %>
       <%= toast.body %>
     </div>
     <% end %>
-    <!-- <div class="overlay fadeIn animated faster"></div> -->
-  </div>
+  </div><!-- toast-wrapper -->
+
   <div class="turn-wrapper relative bg-pink-light flex items-center justify-center py-1">
     <%= render "_turn.html", data: @data %>
     <%= render "_overlay.html", data: @data, show_on: ["select_target", "change_card"] %>
@@ -44,28 +41,32 @@
   <div class="actions-wrapper relative bg-green-light flex items-center justify-around py-3 px-2">
     <%= if Map.get(@data.current_player, :actions_panel_mode) == "responses" do %>
     <div class="responses flex bounceIn animated">
-      <% else %>
-      <div class="responses flex fadeOut animated hide">
-        <% end %>
-        <%= render "_responses.html", data: @data %>
-      </div>
-
-      <%= if Map.get(@data.current_player, :actions_panel_mode) == "actions" do %>
-      <div class="actions flex bounceIn animated">
-        <% else %>
-        <div class="actions flex fadeOut animated hide">
-          <% end %>
-          <%= render "_actions.html", data: @data %>
-        </div>
-
-        <%= if Map.get(@data.current_player, :actions_panel_mode) == "actions_disabled" do %>
-        <div class="actions flex">
-          <%= render "_actions_disabled.html", data: @data %>
-        </div>
-        <% end %>
-
-        <%= render "_overlay.html", data: @data, show_on: ["select_target", "change_card"] %>
-      </div>
+    <% else %>
+    <div class="responses flex fadeOut animated hide">
+    <% end %>
+      <%= render "_responses.html", data: @data %>
     </div>
-  </div>
-</div>
+
+    <%= if Map.get(@data.current_player, :actions_panel_mode) == "actions" do %>
+    <div class="actions flex bounceIn animated">
+    <% else %>
+    <div class="actions flex fadeOut animated hide">
+    <% end %>
+      <%= render "_actions.html", data: @data %>
+    </div>
+
+    <%= if Map.get(@data.current_player, :actions_panel_mode) == "actions_disabled" do %>
+    <div class="actions flex">
+      <%= render "_actions_disabled.html", data: @data %>
+    </div>
+    <% end %>
+
+    <%= if length(@data.players) >= 2 && @data.state == "adding_players" && @data.current_player.role == "creator" do %>
+    <div class="start-game absolute">
+      <button class="btn btn-blue" phx-click="start_game">Start Game</button>
+    </div>
+    <% end %>
+
+    <%= render "_overlay.html", data: @data, show_on: ["select_target", "change_card"] %>
+  </div><!-- turn-wrapper -->
+</div><!-- game-container -->

@@ -20,8 +20,9 @@ config :coup_phx2, CoupPhx2Web.Endpoint,
     signing_salt: "7szqDN2zJXwIMjq1naqRn582kxSXApT3"
   ]
 
-# Configures game pubsub
+# Configures game pubsub and Process, for the purpose of mocking in tests
 config :coup_phx2, :game_pubsub, Phoenix.PubSub
+config :coup_phx2, :game_process, Process
 
 # Configures Elixir's Logger
 config :logger, :console,

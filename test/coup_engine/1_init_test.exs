@@ -7,10 +7,25 @@ defmodule CoupEngine.InitTest do
     setup do
       result = Game.init({"game_id1", "session_id1", "GroupCreator"})
 
-      {:ok, %{game_name: game_name, players: players, deck: deck, state: state, toast: toast}} =
-        result
+      {:ok,
+       %{
+         game_name: game_name,
+         players: players,
+         deck: deck,
+         state: state,
+         toast: toast,
+         turn: turn
+       }} = result
 
-      {:ok, %{game_name: game_name, players: players, deck: deck, state: state, toast: toast}}
+      {:ok,
+       %{
+         game_name: game_name,
+         players: players,
+         deck: deck,
+         state: state,
+         toast: toast,
+         turn: turn
+       }}
     end
 
     test "should contain game name", %{game_name: game_name} do
@@ -23,6 +38,14 @@ defmodule CoupEngine.InitTest do
 
     test "should have a toast 'Waiting for players'", %{toast: toast} do
       assert toast == [%Toast{body: "Waiting for players"}]
+    end
+
+    test "should have a turn with all attributes pending", %{turn: turn} do
+      assert turn.player.state == "pending"
+      assert turn.action.state == "pending"
+      assert turn.target.state == "pending"
+      assert turn.target_response.state == "pending"
+      assert turn.player_response_to_target.state == "pending"
     end
 
     test "should have a complete deck of 15 cards", %{deck: deck} do

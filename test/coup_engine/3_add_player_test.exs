@@ -1,7 +1,7 @@
 defmodule CoupEngine.AddPlayerTest do
   use CoupPhx2Web.GameCase, async: true
 
-  alias CoupEngine.{Game, Player}
+  alias CoupEngine.{Game, Player, Toast}
 
   describe "add_player/3" do
     setup do
@@ -27,6 +27,16 @@ defmodule CoupEngine.AddPlayerTest do
       assert length(updated_state.players) == 2
       player2 = updated_state.players |> Enum.at(1)
       assert length(player2.actions) == 7
+    end
+
+    test "should update toast", %{state: state} do
+      {:reply, :ok, updated_state, _continue} =
+        Game.handle_call({:add_player, "session_id2", "A1"}, "_pid", state)
+
+      assert updated_state.toast == [
+               %Toast{body: "Waiting for players"},
+               %Toast{body: "A1 has joined the game."}
+             ]
     end
 
     test "given duplicate session_id, should return error", %{state: state} do
