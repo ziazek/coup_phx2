@@ -1,7 +1,7 @@
 defmodule CoupEngine.InitTest do
   use CoupPhx2Web.GameCase, async: true
 
-  alias CoupEngine.{Game, Action, Card, Player, Toast}
+  alias CoupEngine.{Action, Card, Game, Player, Toast}
 
   describe "init/1 initial game data" do
     setup do

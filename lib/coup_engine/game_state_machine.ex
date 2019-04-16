@@ -15,7 +15,8 @@ defmodule CoupEngine.GameStateMachine do
   def check("cards_drawn", :start_turn), do: {:ok, "player_action"}
   def check(_, _), do: {:error, "invalid game state"}
 
-  @spec check(String.t(), atom(), pos_integer()) :: {:ok, String.t()} | {:error, String.t()}
+  @spec check(String.t(), atom(), pos_integer() | String.t()) ::
+          {:ok, String.t()} | {:error, String.t()}
   def check("adding_players", :add_player, count) when count < @max_players,
     do: {:ok, "adding_players"}
 
@@ -27,6 +28,8 @@ defmodule CoupEngine.GameStateMachine do
 
   def check("adding_players", :start_game, count) when count < @min_players,
     do: {:error, "Insufficient players. Need at least #{@min_players}."}
+
+  def check("player_action", :action, "1coin"), do: {:ok, "action_success"}
 
   def check(_, _, _), do: {:error, "invalid game state"}
 

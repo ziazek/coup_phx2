@@ -5,7 +5,7 @@ defmodule CoupEngine.Game do
 
   use GenServer
 
-  alias CoupEngine.{Deck, GameStateMachine, Player, Players, Toast, Turn}
+  alias CoupEngine.{Actions, Deck, GameStateMachine, Player, Players, Toast, Turn}
 
   @pubsub Application.get_env(:coup_phx2, :game_pubsub)
   @process Application.get_env(:coup_phx2, :game_process)
@@ -30,6 +30,9 @@ defmodule CoupEngine.Game do
 
   @spec start_game(pid()) :: any()
   def start_game(pid), do: GenServer.call(pid, :start_game)
+
+  @spec action(pid(), String.t()) :: any()
+  def action(pid, action_name), do: GenServer.call(pid, {:action, action_name})
 
   ### SERVER ###
 
@@ -98,6 +101,30 @@ defmodule CoupEngine.Game do
       @process.send_after(self(), :shuffle, 1000)
 
       state_data
+      |> Map.put(:toast, toast)
+      |> Map.put(:state, next_state)
+      |> reply_success(:ok, :broadcast_change)
+    else
+      error -> {:reply, error, state_data}
+    end
+  end
+
+  @spec handle_call({:action, String.t()}, any(), map()) ::
+          {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
+  def handle_call(
+        {:action, action},
+        _from,
+        %{toast: toast, turn: turn} = state_data
+      ) do
+    with {:ok, next_state} <- GameStateMachine.check(state_data.state, :action, action),
+         {:ok, claimed_character} <- Actions.get_claimed_character(action),
+         {:ok, description} <- Actions.get_description(action),
+         {:ok, turn_action} <- Actions.get_turn_action(action) do
+      toast = toast |> Toast.add("#{turn.player.name} #{description}")
+      turn = turn |> Map.put(:action, turn_action)
+
+      state_data
+      |> Map.put(:turn, turn)
       |> Map.put(:toast, toast)
       |> Map.put(:state, next_state)
       |> reply_success(:ok, :broadcast_change)

@@ -1,7 +1,7 @@
 defmodule CoupEngine.ShuffleTest do
   use CoupPhx2Web.GameCase, async: true
 
-  alias CoupEngine.{Game, Card}
+  alias CoupEngine.{Card, Game}
 
   describe "shuffle" do
     setup do

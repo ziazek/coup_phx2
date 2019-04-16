@@ -14,6 +14,9 @@ defmodule CoupPhx2.DataCase do
 
   use ExUnit.CaseTemplate
 
+  alias CoupPhx2.Repo
+  alias Ecto.Adapters.SQL.Sandbox
+
   using do
     quote do
       alias CoupPhx2.Repo
@@ -26,10 +29,10 @@ defmodule CoupPhx2.DataCase do
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(CoupPhx2.Repo)
+    :ok = Sandbox.checkout(Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(CoupPhx2.Repo, {:shared, self()})
+      Sandbox.mode(Repo, {:shared, self()})
     end
 
     :ok

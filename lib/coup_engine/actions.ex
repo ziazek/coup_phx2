@@ -5,6 +5,43 @@ defmodule CoupEngine.Actions do
 
   alias CoupEngine.Action
 
+  @actions %{
+    "1coin" => %{
+      claimed_character: nil,
+      description: "took one coin."
+    }
+  }
+
+  @spec get_claimed_character(String.t()) :: {:ok, nil | String.t()}
+  def get_claimed_character(action) do
+    character =
+      @actions
+      |> Map.get(action)
+      |> Map.get(:claimed_character)
+
+    {:ok, character}
+  end
+
+  @spec get_description(String.t()) :: {:ok, nil | String.t()}
+  def get_description(action) do
+    description =
+      @actions
+      |> Map.get(action)
+      |> Map.get(:description)
+
+    {:ok, description}
+  end
+
+  @spec get_turn_action(String.t()) :: {:ok, %Action{}}
+  def get_turn_action(action) do
+    turn_action =
+      default_actions()
+      |> Enum.find(fn a -> a.action == action end)
+      |> Map.put(:state, "ok")
+
+    {:ok, turn_action}
+  end
+
   @spec enable_actions_for_coins(non_neg_integer()) :: [%Action{}]
   def enable_actions_for_coins(coins) do
     default_actions()
@@ -14,7 +51,7 @@ defmodule CoupEngine.Actions do
   end
 
   @spec default_actions() :: [%Action{}]
-  def default_actions() do
+  def default_actions do
     [
       %Action{
         action: "coup",
@@ -55,7 +92,7 @@ defmodule CoupEngine.Actions do
   end
 
   @spec default_responses() :: [%Action{}]
-  def default_responses() do
+  def default_responses do
     [
       %Action{
         action: "challenge",

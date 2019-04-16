@@ -14,6 +14,7 @@ defmodule CoupPhx2Web.ConnCase do
   """
 
   use ExUnit.CaseTemplate
+  alias Ecto.Adapters.SQL.Sandbox
 
   using do
     quote do
@@ -27,10 +28,10 @@ defmodule CoupPhx2Web.ConnCase do
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(CoupPhx2.Repo)
+    :ok = Sandbox.checkout(CoupPhx2.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(CoupPhx2.Repo, {:shared, self()})
+      Sandbox.mode(CoupPhx2.Repo, {:shared, self()})
     end
 
     {:ok, conn: Phoenix.ConnTest.build_conn()}

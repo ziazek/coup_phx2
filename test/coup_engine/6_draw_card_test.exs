@@ -1,7 +1,7 @@
 defmodule CoupEngine.DrawCardTest do
   use CoupPhx2Web.GameCase, async: true
 
-  alias CoupEngine.{Game, Card, Player}
+  alias CoupEngine.{Card, Game, Player}
 
   describe "draw_card, player_index" do
     setup do

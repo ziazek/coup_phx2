@@ -1,7 +1,7 @@
 defmodule CoupEngine.PlayerActionTest do
   use CoupPhx2Web.GameCase, async: true
 
-  alias CoupEngine.{Game, Player, Action}
+  alias CoupEngine.{Action, Game, Player}
 
   describe "when player has < 10 coins" do
     setup do
@@ -61,4 +61,12 @@ defmodule CoupEngine.PlayerActionTest do
              ]
     end
   end
+
+  # describe "when player has >= 10 coins" do
+  #   # should only see coup enabled
+  # end
+  #
+  # describe "when player has < 3 coins" do
+  #   # should not see coup and assassinate enabled
+  # end
 end
