@@ -52,8 +52,9 @@ defmodule CoupEngine.AttemptActionCoupTest do
       assert vincent.display_state == "default"
     end
 
-    # test "should send select_target to self" do
-    #   assert_receive {:select_target, 50}
+    # TODO
+    # test "should deduct 7 coins from Jany" do
+    #
     # end
   end
 

@@ -60,6 +60,16 @@ defmodule CoupEngine.Actions do
 
   def get_select_target_description(_, _, _), do: {:error, "Invalid action, cannot describe"}
 
+  def get_action_success_description("1coin", player_name, _target) do
+    {:ok, "#{player_name} received 1 coin."}
+  end
+
+  def get_action_success_description("coup", _player_name, %{name: target_name} = _target) do
+    {:ok, "#{target_name} loses 1 influence. Choosing card to discard..."}
+  end
+
+  def get_action_success_description(_, _, _), do: {:error, "Invalid action, cannot describe"}
+
   @spec default_actions() :: [%Action{}]
   def default_actions do
     [

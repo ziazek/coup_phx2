@@ -23,8 +23,8 @@ defmodule CoupEngine.Players do
     {:ok, players}
   end
 
-  @spec apply_action([%Player{}], String.t(), String.t()) :: {:ok, [%Player{}], String.t()}
-  def apply_action(players, session_id, "1coin") do
+  @spec apply_action([%Player{}], String.t(), map(), String.t()) :: {:ok, [%Player{}]}
+  def apply_action(players, "1coin", session_id, _target) do
     players =
       players
       |> Enum.map(fn player ->
@@ -35,11 +35,21 @@ defmodule CoupEngine.Players do
         end
       end)
 
-    player = Enum.find(players, fn p -> p.session_id == session_id end)
+    {:ok, players}
+  end
 
-    description = "#{player.name} received 1 coin."
+  def apply_action(players, "coup", _session_id, %{session_id: target_session_id} = _target) do
+    players =
+      players
+      |> Enum.map(fn player ->
+        if player.session_id == target_session_id do
+          player |> Map.put(:display_state, "lose_influence")
+        else
+          player
+        end
+      end)
 
-    {:ok, players, description}
+    {:ok, players}
   end
 
   def apply_action(_, _, _) do
@@ -62,4 +72,13 @@ defmodule CoupEngine.Players do
   end
 
   def set_display_state(players, _, _), do: {:ok, players}
+
+  @spec reset_display_state([%Player{}]) :: {:ok, [%Player{}]}
+  def reset_display_state(players) do
+    players =
+      players
+      |> Enum.map(fn player -> player |> Map.put(:display_state, "default") end)
+
+    {:ok, players}
+  end
 end

@@ -15,7 +15,6 @@ defmodule CoupEngine.GameStateMachine do
   def check("cards_drawn", :start_turn), do: {:ok, "player_action"}
   def check("turn_ended", :start_turn), do: {:ok, "player_action"}
   def check("turn_ending", :end_turn), do: {:ok, "turn_ended"}
-  def check("action_success", :action_success), do: {:ok, "turn_ending"}
   def check(_, _), do: {:error, "invalid game state"}
 
   @spec check(String.t(), atom(), pos_integer() | String.t()) ::
@@ -37,6 +36,8 @@ defmodule CoupEngine.GameStateMachine do
 
   def check("select_target", :select_target, "coup"), do: {:ok, "action_success"}
 
+  def check("action_success", :action_success, "1coin"), do: {:ok, "turn_ending"}
+  def check("action_success", :action_success, "coup"), do: {:ok, "lose_influence"}
   def check(_, _, _), do: {:error, "invalid game state"}
 
   @doc """

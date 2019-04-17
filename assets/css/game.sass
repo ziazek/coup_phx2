@@ -12,6 +12,15 @@
     fill: config('colors.white')
     font-size: 1.2rem
 
+// SELECT TARGET
+.select_target
+  .deck
+    opacity: 0.3
+  .player-inner-wrapper
+    opacity: 0.3
+    &.selectable
+      opacity: 1
+
 .player
   transition: flex 1s ease-out
   flex: 1
@@ -37,7 +46,6 @@
   .card-text
     fill: white
     font-size: 0.4rem
-
 
 .card
   fill: config('colors.orange')
@@ -131,7 +139,7 @@
     margin: 0.5rem
     &.pending
       // height: 2.4rem
-      
+
   .turn-label
     font-size: 0.3rem
 

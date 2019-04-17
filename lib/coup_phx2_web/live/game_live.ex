@@ -73,6 +73,17 @@ defmodule CoupPhx2Web.GameLive do
     end
   end
 
+  def handle_event("select_target", session_id, socket) do
+    case Game.select_target(socket.assigns.game_pid, session_id) do
+      :ok ->
+        {:noreply, socket}
+
+      {:error, reason} ->
+        {:noreply, socket}
+        # {:noreply, socket |> append_toast(:danger, reason)}
+    end
+  end
+
   def handle_info(:tick, socket) do
     socket =
       socket

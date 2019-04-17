@@ -152,13 +152,15 @@ defmodule CoupEngine.Game do
            GameStateMachine.check(state_data.state, :select_target, action.action),
          {:ok, turn, target_player} <- Turn.set_target(turn, players, session_id),
          {:ok, description} <-
-           Actions.get_select_target_description(action.action, player.name, target_player.name) do
+           Actions.get_select_target_description(action.action, player.name, target_player.name),
+         {:ok, players} <- Players.reset_display_state(players) do
       toast = toast |> Toast.add(description)
       select_target_send_after(next_state)
 
       state_data
       |> Map.put(:turn, turn)
       |> Map.put(:toast, toast)
+      |> Map.put(:players, players)
       |> Map.put(:state, next_state)
       |> reply_success(:ok, :broadcast_change)
     else
@@ -251,14 +253,17 @@ defmodule CoupEngine.Game do
         %{
           players: players,
           toast: toast,
-          turn: %{action: action, player: player} = turn
+          turn: %{action: action, player: player, target: target} = turn
         } = state_data
       ) do
-    with {:ok, next_state} <- GameStateMachine.check(state_data.state, :action_success),
-         {:ok, players, description} <-
-           Players.apply_action(players, player.session_id, action.action) do
+    with {:ok, next_state} <-
+           GameStateMachine.check(state_data.state, :action_success, action.action),
+         {:ok, players} <-
+           Players.apply_action(players, action.action, player.session_id, target),
+         {:ok, description} <-
+           Actions.get_action_success_description(action.action, player.name, target),
+         {:ok, turn} <- Turn.get_action_success_next_turn(turn, action.action) do
       toast = toast |> Toast.add(description)
-      turn = turn |> Map.put(:state, "ended")
       @process.send_after(self(), :end_turn, 1_000)
 
       state_data

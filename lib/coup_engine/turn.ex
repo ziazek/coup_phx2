@@ -37,4 +37,12 @@ defmodule CoupEngine.Turn do
 
     {:ok, updated_turn, player}
   end
+
+  def get_action_success_next_turn(turn, "1coin") do
+    {:ok, turn |> Map.put(:state, "ended")}
+  end
+
+  def get_action_success_next_turn(turn, _) do
+    {:ok, turn}
+  end
 end
