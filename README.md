@@ -10,6 +10,7 @@ mix edeliver deploy release to production
 
 ## Feature roadmap
 
+- disable actions after an action is clicked
 - should indicate whether user is online or offline based on Presence
 - should show exclamation mark if an action is "unsafe" (is a bluff)
 - should show individual toasts, which should expire after 5 seconds.
@@ -18,6 +19,7 @@ mix edeliver deploy release to production
 - card art - follow Coup colours
 - countdown timer - always default to some action
 - default action on 'select target' step should incur a coin penalty
+- remove outdated toasts every few seconds
 
 ### Lower priority features
 
