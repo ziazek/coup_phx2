@@ -1,7 +1,9 @@
 <%# Player %>
 <%= if Map.get(@data.turn.player, :state) == "pending" do %>
-<div class="turn-item pending text-center pb-1">
-  <%= render "_dottedcircle_svg.html" %>
+<div class="turn-item pending text-center items-center justify-center flex">
+  <div class="flex-1">
+    <%= render "_dottedcircle_svg.html" %>
+  </div>
 </div>
 <% end %>
 <%= if Map.get(@data.turn.player, :state) == "ok" do %>
@@ -17,8 +19,10 @@
 
 <%# Action %>
 <%= if @data.turn.action.state == "pending" || @data.turn.action.state == "thinking" do %>
-<div class="turn-item pending text-center pb-1">
-  <%= render "_dottedcircle_svg.html" %>
+<div class="turn-item pending text-center items-center justify-center flex">
+  <div class="flex-1">
+    <%= render "_dottedcircle_svg.html" %>
+  </div>
 </div>
 <% end %>
 <%= if @data.turn.action.state == "ok" do %>
@@ -34,8 +38,10 @@
 
 <%# Target %>
 <%= if @data.turn.target.state == "pending" || @data.turn.target.state == "thinking" do %>
-<div class="turn-item pending text-center pb-1">
-  <%= render "_dottedcircle_svg.html" %>
+<div class="turn-item pending text-center items-center justify-center flex">
+  <div class="flex-1">
+    <%= render "_dottedcircle_svg.html" %>
+  </div>
 </div>
 <% end %>
 <%= if @data.turn.target.state == "ok" do %>
@@ -51,8 +57,10 @@
 
 <%# Target response (can block or allow) %>
 <%= if @data.turn.target_response.state == "pending" || @data.turn.target_response.state == "thinking" do %>
-<div class="turn-item pending text-center pb-1">
-  <%= render "_dottedcircle_svg.html" %>
+<div class="turn-item pending text-center items-center justify-center flex">
+  <div class="flex-1">
+    <%= render "_dottedcircle_svg.html" %>
+  </div>
 </div>
 <% end %>
 <%= if @data.turn.target_response.state == "ok" do %>
@@ -68,8 +76,10 @@
 
 <%# Player response to Target (if target blocks) %>
 <%= if @data.turn.player_response_to_target.state == "pending" || @data.turn.player_response_to_target.state == "thinking" do %>
-<div class="turn-item pending text-center pb-1">
-  <%= render "_dottedcircle_svg.html" %>
+<div class="turn-item pending text-center items-center justify-center flex">
+  <div class="flex-1">
+    <%= render "_dottedcircle_svg.html" %>
+  </div>
 </div>
 <% end %>
 <%= if @data.turn.player_response_to_target.state == "ok" do %>

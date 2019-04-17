@@ -34,6 +34,9 @@ defmodule CoupEngine.Game do
   @spec action(pid(), String.t()) :: any()
   def action(pid, action_name), do: GenServer.call(pid, {:action, action_name})
 
+  @spec select_target(pid(), String.t()) :: any()
+  def select_target(pid, session_id), do: GenServer.call(pid, {:select_target, session_id})
+
   ### SERVER ###
 
   @spec init({String.t(), String.t(), String.t()}) :: {:ok, map()}
@@ -49,7 +52,8 @@ defmodule CoupEngine.Game do
        toast: [
          Toast.initialize("Waiting for players")
        ],
-       turn: Turn.initialize()
+       turn: Turn.initialize(),
+       past_turns: []
      }}
   end
 
@@ -98,7 +102,7 @@ defmodule CoupEngine.Game do
            GameStateMachine.check(state_data.state, :start_game, length(players)) do
       toast = toast |> Toast.add("Game is starting. Shuffling deck...")
 
-      @process.send_after(self(), :shuffle, 1000)
+      @process.send_after(self(), :shuffle, 1_000)
 
       state_data
       |> Map.put(:toast, toast)
@@ -114,14 +118,43 @@ defmodule CoupEngine.Game do
   def handle_call(
         {:action, action},
         _from,
-        %{toast: toast, turn: turn} = state_data
+        %{toast: toast, players: players, turn: turn} = state_data
       ) do
     with {:ok, next_state} <- GameStateMachine.check(state_data.state, :action, action),
-         {:ok, claimed_character} <- Actions.get_claimed_character(action),
+         {:ok, _claimed_character} <- Actions.get_claimed_character(action),
          {:ok, description} <- Actions.get_description(action),
-         {:ok, turn_action} <- Actions.get_turn_action(action) do
+         {:ok, turn_action} <- Actions.get_turn_action(action),
+         {:ok, players} <- Players.set_display_state(players, turn.player.session_id, action) do
       toast = toast |> Toast.add("#{turn.player.name} #{description}")
       turn = turn |> Map.put(:action, turn_action)
+      action_send_after(next_state)
+
+      state_data
+      |> Map.put(:turn, turn)
+      |> Map.put(:players, players)
+      |> Map.put(:toast, toast)
+      |> Map.put(:state, next_state)
+      |> reply_success(:ok, :broadcast_change)
+    else
+      error -> {:reply, error, state_data}
+    end
+  end
+
+  @spec handle_call({:select_target, String.t()}, any(), map()) ::
+          {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
+  def handle_call(
+        {:select_target, session_id},
+        _from,
+        %{toast: toast, players: players, turn: %{action: action, player: player} = turn} =
+          state_data
+      ) do
+    with {:ok, next_state} <-
+           GameStateMachine.check(state_data.state, :select_target, action.action),
+         {:ok, turn, target_player} <- Turn.set_target(turn, players, session_id),
+         {:ok, description} <-
+           Actions.get_select_target_description(action.action, player.name, target_player.name) do
+      toast = toast |> Toast.add(description)
+      select_target_send_after(next_state)
 
       state_data
       |> Map.put(:turn, turn)
@@ -142,7 +175,7 @@ defmodule CoupEngine.Game do
   @spec handle_info(:shuffle, map()) :: {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
   def handle_info(:shuffle, %{deck: deck, toast: toast} = state_data) do
     with {:ok, next_state} <- GameStateMachine.check(state_data.state, :shuffle) do
-      @process.send_after(self(), {:draw_card, 0}, 1000)
+      @process.send_after(self(), {:draw_card, 0}, 1_000)
 
       toast = toast |> Toast.add("Deck shuffled.")
 
@@ -211,28 +244,82 @@ defmodule CoupEngine.Game do
     end
   end
 
+  @spec handle_info(:action_success, map()) ::
+          {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
+  def handle_info(
+        :action_success,
+        %{
+          players: players,
+          toast: toast,
+          turn: %{action: action, player: player} = turn
+        } = state_data
+      ) do
+    with {:ok, next_state} <- GameStateMachine.check(state_data.state, :action_success),
+         {:ok, players, description} <-
+           Players.apply_action(players, player.session_id, action.action) do
+      toast = toast |> Toast.add(description)
+      turn = turn |> Map.put(:state, "ended")
+      @process.send_after(self(), :end_turn, 1_000)
+
+      state_data
+      |> Map.put(:players, players)
+      |> Map.put(:turn, turn)
+      |> Map.put(:toast, toast)
+      |> Map.put(:state, next_state)
+      |> noreply(:broadcast_change)
+    else
+      {:error, reason} ->
+        toast = toast |> Toast.add(reason)
+        state_data = state_data |> Map.put(:toast, toast)
+        {:noreply, state_data}
+    end
+  end
+
+  @spec handle_info(:end_turn, map()) ::
+          {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
+  def handle_info(
+        :end_turn,
+        %{players: players, toast: toast, past_turns: past_turns, turn: %{player: player} = turn} =
+          state_data
+      ) do
+    with {:ok, next_state} <- GameStateMachine.check(state_data.state, :end_turn) do
+      start_next_turn(players, player.session_id)
+
+      state_data
+      |> Map.put(:past_turns, past_turns ++ [turn])
+      |> Map.put(:turn, Turn.initialize())
+      |> Map.put(:state, next_state)
+      |> noreply(:broadcast_change)
+    else
+      {:error, reason} ->
+        toast = toast |> Toast.add(reason)
+        state_data = state_data |> Map.put(:toast, toast)
+        {:noreply, state_data}
+    end
+  end
+
   ### SERVER UTILITIES
 
   @spec reply_success(map(), any(), atom()) ::
           {:reply, any(), map()} | {:reply, any(), map(), {:continue, atom()}}
-  defp reply_success(state_data, reply, broadcast \\ :no_broadcast) do
+  defp reply_success(state_data, reply, broadcast) do
     case broadcast do
       :broadcast_change ->
         {:reply, reply, state_data, {:continue, :broadcast_change}}
-
-      _any ->
-        {:reply, reply, state_data}
+        #
+        # _any ->
+        #   {:reply, reply, state_data}
     end
   end
 
   @spec noreply(map(), atom()) :: {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
-  defp noreply(state_data, broadcast \\ :no_broadcast) do
+  defp noreply(state_data, broadcast) do
     case broadcast do
       :broadcast_change ->
         {:noreply, state_data, {:continue, :broadcast_change}}
-
-      _any ->
-        {:noreply, state_data}
+        #
+        # _any ->
+        #   {:noreply, state_data}
     end
   end
 
@@ -250,7 +337,7 @@ defmodule CoupEngine.Game do
   end
 
   defp draw_card_or_start_turn("cards_drawn", _, _) do
-    @process.send_after(self(), {:start_turn, 0}, 1000)
+    @process.send_after(self(), {:start_turn, 0}, 1_000)
   end
 
   defp next_player_draw_card("drawing_cards", players, player_index) do
@@ -264,6 +351,40 @@ defmodule CoupEngine.Game do
       toast |> Toast.add("All players have drawn their cards.")
     else
       toast |> Toast.add("#{player.name} drew a card.")
+    end
+  end
+
+  defp action_send_after("action_success") do
+    @process.send_after(self(), :action_success, 1_000)
+  end
+
+  defp action_send_after(_) do
+    :do_nothing
+  end
+
+  defp select_target_send_after("action_success") do
+    @process.send_after(self(), :action_success, 1_000)
+  end
+
+  defp select_target_send_after(_) do
+    :do_nothing
+  end
+
+  defp start_next_turn(players, session_id) do
+    current_index = Enum.find_index(players, fn p -> p.session_id == session_id end)
+    next_index = get_next_index(players, current_index)
+
+    @process.send_after(self(), {:start_turn, next_index}, 200)
+  end
+
+  defp get_next_index(players, index) do
+    next_index = if index == length(players) - 1, do: 0, else: index + 1
+    next_player_state = players |> Enum.at(next_index) |> Map.get(:state)
+
+    if next_player_state == "dead" do
+      get_next_index(players, next_index)
+    else
+      next_index
     end
   end
 end

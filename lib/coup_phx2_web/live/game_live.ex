@@ -5,7 +5,6 @@ defmodule CoupPhx2Web.GameLive do
   use Phoenix.LiveView
 
   alias CoupEngine.{Game, GameSupervisor}
-  alias __MODULE__
 
   def render(assigns), do: CoupPhx2Web.GameView.render("game.html", assigns)
 

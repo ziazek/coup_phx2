@@ -1,4 +1,4 @@
-defmodule CoupEngine.AttemptActionTest do
+defmodule CoupEngine.AttemptAction1CoinTest do
   use CoupPhx2Web.GameCase, async: true
 
   alias CoupEngine.{Action, Game, Player, Turn}
@@ -28,13 +28,17 @@ defmodule CoupEngine.AttemptActionTest do
              }
     end
 
-    test "should update toast to 'Jany took one coin.'", %{updated_state: updated_state} do
+    test "should update toast to 'Jany chose TAKE ONE COIN.'", %{updated_state: updated_state} do
       latest_toast = updated_state.toast |> Enum.at(-1)
-      assert latest_toast.body == "Jany took one coin."
+      assert latest_toast.body == "Jany chose TAKE ONE COIN."
     end
 
     test "should set game state to action_success", %{updated_state: updated_state} do
       assert updated_state.state == "action_success"
+    end
+
+    test "should send action_success to self" do
+      assert_receive {:action_success, 1000}
     end
   end
 end

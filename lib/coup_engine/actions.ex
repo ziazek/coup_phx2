@@ -8,7 +8,11 @@ defmodule CoupEngine.Actions do
   @actions %{
     "1coin" => %{
       claimed_character: nil,
-      description: "took one coin."
+      description: "chose TAKE ONE COIN."
+    },
+    "coup" => %{
+      claimed_character: nil,
+      description: "chose COUP. Selecting target..."
     }
   }
 
@@ -43,12 +47,18 @@ defmodule CoupEngine.Actions do
   end
 
   @spec enable_actions_for_coins(non_neg_integer()) :: [%Action{}]
-  def enable_actions_for_coins(coins) do
+  def enable_actions_for_coins(_coins) do
     default_actions()
     |> Enum.map(fn action ->
       action |> Map.put(:state, "enabled")
     end)
   end
+
+  def get_select_target_description("coup", player_name, target_player_name) do
+    {:ok, "#{player_name} COUPS #{target_player_name}."}
+  end
+
+  def get_select_target_description(_, _, _), do: {:error, "Invalid action, cannot describe"}
 
   @spec default_actions() :: [%Action{}]
   def default_actions do

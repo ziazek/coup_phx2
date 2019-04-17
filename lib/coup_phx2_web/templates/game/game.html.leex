@@ -34,10 +34,16 @@
     <% end %>
   </div><!-- toast-wrapper -->
 
-  <div class="turn-wrapper relative bg-pink-light flex items-center justify-center py-1">
-    <%= render "_turn.html", data: @data %>
+  <div class="turn-wrapper relative bg-pink-light  py-1">
+    <%= if Map.get(@data.turn, :state) == "active" do %>
+    <div class="turn-inner-wrapper flex items-center justify-center fadeInRight animated">
+    <% else %>
+    <div class="turn-inner-wrapper flex items-center justify-center fadeOutLeft animated">
+    <% end %>
+      <%= render "_turn.html", data: @data %>
+    </div>
     <%= render "_overlay.html", data: @data, show_on: ["select_target", "change_card"] %>
-  </div>
+  </div><!-- turn-wrapper -->
   <div class="actions-wrapper relative bg-green-light flex items-center justify-around py-3 px-2">
     <%= if Map.get(@data.current_player, :actions_panel_mode) == "responses" do %>
     <div class="responses flex bounceIn animated">
@@ -68,5 +74,5 @@
     <% end %>
 
     <%= render "_overlay.html", data: @data, show_on: ["select_target", "change_card"] %>
-  </div><!-- turn-wrapper -->
+  </div><!-- actions-wrapper -->
 </div><!-- game-container -->
