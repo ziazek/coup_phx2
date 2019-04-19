@@ -28,7 +28,37 @@
 
 <% end %>
 
-<%= if Map.get(@data.current_player, :display_state) != "change_card" do %>
+<%= if Map.get(@data.current_player, :display_state) == "lose_influence_select_card" do %>
+
+<div class="lose-influence-select-card relative bluebg flex flex-col flex-grow items-center justify-center py-2">
+  <div class="change-card-wrapper flex">
+    <%= for {card, index} <- Map.get(@data.current_player, :change_card_hand, []) |> Enum.with_index() do %>
+    <%= if card.state == "selected" do %>
+    <div class="my-card selected">
+    <% else %>
+    <div class="my-card" phx-click="select_card" phx-value="<%= index %>">
+    <% end %>
+      <svg viewbox="0 0 70 100">
+        <g class="fadeInUp animated">
+          <rect class="card " x="0" y="0" width="70" height="100" rx="5" ry="5"></rect>
+          <text class="card-text text-xs" text-anchor="middle" x="35" y="50">
+            <%= card.type %>
+          </text>
+        </g>
+      </svg>
+    </div>
+    <% end %>
+  </div>
+  <div class="button-wrapper text-center mt-4">
+    <div class="text-base my-2">Select card to discard.</div>
+    <button class="btn btn-green">Proceed</button>
+  </div>
+  <%= render "_overlay.html", data: @data, show_on: ["select_target"] %>
+</div>
+
+<% end %>
+
+<%= if Map.get(@data.current_player, :display_state) != "change_card" && Map.get(@data.current_player, :display_state) != "lose_influence_select_card" do %>
 
 <div class="my-hand relative bluebg flex flex-grow items-center justify-center py-2">
   <div class="my-card">

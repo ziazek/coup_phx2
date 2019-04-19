@@ -118,6 +118,24 @@
   .card-text
     fill: config('colors.white')
 
+.change-card
+  .my-card
+    transition: all 0.5s ease-out
+    &.selected
+      transform: translateY(-0.5rem)
+
+  .card
+    fill: config('colors.blue')
+    stroke: config('colors.blue-dark')
+
+  .selected
+    .card
+      stroke: config('colors.yellow')
+      stroke-width: 3
+
+  .card-text
+    fill: config('colors.white')
+
 
 .toast-wrapper
   min-height: 2.5rem

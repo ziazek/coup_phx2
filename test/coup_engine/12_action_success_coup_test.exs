@@ -36,19 +36,19 @@ defmodule CoupEngine.ActionSuccessCoupTest do
       assert vincent.display_state == "lose_influence"
     end
 
-    test "should update toast to 'Vincent loses 1 influence. Choosing card to discard...'", %{
-      updated_state: updated_state
-    } do
-      latest_toast = updated_state.toast |> Enum.at(-1)
-      assert latest_toast.body == "Vincent loses 1 influence. Choosing card to discard..."
-    end
+    # test "should update toast to 'Vincent loses 1 influence. Choosing card to discard...'", %{
+    #   updated_state: updated_state
+    # } do
+    #   latest_toast = updated_state.toast |> Enum.at(-1)
+    #   assert latest_toast.body == "Vincent loses 1 influence. Choosing card to discard..."
+    # end
 
     test "should not mark turn as ended", %{updated_state: updated_state} do
       assert updated_state.turn.state == "active"
     end
 
-    test "should send end_turn to self" do
-      assert_receive {:end_turn, 1000}
+    test "should send lose_influence to self" do
+      assert_receive {:lose_influence, 1000}
     end
   end
 end

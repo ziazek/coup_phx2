@@ -37,6 +37,10 @@ defmodule CoupEngine.Game do
   @spec select_target(pid(), String.t()) :: any()
   def select_target(pid, session_id), do: GenServer.call(pid, {:select_target, session_id})
 
+  @spec select_card(pid(), String.t(), non_neg_integer()) :: any()
+  def select_card(pid, session_id, index),
+    do: GenServer.call(pid, {:select_card, session_id, index})
+
   ### SERVER ###
 
   @spec init({String.t(), String.t(), String.t()}) :: {:ok, map()}
@@ -168,6 +172,24 @@ defmodule CoupEngine.Game do
     end
   end
 
+  @spec handle_call({:select_card, String.t(), non_neg_integer()}, any(), map()) ::
+          {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
+  def handle_call(
+        {:select_card, session_id, index},
+        _from,
+        %{players: players} = state_data
+      ) do
+    with {:ok, next_state} <- GameStateMachine.check(state_data.state, :select_card),
+         {:ok, players} <- Players.set_card_selected(players, session_id, index) do
+      state_data
+      |> Map.put(:players, players)
+      |> Map.put(:state, next_state)
+      |> reply_success(:ok, :broadcast_change)
+    else
+      error -> {:reply, error, state_data}
+    end
+  end
+
   @spec handle_continue(:broadcast_change, map()) :: {:noreply, map()}
   def handle_continue(:broadcast_change, %{game_name: game_name} = state) do
     @pubsub.broadcast(:game_pubsub, game_name, :game_data_changed)
@@ -264,7 +286,7 @@ defmodule CoupEngine.Game do
            Actions.get_action_success_description(action.action, player.name, target),
          {:ok, turn} <- Turn.get_action_success_next_turn(turn, action.action) do
       toast = toast |> Toast.add(description)
-      @process.send_after(self(), :end_turn, 1_000)
+      action_success_send_after(action.action)
 
       state_data
       |> Map.put(:players, players)
@@ -277,6 +299,24 @@ defmodule CoupEngine.Game do
         toast = toast |> Toast.add(reason)
         state_data = state_data |> Map.put(:toast, toast)
         {:noreply, state_data}
+    end
+  end
+
+  @spec handle_info(:lose_influence, map()) ::
+          {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
+  def handle_info(
+        :lose_influence,
+        %{
+          turn: %{
+            target: %{hand: target_hand}
+          }
+        } = state_data
+      ) do
+    live_cards = target_hand |> Enum.filter(fn card -> card.state != "dead" end)
+
+    case length(live_cards) do
+      1 -> do_lose_influence(:die, state_data)
+      2 -> do_lose_influence(:select_card, state_data)
     end
   end
 
@@ -328,6 +368,67 @@ defmodule CoupEngine.Game do
     end
   end
 
+  ### PRIVATE HANDLER HELPERS
+
+  defp do_lose_influence(
+         :die,
+         %{
+           players: players,
+           toast: toast,
+           turn:
+             %{
+               target: %{session_id: target_session_id} = target
+             } = _turn
+         } = state_data
+       ) do
+    with {:ok, next_state} <- GameStateMachine.check(state_data.state, :lose_influence, :die),
+         {:ok, players} <- Players.kill_player_and_last_card(players, target_session_id) do
+      toast = toast |> Toast.add("#{target.name} loses 1 influence. Player has died.")
+      @process.send_after(self(), :end_turn, 1_000)
+
+      state_data
+      |> Map.put(:players, players)
+      |> Map.put(:toast, toast)
+      |> Map.put(:state, next_state)
+      |> noreply(:broadcast_change)
+    else
+      {:error, reason} ->
+        toast = toast |> Toast.add(reason)
+        state_data = state_data |> Map.put(:toast, toast)
+        {:noreply, state_data}
+    end
+  end
+
+  defp do_lose_influence(
+         :select_card,
+         %{
+           players: players,
+           toast: toast,
+           turn:
+             %{
+               target: %{session_id: target_session_id} = target
+             } = _turn
+         } = state_data
+       ) do
+    with {:ok, next_state} <-
+           GameStateMachine.check(state_data.state, :lose_influence, :select_card),
+         {:ok, players} <-
+           Players.set_display_state(players, target_session_id, "lose_influence_select_card") do
+      toast = toast |> Toast.add("#{target.name} loses 1 influence. Choosing card to discard...")
+
+      state_data
+      |> Map.put(:players, players)
+      |> Map.put(:toast, toast)
+      |> Map.put(:state, next_state)
+      |> noreply(:broadcast_change)
+    else
+      {:error, reason} ->
+        toast = toast |> Toast.add(reason)
+        state_data = state_data |> Map.put(:toast, toast)
+        {:noreply, state_data}
+    end
+  end
+
   ### PRIVATE
 
   defp session_id_does_not_exist(session_id, players) do
@@ -372,6 +473,18 @@ defmodule CoupEngine.Game do
   end
 
   defp select_target_send_after(_) do
+    :do_nothing
+  end
+
+  defp action_success_send_after("coup") do
+    @process.send_after(self(), :lose_influence, 1_000)
+  end
+
+  defp action_success_send_after("1coin") do
+    @process.send_after(self(), :end_turn, 1_000)
+  end
+
+  defp action_success_send_after(_) do
     :do_nothing
   end
 

@@ -71,6 +71,20 @@ defmodule CoupEngine.Players do
     {:ok, players}
   end
 
+  def set_display_state(players, session_id, "lose_influence_select_card") do
+    players =
+      players
+      |> Enum.map(fn player ->
+        if player.session_id == session_id do
+          player |> Map.put(:display_state, "lose_influence_select_card")
+        else
+          player
+        end
+      end)
+
+    {:ok, players}
+  end
+
   def set_display_state(players, _, _), do: {:ok, players}
 
   @spec reset_display_state([%Player{}]) :: {:ok, [%Player{}]}
@@ -78,6 +92,44 @@ defmodule CoupEngine.Players do
     players =
       players
       |> Enum.map(fn player -> player |> Map.put(:display_state, "default") end)
+
+    {:ok, players}
+  end
+
+  @spec set_card_selected([%Player{}], String.t(), non_neg_integer()) :: {:ok, [%Player{}]}
+  def set_card_selected(players, session_id, index) do
+    players =
+      players
+      |> Enum.map(fn player ->
+        if player.session_id == session_id do
+          hand =
+            player.hand
+            |> List.update_at(index, fn card -> card |> Map.put(:state, "selected") end)
+
+          player |> Map.put(:hand, hand)
+        else
+          player
+        end
+      end)
+
+    {:ok, players}
+  end
+
+  @spec kill_player_and_last_card([%Player{}], String.t()) :: {:ok, [%Player{}]}
+  def kill_player_and_last_card(players, session_id) do
+    players =
+      players
+      |> Enum.map(fn player ->
+        if player.session_id == session_id do
+          hand = player.hand |> Enum.map(fn card -> card |> Map.put(:state, "dead") end)
+
+          player
+          |> Map.put(:state, "dead")
+          |> Map.put(:hand, hand)
+        else
+          player
+        end
+      end)
 
     {:ok, players}
   end

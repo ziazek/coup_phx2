@@ -84,6 +84,20 @@ defmodule CoupPhx2Web.GameLive do
     end
   end
 
+  def handle_event("select_card", index_str, socket) do
+    session_id = socket.assigns.data.current_player.session_id
+    index = String.to_integer(index_str)
+
+    case Game.select_card(socket.assigns.game_pid, session_id, index) do
+      :ok ->
+        {:noreply, socket}
+
+      {:error, reason} ->
+        {:noreply, socket}
+        # {:noreply, socket |> append_toast(:danger, reason)}
+    end
+  end
+
   def handle_info(:tick, socket) do
     socket =
       socket
