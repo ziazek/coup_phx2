@@ -29,13 +29,6 @@ defmodule CoupEngine.ActionSuccessCoupTest do
       assert updated_state.state == "lose_influence"
     end
 
-    test "should update Vincent's display_state to lose_influence", %{
-      updated_state: updated_state
-    } do
-      vincent = updated_state.players |> Enum.at(1)
-      assert vincent.display_state == "lose_influence"
-    end
-
     test "should update toast to 'COUP is successful.'", %{
       updated_state: updated_state
     } do

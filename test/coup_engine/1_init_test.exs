@@ -118,6 +118,11 @@ defmodule CoupEngine.InitTest do
                  ],
                  responses: [
                    %Action{
+                     action: "allow",
+                     label: "Allow",
+                     state: "disabled"
+                   },
+                   %Action{
                      action: "challenge",
                      label: "Challenge",
                      state: "disabled"

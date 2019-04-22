@@ -10,6 +10,7 @@ defmodule CoupEngine.Player do
             hand: [],
             change_card_hand: [],
             actions_panel_mode: "actions_disabled",
+            # select_target, lose_influence_select_card, awaiting_opponent_response
             display_state: "default",
             actions: [],
             responses: [],

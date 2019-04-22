@@ -38,6 +38,11 @@ defmodule CoupEngine.Turn do
     {:ok, updated_turn, player}
   end
 
+  def set_target_response(turn, players, session_id) do
+    {:ok, turn}
+  end
+
+  @spec get_action_success_next_turn(%__MODULE__{}, String.t()) :: {:ok, %__MODULE__{}}
   def get_action_success_next_turn(turn, "1coin") do
     {:ok, turn |> Map.put(:state, "ended")}
   end

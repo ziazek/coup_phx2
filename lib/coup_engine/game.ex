@@ -132,7 +132,8 @@ defmodule CoupEngine.Game do
          {:ok, _claimed_character} <- Actions.get_claimed_character(action),
          {:ok, description} <- Actions.get_description(action),
          {:ok, turn_action} <- Actions.get_turn_action(action),
-         {:ok, players} <- Players.set_display_state(players, turn.player.session_id, action) do
+         {:ok, players} <- Players.set_display_state(players, turn.player.session_id, action),
+         {:ok, players} <- Players.set_opponent_responses(players, turn.player.session_id, action) do
       toast = toast |> Toast.add("#{turn.player.name} #{description}")
       turn = turn |> Map.put(:action, turn_action)
       action_send_after(next_state)
@@ -169,6 +170,26 @@ defmodule CoupEngine.Game do
       |> Map.put(:turn, turn)
       |> Map.put(:toast, toast)
       |> Map.put(:players, players)
+      |> Map.put(:state, next_state)
+      |> reply_success(:ok, :broadcast_change)
+    else
+      error -> {:reply, error, state_data}
+    end
+  end
+
+  @spec handle_call({:block, String.t(), String.t()}, any(), map()) ::
+          {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
+  def handle_call(
+        {:block, block_action, session_id},
+        _from,
+        %{toast: toast, players: players, turn: %{action: action, player: player} = turn} =
+          state_data
+      ) do
+    with {:ok, next_state} <-
+           GameStateMachine.check(state_data.state, :block, action.action, block_action),
+         {:ok, turn} <- Turn.set_target_response(turn, players, session_id) do
+      state_data
+      |> Map.put(:turn, turn)
       |> Map.put(:state, next_state)
       |> reply_success(:ok, :broadcast_change)
     else

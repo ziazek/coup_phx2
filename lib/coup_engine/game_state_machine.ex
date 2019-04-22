@@ -40,6 +40,7 @@ defmodule CoupEngine.GameStateMachine do
     do: {:error, "Insufficient players. Need at least #{@min_players}."}
 
   def check("player_action", :action, "1coin"), do: {:ok, "action_success"}
+  def check("player_action", :action, "foreignaid"), do: {:ok, "awaiting_opponent_response"}
   def check("player_action", :action, "coup"), do: {:ok, "select_target"}
 
   def check("select_target", :select_target, "coup"), do: {:ok, "action_success"}
@@ -54,6 +55,14 @@ defmodule CoupEngine.GameStateMachine do
     do: {:ok, "turn_ending"}
 
   def check(_, _, _), do: {:error, "invalid game state"}
+
+  @spec check(String.t(), atom(), atom() | pos_integer() | String.t()) ::
+          {:ok, String.t()} | {:error, String.t()}
+
+  def check("awaiting_opponent_response", :block, "foreignaid", "block_as_duke"),
+    do: {:ok, "awaiting_response_to_block"}
+
+  def check(_, _, _, _), do: {:error, "invalid game state"}
 
   @doc """
   Checks whether all players have 2 cards

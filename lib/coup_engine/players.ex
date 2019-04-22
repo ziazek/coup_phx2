@@ -39,16 +39,6 @@ defmodule CoupEngine.Players do
   end
 
   def apply_action(players, "coup", _session_id, %{session_id: target_session_id} = _target) do
-    players =
-      players
-      |> Enum.map(fn player ->
-        if player.session_id == target_session_id do
-          player |> Map.put(:display_state, "lose_influence")
-        else
-          player
-        end
-      end)
-
     {:ok, players}
   end
 
@@ -113,6 +103,28 @@ defmodule CoupEngine.Players do
         end
       end)
 
+    {:ok, players}
+  end
+
+  @spec set_opponent_responses([%Player{}], String.t(), String.t()) :: {:ok, [%Player{}]}
+  def set_opponent_responses(players, session_id, "foreignaid" = action) do
+    players =
+      players
+      |> Enum.map(fn player ->
+        if player.session_id == session_id do
+          player
+          |> Map.put(:display_state, "awaiting_opponent_response")
+        else
+          player
+          |> Map.put(:display_state, "responses")
+          |> Map.put(:responses, Actions.opponent_responses_for(action))
+        end
+      end)
+
+    {:ok, players}
+  end
+
+  def set_opponent_responses(players, _session_id, _) do
     {:ok, players}
   end
 

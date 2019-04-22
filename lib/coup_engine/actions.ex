@@ -10,6 +10,10 @@ defmodule CoupEngine.Actions do
       claimed_character: nil,
       description: "chose TAKE ONE COIN."
     },
+    "foreignaid" => %{
+      claimed_character: nil,
+      description: "chose FOREIGN AID."
+    },
     "coup" => %{
       claimed_character: nil,
       description: "chose COUP. Selecting target..."
@@ -115,6 +119,11 @@ defmodule CoupEngine.Actions do
   def default_responses do
     [
       %Action{
+        action: "allow",
+        label: "Allow",
+        state: "disabled"
+      },
+      %Action{
         action: "challenge",
         label: "Challenge",
         state: "disabled"
@@ -126,4 +135,27 @@ defmodule CoupEngine.Actions do
       }
     ]
   end
+
+  @spec opponent_responses_for(String.t()) :: [%Action{}]
+  def opponent_responses_for("foreignaid") do
+    [
+      %Action{
+        action: "allow",
+        label: "Allow",
+        state: "enabled"
+      },
+      %Action{
+        action: "challenge",
+        label: "Challenge",
+        state: "disabled"
+      },
+      %Action{
+        action: "block_as_duke",
+        label: "Block as Duke",
+        state: "enabled"
+      }
+    ]
+  end
+
+  def opponent_responses_for(_), do: default_responses()
 end
