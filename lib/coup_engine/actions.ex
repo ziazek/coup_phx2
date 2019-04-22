@@ -65,7 +65,7 @@ defmodule CoupEngine.Actions do
   end
 
   def get_action_success_description("coup", _player_name, %{name: target_name} = _target) do
-    {:ok, "#{target_name} loses 1 influence. Choosing card to discard..."}
+    {:ok, "COUP is successful."}
   end
 
   def get_action_success_description(_, _, _), do: {:error, "Invalid action, cannot describe"}

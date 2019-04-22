@@ -81,15 +81,22 @@
 
 .btn
   @apply font-bold py-2 px-4 rounded
+  &[disabled]
+    @apply cursor-not-allowed
+    opacity: 0.5
 
 .btn-blue
   @apply bg-blue text-white
+  &[disabled]:hover
+    @apply bg-blue
 
 .btn-blue:hover
   @apply bg-blue-dark
 
 .btn-green
   @apply bg-green text-white
+  &[disabled]:hover
+    @apply bg-green
 
 .btn-green:hover
   @apply bg-green-dark

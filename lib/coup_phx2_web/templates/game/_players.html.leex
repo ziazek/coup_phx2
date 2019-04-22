@@ -4,7 +4,7 @@
 <% else %>
 <div class="player text-grey-darker text-center mt-1 mx-1">
 <% end %>
-  <%= if @data.state == "select_target" && player.session_id != @data.current_player.session_id do %>
+  <%= if @data.current_player.display_state == "select_target" && player.session_id != @data.current_player.session_id do %>
   <div class="player-inner-wrapper selectable" phx-click="select_target" phx-value="<%= player.session_id %>">
   <% else %>
   <div class="player-inner-wrapper">

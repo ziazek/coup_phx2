@@ -80,7 +80,6 @@ defmodule CoupPhx2Web.GameLive do
 
       {:error, reason} ->
         {:noreply, socket}
-        # {:noreply, socket |> append_toast(:danger, reason)}
     end
   end
 
@@ -94,7 +93,16 @@ defmodule CoupPhx2Web.GameLive do
 
       {:error, reason} ->
         {:noreply, socket}
-        # {:noreply, socket |> append_toast(:danger, reason)}
+    end
+  end
+
+  def handle_event("lose_influence_confirm", _value, socket) do
+    case Game.lose_influence_confirm(socket.assigns.game_pid) do
+      :ok ->
+        {:noreply, socket}
+
+      {:error, reason} ->
+        {:noreply, socket}
     end
   end
 

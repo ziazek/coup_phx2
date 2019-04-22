@@ -1,4 +1,4 @@
-<div class="game-container flex flex-col <%= @data.state %>">
+<div class="game-container flex flex-col <%= @data.state %> current-player-<%= @data.current_player.display_state %>">
   <div class="meta">
     <p class="text-xs fadeInUp animated" phx-click="boom">It's
       <%= Timex.format!(@date, "{UNIX}") %>
@@ -20,7 +20,7 @@
     </div>
     <%= render "_overlay.html", data: @data, show_on: ["change_card"] %>
   </div>
-  
+
   <%= render "_myhand.html", data: @data %>
 
   <div class="toast-wrapper relative bg-blue-lighter flex flex-col items-center justify-center py-2">

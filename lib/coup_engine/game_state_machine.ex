@@ -13,7 +13,14 @@ defmodule CoupEngine.GameStateMachine do
   def check("deck_shuffled", :draw_card), do: {:ok, "drawing_cards"}
   def check("drawing_cards", :draw_card), do: {:ok, "drawing_cards"}
   def check("cards_drawn", :start_turn), do: {:ok, "player_action"}
-  def check("lose_influence_select_card", :select_card), do: {:ok, "lose_influence_select_card"}
+  def check("lose_influence_select_card", :select_card), do: {:ok, "lose_influence_card_selected"}
+
+  def check("lose_influence_card_selected", :select_card),
+    do: {:ok, "lose_influence_card_selected"}
+
+  def check("lose_influence_card_selected", :lose_influence_confirm),
+    do: {:ok, "turn_ending"}
+
   def check("turn_ending", :end_turn), do: {:ok, "turn_ended"}
   def check("turn_ended", :start_turn), do: {:ok, "player_action"}
   def check(_, _), do: {:error, "invalid game state"}

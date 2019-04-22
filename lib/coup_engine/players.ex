@@ -104,6 +104,7 @@ defmodule CoupEngine.Players do
         if player.session_id == session_id do
           hand =
             player.hand
+            |> Enum.map(fn card -> card |> Map.put(:state, "default") end)
             |> List.update_at(index, fn card -> card |> Map.put(:state, "selected") end)
 
           player |> Map.put(:hand, hand)
@@ -113,6 +114,28 @@ defmodule CoupEngine.Players do
       end)
 
     {:ok, players}
+  end
+
+  @spec lose_influence([%Player{}], String.t()) :: {:ok, [%Player{}], String.t()}
+  def lose_influence(players, session_id) do
+    player = Enum.find(players, fn player -> player.session_id == session_id end)
+    player_index = Enum.find_index(players, fn p -> p == player end)
+    %{hand: hand} = player
+    card_lost = Enum.find(hand, fn card -> card.state == "selected" end)
+    card_lost_index = Enum.find_index(hand, fn card -> card == card_lost end)
+
+    updated_hand = List.replace_at(hand, card_lost_index, card_lost |> Map.put(:state, "dead"))
+
+    updated_player = player |> Map.put(:hand, updated_hand)
+
+    players =
+      players
+      |> List.replace_at(player_index, updated_player)
+
+    card_name = card_lost |> Map.get(:type) |> String.upcase()
+    description = "#{player.name} loses #{card_name}."
+
+    {:ok, players, description}
   end
 
   @spec kill_player_and_last_card([%Player{}], String.t()) :: {:ok, [%Player{}]}

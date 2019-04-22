@@ -41,6 +41,10 @@ defmodule CoupEngine.Game do
   def select_card(pid, session_id, index),
     do: GenServer.call(pid, {:select_card, session_id, index})
 
+  @spec lose_influence_confirm(pid()) :: any()
+  def lose_influence_confirm(pid),
+    do: GenServer.call(pid, :lose_influence_confirm)
+
   ### SERVER ###
 
   @spec init({String.t(), String.t(), String.t()}) :: {:ok, map()}
@@ -183,6 +187,31 @@ defmodule CoupEngine.Game do
          {:ok, players} <- Players.set_card_selected(players, session_id, index) do
       state_data
       |> Map.put(:players, players)
+      |> Map.put(:state, next_state)
+      |> reply_success(:ok, :broadcast_change)
+    else
+      error -> {:reply, error, state_data}
+    end
+  end
+
+  @spec handle_call(:lose_influence_confirm, any(), map()) ::
+          {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
+  def handle_call(
+        :lose_influence_confirm,
+        _from,
+        %{players: players, turn: %{target: %{session_id: target_session_id}}, toast: toast} =
+          state_data
+      ) do
+    with {:ok, next_state} <- GameStateMachine.check(state_data.state, :lose_influence_confirm),
+         {:ok, players, description} <- Players.lose_influence(players, target_session_id),
+         {:ok, players} <- Players.reset_display_state(players) do
+      toast = toast |> Toast.add(description)
+
+      @process.send_after(self(), :end_turn, 1_000)
+
+      state_data
+      |> Map.put(:players, players)
+      |> Map.put(:toast, toast)
       |> Map.put(:state, next_state)
       |> reply_success(:ok, :broadcast_change)
     else

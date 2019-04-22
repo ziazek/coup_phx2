@@ -13,7 +13,7 @@
     font-size: 1.2rem
 
 // SELECT TARGET
-.select_target
+.current-player-select_target
   .deck
     opacity: 0.3
   .player-inner-wrapper
@@ -118,8 +118,11 @@
   .card-text
     fill: config('colors.white')
 
-.change-card
+.lose-influence-select-card
   .my-card
+    margin: 1rem
+    height: auto
+    min-width: 30vw
     transition: all 0.5s ease-out
     &.selected
       transform: translateY(-0.5rem)
