@@ -56,7 +56,7 @@ defmodule CoupEngine.GameStateMachine do
 
   def check(_, _, _), do: {:error, "invalid game state"}
 
-  @spec check(String.t(), atom(), atom() | pos_integer() | String.t()) ::
+  @spec check(String.t(), atom(), String.t(), String.t()) ::
           {:ok, String.t()} | {:error, String.t()}
 
   def check("awaiting_opponent_response", :block, "foreignaid", "block_as_duke"),

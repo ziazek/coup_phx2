@@ -128,6 +128,24 @@ defmodule CoupEngine.Players do
     {:ok, players}
   end
 
+  @spec set_response_to_block([%Player{}], String.t()) :: {:ok, [%Player{}]}
+  def set_response_to_block(players, session_id) do
+    players =
+      players
+      |> Enum.map(fn player ->
+        if player.session_id == session_id do
+          player
+          |> Map.put(:responses, Actions.player_responses_to_block())
+          |> Map.put(:display_state, "responses")
+        else
+          player
+          |> Map.put(:display_state, "awaiting_response_to_block")
+        end
+      end)
+
+    {:ok, players}
+  end
+
   @spec lose_influence([%Player{}], String.t()) :: {:ok, [%Player{}], String.t()}
   def lose_influence(players, session_id) do
     player = Enum.find(players, fn player -> player.session_id == session_id end)

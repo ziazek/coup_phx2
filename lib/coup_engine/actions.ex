@@ -20,6 +20,27 @@ defmodule CoupEngine.Actions do
     }
   }
 
+  @blocks %{
+    "block_as_duke" => %{
+      action: %Action{
+        action: "block_as_duke",
+        label: "Block as Duke",
+        state: "ok"
+      },
+      claimed_character: "Duke"
+    }
+  }
+
+  @spec get_block_action(String.t()) :: %Action{}
+  def get_block_action(block_name) do
+    block_action =
+      @blocks
+      |> Map.get(block_name)
+      |> Map.get(:action)
+
+    {:ok, block_action}
+  end
+
   @spec get_claimed_character(String.t()) :: {:ok, nil | String.t()}
   def get_claimed_character(action) do
     character =
@@ -158,4 +179,20 @@ defmodule CoupEngine.Actions do
   end
 
   def opponent_responses_for(_), do: default_responses()
+
+  @spec player_responses_to_block() :: [%Action{}]
+  def player_responses_to_block do
+    [
+      %Action{
+        action: "allow",
+        label: "Allow",
+        state: "enabled"
+      },
+      %Action{
+        action: "challenge",
+        label: "Allow",
+        state: "enabled"
+      }
+    ]
+  end
 end

@@ -45,6 +45,10 @@ defmodule CoupEngine.BlockForeignaidTest do
              }
     end
 
+    test "should set blocker_claimed_character to Duke", %{updated_state: updated_state} do
+      assert updated_state.turn.blocker_claimed_character == "Duke"
+    end
+
     test "should update toast to 'Zek blocks. (Claims DUKE)'", %{updated_state: updated_state} do
       latest_toast = updated_state.toast |> Enum.at(-1)
       assert latest_toast.body == "Zek blocks. (Claims DUKE)"
@@ -83,12 +87,12 @@ defmodule CoupEngine.BlockForeignaidTest do
       assert naz.display_state == "awaiting_response_to_block"
     end
 
-    test "should update Ken display_state to response_to_block", %{
+    test "should update Ken display_state to responses", %{
       updated_state: updated_state
     } do
       ken = updated_state.players |> Enum.at(0)
 
-      assert ken.display_state == "response_to_block"
+      assert ken.display_state == "responses"
     end
   end
 end

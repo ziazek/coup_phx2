@@ -187,9 +187,15 @@ defmodule CoupEngine.Game do
       ) do
     with {:ok, next_state} <-
            GameStateMachine.check(state_data.state, :block, action.action, block_action),
-         {:ok, turn} <- Turn.set_target_response(turn, players, session_id) do
+         {:ok, turn} <- Turn.set_block_target_response(turn, players, session_id, block_action),
+         {:ok, players} <- Players.set_response_to_block(players, player.session_id) do
+      claimed_character = turn |> Map.get(:blocker_claimed_character) |> String.upcase()
+      toast = toast |> Toast.add("#{turn.target.name} blocks. (Claims #{claimed_character})")
+
       state_data
+      |> Map.put(:players, players)
       |> Map.put(:turn, turn)
+      |> Map.put(:toast, toast)
       |> Map.put(:state, next_state)
       |> reply_success(:ok, :broadcast_change)
     else
