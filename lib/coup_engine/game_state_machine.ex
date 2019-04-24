@@ -14,6 +14,7 @@ defmodule CoupEngine.GameStateMachine do
   def check("drawing_cards", :draw_card), do: {:ok, "drawing_cards"}
   def check("cards_drawn", :start_turn), do: {:ok, "player_action"}
   def check("lose_influence_select_card", :select_card), do: {:ok, "lose_influence_card_selected"}
+  def check("awaiting_opponent_response", :allow), do: {:ok, "awaiting_opponent_response"}
 
   def check("lose_influence_card_selected", :select_card),
     do: {:ok, "lose_influence_card_selected"}

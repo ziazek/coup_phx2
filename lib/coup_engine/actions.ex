@@ -31,7 +31,7 @@ defmodule CoupEngine.Actions do
     }
   }
 
-  @spec get_block_action(String.t()) :: %Action{}
+  @spec get_block_action(String.t()) :: {:ok, %Action{}}
   def get_block_action(block_name) do
     block_action =
       @blocks

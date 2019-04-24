@@ -207,6 +207,29 @@ defmodule CoupEngine.Game do
     end
   end
 
+  @spec handle_call({:allow, String.t()}, any(), map()) ::
+          {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
+  def handle_call(
+        {:allow, session_id},
+        _from,
+        %{toast: toast, players: players, turn: %{action: action, player: player} = turn} =
+          state_data
+      ) do
+    with {:ok, next_state} <-
+           GameStateMachine.check(state_data.state, :allow),
+         {:ok, turn, player} <- Turn.set_opponent_allow(turn, players, session_id) do
+      toast = toast |> Toast.add("#{player.name} allows.")
+
+      state_data
+      |> Map.put(:turn, turn)
+      |> Map.put(:toast, toast)
+      |> Map.put(:state, next_state)
+      |> reply_success(:ok, :broadcast_change)
+    else
+      error -> {:reply, error, state_data}
+    end
+  end
+
   @spec handle_call({:select_card, String.t(), non_neg_integer()}, any(), map()) ::
           {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
   def handle_call(

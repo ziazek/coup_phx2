@@ -45,7 +45,8 @@ defmodule CoupEngine.Turn do
     {:ok, updated_turn}
   end
 
-  @spec set_target(%__MODULE__{}, [%Player{}], String.t()) :: {:ok, %__MODULE__{}, %Player{}}
+  @spec set_target(%__MODULE__{}, [%Player{}], String.t(), String.t()) ::
+          {:ok, %__MODULE__{}, %Player{}}
   def set_target(turn, players, session_id, state \\ "ok") do
     player =
       players
@@ -53,6 +54,20 @@ defmodule CoupEngine.Turn do
       |> Map.put(:state, state)
 
     updated_turn = turn |> Map.put(:target, player)
+
+    {:ok, updated_turn, player}
+  end
+
+  @spec set_opponent_allow(%__MODULE__{}, [%Player{}], String.t()) ::
+          {:ok, %__MODULE__{}, %Player{}}
+  def set_opponent_allow(turn, players, session_id) do
+    player =
+      players
+      |> Enum.find(fn player -> player.session_id == session_id end)
+
+    updated_opponent_responses = turn.opponent_responses |> Map.put(session_id, "allow")
+
+    updated_turn = turn |> Map.put(:opponent_responses, updated_opponent_responses)
 
     {:ok, updated_turn, player}
   end
