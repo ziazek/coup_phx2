@@ -45,6 +45,10 @@ defmodule CoupEngine.Game do
   def lose_influence_confirm(pid),
     do: GenServer.call(pid, :lose_influence_confirm)
 
+  @spec block(pid(), String.t(), String.t()) :: any()
+  def block(pid, session_id, name),
+    do: GenServer.call(pid, {:block, session_id, name})
+
   ### SERVER ###
 
   @spec init({String.t(), String.t(), String.t()}) :: {:ok, map()}
@@ -180,7 +184,7 @@ defmodule CoupEngine.Game do
   @spec handle_call({:block, String.t(), String.t()}, any(), map()) ::
           {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
   def handle_call(
-        {:block, block_action, session_id},
+        {:block, session_id, block_action},
         _from,
         %{toast: toast, players: players, turn: %{action: action, player: player} = turn} =
           state_data

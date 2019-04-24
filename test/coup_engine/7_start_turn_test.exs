@@ -53,7 +53,7 @@ defmodule CoupEngine.StartTurnTest do
       assert latest_toast.body == "It's TH's turn."
     end
 
-    test "should set opponents actions_panel_mode to responses, disabled", %{
+    test "should set opponents actions_panel_mode to responses", %{
       updated_state: updated_state
     } do
       player = updated_state.players |> Enum.at(1)

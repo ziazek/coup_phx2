@@ -3,6 +3,31 @@ defmodule CoupEngine.PlayerActionTest do
 
   alias CoupEngine.{Action, Game, Player}
 
+  describe "turn opponent_responses" do
+    setup do
+      state =
+        initial_state(%{
+          state: "cards_drawn",
+          players: [
+            %Player{name: "TH", session_id: "sess1"},
+            %Player{name: "Ken", session_id: "sess2"}
+          ]
+        })
+
+      {:noreply, updated_state, _continue} = Game.handle_info({:start_turn, 0}, state)
+
+      {:ok, %{updated_state: updated_state}}
+    end
+
+    test "should be initialized to all opponents' session_ids, pending", %{
+      updated_state: updated_state
+    } do
+      assert updated_state.turn.opponent_responses == %{
+               "sess2" => "pending"
+             }
+    end
+  end
+
   describe "when player has < 10 coins" do
     setup do
       state =

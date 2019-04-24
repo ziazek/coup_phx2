@@ -190,7 +190,7 @@ defmodule CoupEngine.Actions do
       },
       %Action{
         action: "challenge",
-        label: "Allow",
+        label: "Challenge",
         state: "enabled"
       }
     ]

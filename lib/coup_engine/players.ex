@@ -136,9 +136,11 @@ defmodule CoupEngine.Players do
         if player.session_id == session_id do
           player
           |> Map.put(:responses, Actions.player_responses_to_block())
-          |> Map.put(:display_state, "responses")
+          |> Map.put(:actions_panel_mode, "responses")
+          |> Map.put(:display_state, "responding_to_block")
         else
           player
+          |> Map.put(:actions_panel_mode, "actions_disabled")
           |> Map.put(:display_state, "awaiting_response_to_block")
         end
       end)

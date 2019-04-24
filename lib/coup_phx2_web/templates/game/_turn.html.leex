@@ -37,19 +37,26 @@
 </div>
 
 <%# Target %>
-<%= if @data.turn.target.state == "pending" || @data.turn.target.state == "thinking" do %>
+<%= if Map.get(@data.turn.target, :state) == "pending" || Map.get(@data.turn.target, :state) == "thinking" do %>
 <div class="turn-item pending text-center items-center justify-center flex">
   <div class="flex-1">
     <%= render "_dottedcircle_svg.html" %>
   </div>
 </div>
 <% end %>
-<%= if @data.turn.target.state == "ok" do %>
+<%= if Map.get(@data.turn.target, :state) == "ok" do %>
 <div class="turn-item text-center pb-1">
   <%= render "_target_svg.html" %>
   <div class="turn-label uppercase"><%= @data.turn.target.name %></div>
 </div>
 <% end %>
+<%= if Map.get(@data.turn.target, :state) == "block_as_duke" do %>
+<div class="turn-item text-center pb-1">
+  <%= render "_thinking_svg.html" %>
+  <div class="turn-label uppercase"><%= @data.turn.target.name %></div>
+</div>
+<% end %>
+
 
 <div class="divider">
   <%= render "_rightcaret_svg.html" %>
@@ -65,7 +72,7 @@
 <% end %>
 <%= if @data.turn.target_response.state == "ok" do %>
 <div class="turn-item text-center pb-1">
-  <%= render "_block_svg.html" %>
+  <%= render "_#{@data.turn.target_response.action}_svg.html" %>
   <div class="turn-label uppercase"><%= @data.turn.target_response.label %></div>
 </div>
 <% end %>

@@ -10,7 +10,8 @@ defmodule CoupEngine.Turn do
     :target,
     :target_response,
     :blocker_claimed_character,
-    :player_response_to_target
+    :player_response_to_target,
+    :opponent_responses
   ]
 
   alias CoupEngine.{Actions, Player}
@@ -24,7 +25,8 @@ defmodule CoupEngine.Turn do
       target_response: %{state: "pending"},
       blocker_claimed_character: nil,
       player_response_to_target: %{state: "pending"},
-      state: "active"
+      state: "active",
+      opponent_responses: nil
     }
   end
 
@@ -32,7 +34,13 @@ defmodule CoupEngine.Turn do
   def build(turn, players, player_index) do
     player = players |> Enum.at(player_index) |> Map.put(:state, "ok")
 
-    updated_turn = turn |> Map.merge(%{player: player})
+    opponent_responses =
+      players
+      |> Enum.filter(fn p -> p.session_id != player.session_id end)
+      |> Enum.map(fn p -> {p.session_id, "pending"} end)
+      |> Enum.into(%{})
+
+    updated_turn = turn |> Map.merge(%{player: player, opponent_responses: opponent_responses})
 
     {:ok, updated_turn}
   end

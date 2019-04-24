@@ -1,6 +1,6 @@
 <%= for action <- Map.get(@data.current_player, :responses, []) do %>
 <%= if action.state == "enabled" do %>
-  <div class="action-item text-center pb-1">
+  <div class="action-item text-center pb-1" phx-click="response" phx-value="<%= Map.get(action, :action) %>:<%= @data.current_player.session_id %>">
 <% else %>
   <div class="action-item text-center pb-1 disabled">
 <% end %>

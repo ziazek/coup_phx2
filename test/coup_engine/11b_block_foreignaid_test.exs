@@ -10,8 +10,8 @@ defmodule CoupEngine.BlockForeignaidTest do
           state: "awaiting_opponent_response",
           players: [
             %Player{name: "Ken", session_id: "session_id1"},
-            %Player{name: "Zek", session_id: "session_id2"},
-            %Player{name: "Naz", session_id: "session_id3"}
+            %Player{name: "Zek", session_id: "session_id2", actions_panel_mode: "responses"},
+            %Player{name: "Naz", session_id: "session_id3", actions_panel_mode: "responses"}
           ],
           turn: %Turn{
             player: %Player{name: "Ken", session_id: "session_id1"},
@@ -24,7 +24,7 @@ defmodule CoupEngine.BlockForeignaidTest do
         })
 
       {:reply, :ok, updated_state, _continue} =
-        Game.handle_call({:block, "block_as_duke", "session_id2"}, "_pid", state)
+        Game.handle_call({:block, "session_id2", "block_as_duke"}, "_pid", state)
 
       {:ok, %{updated_state: updated_state}}
     end
@@ -35,7 +35,8 @@ defmodule CoupEngine.BlockForeignaidTest do
       assert updated_state.turn.target == %Player{
                name: "Zek",
                session_id: "session_id2",
-               state: "block_as_duke"
+               state: "block_as_duke",
+               actions_panel_mode: "responses"
              }
 
       assert updated_state.turn.target_response == %Action{
@@ -71,10 +72,20 @@ defmodule CoupEngine.BlockForeignaidTest do
                },
                %Action{
                  action: "challenge",
-                 label: "Allow",
+                 label: "Challenge",
                  state: "enabled"
                }
              ]
+    end
+
+    test "should update Zek and Naz actions_panel_mode to actions_disabled", %{
+      updated_state: updated_state
+    } do
+      zek = updated_state.players |> Enum.at(1)
+      naz = updated_state.players |> Enum.at(2)
+
+      assert zek.actions_panel_mode == "actions_disabled"
+      assert naz.actions_panel_mode == "actions_disabled"
     end
 
     test "should update Zek and Naz display_state to awaiting_response_to_block", %{
@@ -87,12 +98,20 @@ defmodule CoupEngine.BlockForeignaidTest do
       assert naz.display_state == "awaiting_response_to_block"
     end
 
-    test "should update Ken display_state to responses", %{
+    test "should update Ken actions_panel_mode to responses", %{
       updated_state: updated_state
     } do
       ken = updated_state.players |> Enum.at(0)
 
-      assert ken.display_state == "responses"
+      assert ken.actions_panel_mode == "responses"
+    end
+
+    test "should update Ken display_state to responding_to_block", %{
+      updated_state: updated_state
+    } do
+      ken = updated_state.players |> Enum.at(0)
+
+      assert ken.display_state == "responding_to_block"
     end
   end
 end
