@@ -45,9 +45,17 @@ defmodule CoupEngine.Game do
   def lose_influence_confirm(pid),
     do: GenServer.call(pid, :lose_influence_confirm)
 
+  @spec allow(pid(), String.t()) :: any()
+  def allow(pid, session_id),
+    do: GenServer.call(pid, {:allow, session_id})
+
   @spec block(pid(), String.t(), String.t()) :: any()
   def block(pid, session_id, name),
     do: GenServer.call(pid, {:block, session_id, name})
+
+  @spec allow_block(pid()) :: any()
+  def allow_block(pid),
+    do: GenServer.call(pid, :allow_block)
 
   ### SERVER ###
 
@@ -215,10 +223,35 @@ defmodule CoupEngine.Game do
         %{toast: toast, players: players, turn: %{action: action, player: player} = turn} =
           state_data
       ) do
-    with {:ok, next_state} <-
-           GameStateMachine.check(state_data.state, :allow),
-         {:ok, turn, player} <- Turn.set_opponent_allow(turn, players, session_id) do
+    with {:ok, _next_state} <- GameStateMachine.check(state_data.state, :allow),
+         {:ok, turn, player} <- Turn.set_opponent_allow(turn, players, session_id),
+         {:ok, next_state} <-
+           GameStateMachine.check_all_opponents_allow(state_data.state, turn.opponent_responses) do
       toast = toast |> Toast.add("#{player.name} allows.")
+      action_send_after(next_state)
+
+      state_data
+      |> Map.put(:turn, turn)
+      |> Map.put(:toast, toast)
+      |> Map.put(:state, next_state)
+      |> reply_success(:ok, :broadcast_change)
+    else
+      error -> {:reply, error, state_data}
+    end
+  end
+
+  @spec handle_call(:allow_block, any(), map()) ::
+          {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
+  def handle_call(
+        :allow_block,
+        _from,
+        %{toast: toast, players: players, turn: %{action: action, target: target} = turn} =
+          state_data
+      ) do
+    with {:ok, next_state} <- GameStateMachine.check(state_data.state, :allow_block),
+         {:ok, turn} <- Turn.set_player_allow_block(turn) do
+      toast = toast |> Toast.add("#{target.name} allows the block.")
+      @process.send_after(self(), :end_turn, 1_000)
 
       state_data
       |> Map.put(:turn, turn)
@@ -564,6 +597,10 @@ defmodule CoupEngine.Game do
   end
 
   defp action_success_send_after("1coin") do
+    @process.send_after(self(), :end_turn, 1_000)
+  end
+
+  defp action_success_send_after("foreignaid") do
     @process.send_after(self(), :end_turn, 1_000)
   end
 

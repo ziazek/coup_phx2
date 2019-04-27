@@ -38,6 +38,20 @@ defmodule CoupEngine.Players do
     {:ok, players}
   end
 
+  def apply_action(players, "foreignaid", session_id, _target) do
+    players =
+      players
+      |> Enum.map(fn player ->
+        if player.session_id == session_id do
+          player |> Map.put(:coins, player.coins + 2)
+        else
+          player
+        end
+      end)
+
+    {:ok, players}
+  end
+
   def apply_action(players, "coup", _session_id, %{session_id: target_session_id} = _target) do
     {:ok, players}
   end

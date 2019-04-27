@@ -34,7 +34,7 @@ defmodule CoupEngine.StartTurnTest do
           actions: actions
         },
         action: %{state: "pending"},
-        player_response_to_target: %{state: "pending"},
+        player_response_to_block: %{state: "pending"},
         target: %{state: "pending"},
         target_response: %{state: "pending"}
       } = updated_state.turn

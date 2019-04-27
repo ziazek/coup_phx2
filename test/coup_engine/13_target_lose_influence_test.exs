@@ -1,4 +1,4 @@
-defmodule CoupEngine.LoseInfluenceTest do
+defmodule CoupEngine.TargetLoseInfluenceTest do
   use CoupPhx2Web.GameCase, async: true
 
   alias CoupEngine.{Card, Game, Player, Turn}
@@ -7,7 +7,7 @@ defmodule CoupEngine.LoseInfluenceTest do
     setup do
       state =
         initial_state(%{
-          state: "lose_influence",
+          state: "target_lose_influence",
           players: [
             %Player{name: "Jany", session_id: "session_id1", coins: 0},
             %Player{
@@ -65,7 +65,7 @@ defmodule CoupEngine.LoseInfluenceTest do
     setup do
       state =
         initial_state(%{
-          state: "lose_influence",
+          state: "target_lose_influence",
           players: [
             %Player{name: "Jany", session_id: "session_id1", coins: 0},
             %Player{

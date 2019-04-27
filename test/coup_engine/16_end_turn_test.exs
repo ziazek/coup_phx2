@@ -37,7 +37,7 @@ defmodule CoupEngine.EndTurnTest do
       assert turn.action.state == "pending"
       assert turn.target.state == "pending"
       assert turn.target_response.state == "pending"
-      assert turn.player_response_to_target.state == "pending"
+      assert turn.player_response_to_block.state == "pending"
     end
 
     test "should send start_turn for next alive player" do

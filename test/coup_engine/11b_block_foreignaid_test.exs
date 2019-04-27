@@ -66,7 +66,7 @@ defmodule CoupEngine.BlockForeignaidTest do
 
       assert ken.responses == [
                %Action{
-                 action: "allow",
+                 action: "allow_block",
                  label: "Allow",
                  state: "enabled"
                },

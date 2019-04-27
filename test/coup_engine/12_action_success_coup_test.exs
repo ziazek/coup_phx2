@@ -25,8 +25,8 @@ defmodule CoupEngine.ActionSuccessCoupTest do
       {:ok, %{updated_state: updated_state}}
     end
 
-    test "should change game state to lose_influence", %{updated_state: updated_state} do
-      assert updated_state.state == "lose_influence"
+    test "should change game state to target_lose_influence", %{updated_state: updated_state} do
+      assert updated_state.state == "target_lose_influence"
     end
 
     test "should update toast to 'COUP is successful.'", %{

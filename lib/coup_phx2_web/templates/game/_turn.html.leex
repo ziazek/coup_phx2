@@ -82,16 +82,16 @@
 </div>
 
 <%# Player response to Target (if target blocks) %>
-<%= if @data.turn.player_response_to_target.state == "pending" || @data.turn.player_response_to_target.state == "thinking" do %>
+<%= if @data.turn.player_response_to_block.state == "pending" || @data.turn.player_response_to_block.state == "thinking" do %>
 <div class="turn-item pending text-center items-center justify-center flex">
   <div class="flex-1">
     <%= render "_dottedcircle_svg.html" %>
   </div>
 </div>
 <% end %>
-<%= if @data.turn.player_response_to_target.state == "ok" do %>
+<%= if @data.turn.player_response_to_block.state == "ok" do %>
 <div class="turn-item text-center pb-1">
   <%= render "_challenge_svg.html" %>
-  <div class="turn-label uppercase"><%= @data.turn.player_response_to_target.label %></div>
+  <div class="turn-label uppercase"><%= @data.turn.player_response_to_block.label %></div>
 </div>
 <% end %>

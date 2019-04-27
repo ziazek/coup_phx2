@@ -8,6 +8,8 @@ defmodule CoupEngine.GameStateMachine do
 
   alias CoupEngine.Player
 
+  ### Arity 2 ###
+
   @spec check(String.t(), atom()) :: {:ok, String.t()} | {:error, String.t()}
   def check("game_started", :shuffle), do: {:ok, "deck_shuffled"}
   def check("deck_shuffled", :draw_card), do: {:ok, "drawing_cards"}
@@ -22,9 +24,12 @@ defmodule CoupEngine.GameStateMachine do
   def check("lose_influence_card_selected", :lose_influence_confirm),
     do: {:ok, "turn_ending"}
 
+  def check("awaiting_response_to_block", :allow_block), do: {:ok, "turn_ending"}
   def check("turn_ending", :end_turn), do: {:ok, "turn_ended"}
   def check("turn_ended", :start_turn), do: {:ok, "player_action"}
   def check(_, _), do: {:error, "invalid game state"}
+
+  ### Arity 3 ###
 
   @spec check(String.t(), atom(), atom() | pos_integer() | String.t()) ::
           {:ok, String.t()} | {:error, String.t()}
@@ -47,12 +52,13 @@ defmodule CoupEngine.GameStateMachine do
   def check("select_target", :select_target, "coup"), do: {:ok, "action_success"}
 
   def check("action_success", :action_success, "1coin"), do: {:ok, "turn_ending"}
-  def check("action_success", :action_success, "coup"), do: {:ok, "lose_influence"}
+  def check("action_success", :action_success, "foreignaid"), do: {:ok, "turn_ending"}
+  def check("action_success", :action_success, "coup"), do: {:ok, "target_lose_influence"}
 
-  def check("lose_influence", :lose_influence, :select_card),
+  def check("target_lose_influence", :lose_influence, :select_card),
     do: {:ok, "lose_influence_select_card"}
 
-  def check("lose_influence", :lose_influence, :die),
+  def check("target_lose_influence", :lose_influence, :die),
     do: {:ok, "turn_ending"}
 
   def check(_, _, _), do: {:error, "invalid game state"}
@@ -76,6 +82,18 @@ defmodule CoupEngine.GameStateMachine do
       {:ok, "cards_drawn"}
     else
       {:ok, "drawing_cards"}
+    end
+  end
+
+  @doc """
+  Checks whether all opponents have allowed
+  """
+  @spec check_all_opponents_allow(String.t(), map()) :: {:ok, String.t()}
+  def check_all_opponents_allow(current_state, opponent_responses) do
+    if Enum.all?(opponent_responses, fn {_session_id, response} -> response == "allow" end) do
+      {:ok, "action_success"}
+    else
+      {:ok, current_state}
     end
   end
 end

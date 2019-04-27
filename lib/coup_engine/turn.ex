@@ -10,7 +10,7 @@ defmodule CoupEngine.Turn do
     :target,
     :target_response,
     :blocker_claimed_character,
-    :player_response_to_target,
+    :player_response_to_block,
     :opponent_responses
   ]
 
@@ -24,7 +24,7 @@ defmodule CoupEngine.Turn do
       target: %{state: "pending"},
       target_response: %{state: "pending"},
       blocker_claimed_character: nil,
-      player_response_to_target: %{state: "pending"},
+      player_response_to_block: %{state: "pending"},
       state: "active",
       opponent_responses: nil
     }
@@ -87,8 +87,7 @@ defmodule CoupEngine.Turn do
     {:ok, turn}
   end
 
-  @spec set_target_response(%__MODULE__{}, String.t()) ::
-          {:ok, %__MODULE__{}}
+  @spec set_target_response(%__MODULE__{}, String.t()) :: {:ok, %__MODULE__{}}
   defp set_target_response(turn, block_action) do
     {:ok, action} = Actions.get_block_action(block_action)
 
@@ -99,8 +98,22 @@ defmodule CoupEngine.Turn do
     {:ok, turn}
   end
 
+  @spec set_player_allow_block(%__MODULE__{}) :: {:ok, %__MODULE__{}}
+  def set_player_allow_block(turn) do
+    turn =
+      turn
+      |> Map.put(:state, "ended")
+      |> Map.put(:player_response_to_block, Actions.allow_block_action())
+
+    {:ok, turn}
+  end
+
   @spec get_action_success_next_turn(%__MODULE__{}, String.t()) :: {:ok, %__MODULE__{}}
   def get_action_success_next_turn(turn, "1coin") do
+    {:ok, turn |> Map.put(:state, "ended")}
+  end
+
+  def get_action_success_next_turn(turn, "foreignaid") do
     {:ok, turn |> Map.put(:state, "ended")}
   end
 

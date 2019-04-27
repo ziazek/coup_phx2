@@ -45,7 +45,7 @@ defmodule CoupEngine.InitTest do
       assert turn.action.state == "pending"
       assert turn.target.state == "pending"
       assert turn.target_response.state == "pending"
-      assert turn.player_response_to_target.state == "pending"
+      assert turn.player_response_to_block.state == "pending"
     end
 
     test "should have a complete deck of 15 cards", %{deck: deck} do

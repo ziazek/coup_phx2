@@ -31,6 +31,15 @@ defmodule CoupEngine.Actions do
     }
   }
 
+  @spec allow_block_action() :: %Action{}
+  def allow_block_action do
+    %Action{
+      action: "allow",
+      label: "Allow",
+      state: "ok"
+    }
+  end
+
   @spec get_block_action(String.t()) :: {:ok, %Action{}}
   def get_block_action(block_name) do
     block_action =
@@ -87,6 +96,10 @@ defmodule CoupEngine.Actions do
 
   def get_action_success_description("1coin", player_name, _target) do
     {:ok, "#{player_name} received 1 coin."}
+  end
+
+  def get_action_success_description("foreignaid", player_name, _target) do
+    {:ok, "#{player_name} received 2 coins."}
   end
 
   def get_action_success_description("coup", _player_name, %{name: target_name} = _target) do
@@ -184,7 +197,7 @@ defmodule CoupEngine.Actions do
   def player_responses_to_block do
     [
       %Action{
-        action: "allow",
+        action: "allow_block",
         label: "Allow",
         state: "enabled"
       },

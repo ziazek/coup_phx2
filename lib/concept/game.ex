@@ -581,7 +581,7 @@ defmodule Concept.Game do
         # action: %{state: "pending", label: "Steal", action: "steal"},
         target: %{state: "pending"},
         target_response: %{state: "pending"},
-        player_response_to_target: %{state: "pending"}
+        player_response_to_block: %{state: "pending"}
       }
     })
   end
@@ -736,7 +736,7 @@ defmodule Concept.Game do
         action: %{state: "pending", label: nil, action: nil},
         target: %{state: "pending"},
         target_response: %{state: "pending"},
-        player_response_to_target: %{state: "pending"}
+        player_response_to_block: %{state: "pending"}
       },
       state: "init"
     }
