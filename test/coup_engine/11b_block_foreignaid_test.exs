@@ -71,7 +71,7 @@ defmodule CoupEngine.BlockForeignaidTest do
                  state: "enabled"
                },
                %Action{
-                 action: "challenge",
+                 action: "challenge_block",
                  label: "Challenge",
                  state: "enabled"
                }

@@ -40,6 +40,15 @@ defmodule CoupEngine.Actions do
     }
   end
 
+  @spec challenge_block_action() :: %Action{}
+  def challenge_block_action do
+    %Action{
+      action: "challenge_block",
+      label: "Challenge",
+      state: "ok"
+    }
+  end
+
   @spec get_block_action(String.t()) :: {:ok, %Action{}}
   def get_block_action(block_name) do
     block_action =
@@ -202,7 +211,7 @@ defmodule CoupEngine.Actions do
         state: "enabled"
       },
       %Action{
-        action: "challenge",
+        action: "challenge_block",
         label: "Challenge",
         state: "enabled"
       }

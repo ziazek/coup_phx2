@@ -103,6 +103,16 @@ defmodule CoupPhx2Web.GameLive do
     end
   end
 
+  def handle_event("response", "challenge_block:" <> _session_id, socket) do
+    case Game.challenge_block(socket.assigns.game_pid) do
+      :ok ->
+        {:noreply, socket}
+
+      {:error, reason} ->
+        {:noreply, socket}
+    end
+  end
+
   def handle_event("response", "block_as_duke:" <> session_id, socket) do
     case Game.block(socket.assigns.game_pid, session_id, "block_as_duke") do
       :ok ->

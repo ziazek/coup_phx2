@@ -19,8 +19,6 @@ defmodule CoupEngine.Challenge do
       |> Enum.filter(fn card -> card.state != "dead" end)
       |> Enum.map(fn card -> card.type end)
 
-    IO.inspect(live_characters, label: "live_characters")
-
     block_success = live_characters |> Enum.member?(claimed_character)
 
     {:ok, !block_success}

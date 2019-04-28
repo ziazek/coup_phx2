@@ -110,6 +110,15 @@ defmodule CoupEngine.Turn do
     {:ok, turn}
   end
 
+  @spec set_player_challenge_block(%__MODULE__{}) :: {:ok, %__MODULE__{}}
+  def set_player_challenge_block(turn) do
+    turn =
+      turn
+      |> Map.put(:player_response_to_block, Actions.challenge_block_action())
+
+    {:ok, turn}
+  end
+
   @spec get_action_success_next_turn(%__MODULE__{}, String.t()) :: {:ok, %__MODULE__{}}
   def get_action_success_next_turn(turn, "1coin") do
     {:ok, turn |> Map.put(:state, "ended")}

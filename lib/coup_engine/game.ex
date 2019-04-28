@@ -57,6 +57,10 @@ defmodule CoupEngine.Game do
   def allow_block(pid),
     do: GenServer.call(pid, :allow_block)
 
+  @spec challenge_block(pid()) :: any()
+  def challenge_block(pid),
+    do: GenServer.call(pid, :challenge_block)
+
   ### SERVER ###
 
   @spec init({String.t(), String.t(), String.t()}) :: {:ok, map()}
@@ -220,8 +224,7 @@ defmodule CoupEngine.Game do
   def handle_call(
         {:allow, session_id},
         _from,
-        %{toast: toast, players: players, turn: %{action: action, player: player} = turn} =
-          state_data
+        %{toast: toast, players: players, turn: turn} = state_data
       ) do
     with {:ok, _next_state} <- GameStateMachine.check(state_data.state, :allow),
          {:ok, turn, player} <- Turn.set_opponent_allow(turn, players, session_id),
@@ -272,7 +275,6 @@ defmodule CoupEngine.Game do
           players: players,
           turn:
             %{
-              action: action,
               blocker_claimed_character: blocker_claimed_character,
               target: target
             } = turn
@@ -281,9 +283,16 @@ defmodule CoupEngine.Game do
     with {:ok, challenge_success} <-
            Challenge.challenge_block(players, target.session_id, blocker_claimed_character),
          {:ok, next_state} <-
-           GameStateMachine.check(state_data.state, :challenge_block, challenge_success) do
-      toast = toast |> Toast.add("#{target.name} allows the block.")
-      @process.send_after(self(), :end_turn, 1_000)
+           GameStateMachine.check(state_data.state, :challenge_block, challenge_success),
+         {:ok, turn} <- Turn.set_player_challenge_block(turn) do
+      toast =
+        if challenge_success do
+          toast |> Toast.add("Challenge succeeds.")
+        else
+          toast |> Toast.add("Challenge fails.")
+        end
+
+      @process.send_after(self(), :lose_influence, 1_000)
 
       state_data
       |> Map.put(:turn, turn)
@@ -318,11 +327,12 @@ defmodule CoupEngine.Game do
   def handle_call(
         :lose_influence_confirm,
         _from,
-        %{players: players, turn: %{target: %{session_id: target_session_id}}, toast: toast} =
-          state_data
+        %{players: players, toast: toast} = state_data
       ) do
+    player = players |> Enum.find(fn p -> p.display_state == "lose_influence_select_card" end)
+
     with {:ok, next_state} <- GameStateMachine.check(state_data.state, :lose_influence_confirm),
-         {:ok, players, description} <- Players.lose_influence(players, target_session_id),
+         {:ok, players, description} <- Players.lose_influence(players, player.session_id),
          {:ok, players} <- Players.reset_display_state(players) do
       toast = toast |> Toast.add(description)
 
@@ -455,6 +465,7 @@ defmodule CoupEngine.Game do
   def handle_info(
         :lose_influence,
         %{
+          state: "target_lose_influence",
           turn: %{
             target: %{hand: target_hand}
           }
@@ -463,8 +474,25 @@ defmodule CoupEngine.Game do
     live_cards = target_hand |> Enum.filter(fn card -> card.state != "dead" end)
 
     case length(live_cards) do
-      1 -> do_lose_influence(:die, state_data)
-      2 -> do_lose_influence(:select_card, state_data)
+      1 -> do_target_lose_influence(:die, state_data)
+      2 -> do_target_lose_influence(:select_card, state_data)
+    end
+  end
+
+  def handle_info(
+        :lose_influence,
+        %{
+          state: "player_lose_influence",
+          turn: %{
+            player: %{hand: player_hand}
+          }
+        } = state_data
+      ) do
+    live_cards = player_hand |> Enum.filter(fn card -> card.state != "dead" end)
+
+    case length(live_cards) do
+      1 -> do_player_lose_influence(:die, state_data)
+      2 -> do_player_lose_influence(:select_card, state_data)
     end
   end
 
@@ -518,7 +546,7 @@ defmodule CoupEngine.Game do
 
   ### PRIVATE HANDLER HELPERS
 
-  defp do_lose_influence(
+  defp do_target_lose_influence(
          :die,
          %{
            players: players,
@@ -547,7 +575,7 @@ defmodule CoupEngine.Game do
     end
   end
 
-  defp do_lose_influence(
+  defp do_target_lose_influence(
          :select_card,
          %{
            players: players,
@@ -563,6 +591,65 @@ defmodule CoupEngine.Game do
          {:ok, players} <-
            Players.set_display_state(players, target_session_id, "lose_influence_select_card") do
       toast = toast |> Toast.add("#{target.name} loses 1 influence. Choosing card to discard...")
+
+      state_data
+      |> Map.put(:players, players)
+      |> Map.put(:toast, toast)
+      |> Map.put(:state, next_state)
+      |> noreply(:broadcast_change)
+    else
+      {:error, reason} ->
+        toast = toast |> Toast.add(reason)
+        state_data = state_data |> Map.put(:toast, toast)
+        {:noreply, state_data}
+    end
+  end
+
+  defp do_player_lose_influence(
+         :die,
+         %{
+           players: players,
+           toast: toast,
+           turn:
+             %{
+               player: %{session_id: player_session_id} = player
+             } = _turn
+         } = state_data
+       ) do
+    with {:ok, next_state} <- GameStateMachine.check(state_data.state, :lose_influence, :die),
+         {:ok, players} <- Players.kill_player_and_last_card(players, player_session_id) do
+      toast = toast |> Toast.add("#{player.name} loses 1 influence. Player has died.")
+      @process.send_after(self(), :end_turn, 1_000)
+
+      state_data
+      |> Map.put(:players, players)
+      |> Map.put(:toast, toast)
+      |> Map.put(:state, next_state)
+      |> noreply(:broadcast_change)
+    else
+      {:error, reason} ->
+        toast = toast |> Toast.add(reason)
+        state_data = state_data |> Map.put(:toast, toast)
+        {:noreply, state_data}
+    end
+  end
+
+  defp do_player_lose_influence(
+         :select_card,
+         %{
+           players: players,
+           toast: toast,
+           turn:
+             %{
+               player: %{session_id: player_session_id} = player
+             } = _turn
+         } = state_data
+       ) do
+    with {:ok, next_state} <-
+           GameStateMachine.check(state_data.state, :lose_influence, :select_card),
+         {:ok, players} <-
+           Players.set_display_state(players, player_session_id, "lose_influence_select_card") do
+      toast = toast |> Toast.add("#{player.name} loses 1 influence. Choosing card to discard...")
 
       state_data
       |> Map.put(:players, players)

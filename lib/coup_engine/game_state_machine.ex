@@ -54,6 +54,9 @@ defmodule CoupEngine.GameStateMachine do
   def check("awaiting_response_to_block", :challenge_block, true),
     do: {:ok, "target_lose_influence"}
 
+  def check("awaiting_response_to_block", :challenge_block, false),
+    do: {:ok, "player_lose_influence"}
+
   def check("action_success", :action_success, "1coin"), do: {:ok, "turn_ending"}
   def check("action_success", :action_success, "foreignaid"), do: {:ok, "turn_ending"}
   def check("action_success", :action_success, "coup"), do: {:ok, "target_lose_influence"}
@@ -62,6 +65,12 @@ defmodule CoupEngine.GameStateMachine do
     do: {:ok, "lose_influence_select_card"}
 
   def check("target_lose_influence", :lose_influence, :die),
+    do: {:ok, "turn_ending"}
+
+  def check("player_lose_influence", :lose_influence, :select_card),
+    do: {:ok, "lose_influence_select_card"}
+
+  def check("player_lose_influence", :lose_influence, :die),
     do: {:ok, "turn_ending"}
 
   def check(_, _, _), do: {:error, "invalid game state"}
