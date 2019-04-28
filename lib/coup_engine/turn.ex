@@ -11,6 +11,7 @@ defmodule CoupEngine.Turn do
     :target_response,
     :blocker_claimed_character,
     :player_response_to_block,
+    :challenge_block_result,
     :opponent_responses
   ]
 
@@ -26,7 +27,8 @@ defmodule CoupEngine.Turn do
       blocker_claimed_character: nil,
       player_response_to_block: %{state: "pending"},
       state: "active",
-      opponent_responses: nil
+      opponent_responses: nil,
+      challenge_block_result: nil
     }
   end
 

@@ -1,7 +1,7 @@
 defmodule CoupEngine.ChallengeBlockTest do
   use CoupPhx2Web.GameCase, async: true
 
-  alias CoupEngine.{Action, Game, Player, Turn}
+  alias CoupEngine.{Action, Card, Game, Player, Turn}
 
   describe "challenge block success" do
     setup do
@@ -10,7 +10,11 @@ defmodule CoupEngine.ChallengeBlockTest do
           state: "awaiting_response_to_block",
           players: [
             %Player{name: "Ken", session_id: "session_id1"},
-            %Player{name: "Naz", session_id: "session_id2"}
+            %Player{
+              name: "Naz",
+              session_id: "session_id2",
+              hand: [%Card{type: "Captain", state: "default"}, %Card{type: "Duke", state: "dead"}]
+            }
           ],
           turn: %Turn{
             player: %Player{name: "Ken", session_id: "session_id1"},

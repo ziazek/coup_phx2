@@ -5,7 +5,7 @@ defmodule CoupEngine.Game do
 
   use GenServer
 
-  alias CoupEngine.{Actions, Deck, GameStateMachine, Player, Players, Toast, Turn}
+  alias CoupEngine.{Actions, Challenge, Deck, GameStateMachine, Player, Players, Toast, Turn}
 
   @pubsub Application.get_env(:coup_phx2, :game_pubsub)
   @process Application.get_env(:coup_phx2, :game_process)
@@ -245,11 +245,43 @@ defmodule CoupEngine.Game do
   def handle_call(
         :allow_block,
         _from,
-        %{toast: toast, players: players, turn: %{action: action, target: target} = turn} =
-          state_data
+        %{toast: toast, turn: %{target: target} = turn} = state_data
       ) do
     with {:ok, next_state} <- GameStateMachine.check(state_data.state, :allow_block),
          {:ok, turn} <- Turn.set_player_allow_block(turn) do
+      toast = toast |> Toast.add("#{target.name} allows the block.")
+      @process.send_after(self(), :end_turn, 1_000)
+
+      state_data
+      |> Map.put(:turn, turn)
+      |> Map.put(:toast, toast)
+      |> Map.put(:state, next_state)
+      |> reply_success(:ok, :broadcast_change)
+    else
+      error -> {:reply, error, state_data}
+    end
+  end
+
+  @spec handle_call(:challenge_block, any(), map()) ::
+          {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
+  def handle_call(
+        :challenge_block,
+        _from,
+        %{
+          toast: toast,
+          players: players,
+          turn:
+            %{
+              action: action,
+              blocker_claimed_character: blocker_claimed_character,
+              target: target
+            } = turn
+        } = state_data
+      ) do
+    with {:ok, challenge_success} <-
+           Challenge.challenge_block(players, target.session_id, blocker_claimed_character),
+         {:ok, next_state} <-
+           GameStateMachine.check(state_data.state, :challenge_block, challenge_success) do
       toast = toast |> Toast.add("#{target.name} allows the block.")
       @process.send_after(self(), :end_turn, 1_000)
 

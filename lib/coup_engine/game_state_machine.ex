@@ -31,7 +31,7 @@ defmodule CoupEngine.GameStateMachine do
 
   ### Arity 3 ###
 
-  @spec check(String.t(), atom(), atom() | pos_integer() | String.t()) ::
+  @spec check(String.t(), atom(), atom() | pos_integer() | boolean() | String.t()) ::
           {:ok, String.t()} | {:error, String.t()}
   def check("adding_players", :add_player, count) when count < @max_players,
     do: {:ok, "adding_players"}
@@ -50,6 +50,9 @@ defmodule CoupEngine.GameStateMachine do
   def check("player_action", :action, "coup"), do: {:ok, "select_target"}
 
   def check("select_target", :select_target, "coup"), do: {:ok, "action_success"}
+
+  def check("awaiting_response_to_block", :challenge_block, true),
+    do: {:ok, "target_lose_influence"}
 
   def check("action_success", :action_success, "1coin"), do: {:ok, "turn_ending"}
   def check("action_success", :action_success, "foreignaid"), do: {:ok, "turn_ending"}
