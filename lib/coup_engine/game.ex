@@ -183,6 +183,12 @@ defmodule CoupEngine.Game do
            Players.set_opponent_display_state(
              players,
              player.session_id,
+             action.action
+           ),
+         {:ok, players} <-
+           Players.set_opponent_responses_after_select_target(
+             players,
+             player.session_id,
              target_session_id,
              action.action
            ) do

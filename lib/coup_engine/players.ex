@@ -52,7 +52,7 @@ defmodule CoupEngine.Players do
     {:ok, players}
   end
 
-  def apply_action(players, "coup", _session_id, %{session_id: target_session_id} = _target) do
+  def apply_action(players, "coup", _session_id, _target) do
     {:ok, players}
   end
 
@@ -92,15 +92,32 @@ defmodule CoupEngine.Players do
 
   def set_display_state(players, _, _), do: {:ok, players}
 
-  # WIP
-  # def set_opponent_display_state(
-  #   players,
-  #   player_session_id,
-  #   target_session_id,
-  #   action
-  # ) do
-  #
-  # end
+  @spec set_opponent_display_state([%Player{}], String.t(), String.t()) :: {:ok, [%Player{}]}
+  def set_opponent_display_state(
+        players,
+        session_id,
+        "steal"
+      ) do
+    players =
+      players
+      |> Enum.map(fn player ->
+        if player.session_id == session_id do
+          player
+        else
+          player |> Map.put(:display_state, "responses")
+        end
+      end)
+
+    {:ok, players}
+  end
+
+  def set_opponent_display_state(
+        players,
+        _player_session_id,
+        _action
+      ) do
+    {:ok, players}
+  end
 
   @spec reset_display_state([%Player{}]) :: {:ok, [%Player{}]}
   def reset_display_state(players) do
@@ -151,6 +168,14 @@ defmodule CoupEngine.Players do
 
   def set_opponent_responses(players, _session_id, _) do
     {:ok, players}
+  end
+
+  def set_opponent_responses_after_select_target(
+        players,
+        player.session_id,
+        target_session_id,
+        action.action
+      ) do
   end
 
   @spec set_response_to_block([%Player{}], String.t()) :: {:ok, [%Player{}]}
