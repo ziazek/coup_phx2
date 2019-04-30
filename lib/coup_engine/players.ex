@@ -60,8 +60,9 @@ defmodule CoupEngine.Players do
     {:error, "Undefined action"}
   end
 
+  @select_target_actions ["coup", "steal"]
   @spec set_display_state([%Player{}], String.t(), String.t()) :: {:ok, [%Player{}]}
-  def set_display_state(players, session_id, "coup") do
+  def set_display_state(players, session_id, action) when action in @select_target_actions do
     players =
       players
       |> Enum.map(fn player ->
@@ -90,6 +91,16 @@ defmodule CoupEngine.Players do
   end
 
   def set_display_state(players, _, _), do: {:ok, players}
+
+  # WIP
+  # def set_opponent_display_state(
+  #   players,
+  #   player_session_id,
+  #   target_session_id,
+  #   action
+  # ) do
+  #
+  # end
 
   @spec reset_display_state([%Player{}]) :: {:ok, [%Player{}]}
   def reset_display_state(players) do

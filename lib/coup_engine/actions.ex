@@ -17,6 +17,10 @@ defmodule CoupEngine.Actions do
     "coup" => %{
       claimed_character: nil,
       description: "chose COUP. Selecting target..."
+    },
+    "steal" => %{
+      claimed_character: "Captain",
+      description: "chose STEAL. Selecting target..."
     }
   }
 
@@ -99,6 +103,10 @@ defmodule CoupEngine.Actions do
 
   def get_select_target_description("coup", player_name, target_player_name) do
     {:ok, "#{player_name} COUPS #{target_player_name}."}
+  end
+
+  def get_select_target_description("steal", player_name, target_player_name) do
+    {:ok, "#{player_name} STEALS from #{target_player_name}."}
   end
 
   def get_select_target_description(_, _, _), do: {:error, "Invalid action, cannot describe"}

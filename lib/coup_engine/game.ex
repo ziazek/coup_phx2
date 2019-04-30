@@ -168,17 +168,24 @@ defmodule CoupEngine.Game do
   @spec handle_call({:select_target, String.t()}, any(), map()) ::
           {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
   def handle_call(
-        {:select_target, session_id},
+        {:select_target, target_session_id},
         _from,
         %{toast: toast, players: players, turn: %{action: action, player: player} = turn} =
           state_data
       ) do
     with {:ok, next_state} <-
            GameStateMachine.check(state_data.state, :select_target, action.action),
-         {:ok, turn, target_player} <- Turn.set_target(turn, players, session_id),
+         {:ok, turn, target_player} <- Turn.set_target(turn, players, target_session_id),
          {:ok, description} <-
            Actions.get_select_target_description(action.action, player.name, target_player.name),
-         {:ok, players} <- Players.reset_display_state(players) do
+         {:ok, players} <- Players.reset_display_state(players),
+         {:ok, players} <-
+           Players.set_opponent_display_state(
+             players,
+             player.session_id,
+             target_session_id,
+             action.action
+           ) do
       toast = toast |> Toast.add(description)
       select_target_send_after(next_state)
 
