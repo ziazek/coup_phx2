@@ -13,7 +13,8 @@ defmodule CoupEngine.ActionSuccess1CoinTest do
           ],
           turn: %Turn{
             player: %Player{name: "Jany", session_id: "session_id1"},
-            action: %{action: "1coin", state: "ok"}
+            action: %{action: "1coin", state: "ok"},
+            target: %{state: "pending"}
           }
         })
 

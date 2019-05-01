@@ -13,7 +13,8 @@ defmodule CoupEngine.ActionSuccessForeignaidTest do
           ],
           turn: %Turn{
             player: %Player{name: "Jany", session_id: "session_id1"},
-            action: %{action: "foreignaid", state: "ok"}
+            action: %{action: "foreignaid", state: "ok"},
+            target: %{state: "pending"}
           }
         })
 
