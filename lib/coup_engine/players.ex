@@ -170,12 +170,37 @@ defmodule CoupEngine.Players do
     {:ok, players}
   end
 
-  def set_opponent_responses_after_select_target(
+  @targetable_actions ["steal"]
+  @spec target_selected_set_opponent_responses([%Player{}], String.t(), String.t(), String.t()) ::
+          {:ok, [%Player{}]}
+  def target_selected_set_opponent_responses(
         players,
-        player.session_id,
+        player_session_id,
         target_session_id,
-        action.action
-      ) do
+        action
+      )
+      when action in @targetable_actions do
+    players =
+      players
+      |> Enum.map(fn player ->
+        cond do
+          player.session_id == player_session_id ->
+            player
+
+          player.session_id == target_session_id ->
+            player |> Map.put(:responses, Actions.target_selected_target_responses_for(action))
+
+          true ->
+            # other opponent
+            player |> Map.put(:responses, Actions.target_selected_opponent_responses_for(action))
+        end
+      end)
+
+    {:ok, players}
+  end
+
+  def target_selected_set_opponent_responses(players, _, _, _action) do
+    {:ok, players}
   end
 
   @spec set_response_to_block([%Player{}], String.t()) :: {:ok, [%Player{}]}

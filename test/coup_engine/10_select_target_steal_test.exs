@@ -65,10 +65,10 @@ defmodule CoupEngine.SelectTargetStealTest do
       assert zek_response0.label == "Allow"
       assert zek_response1.action == "challenge"
       assert zek_response1.label == "Challenge"
-      assert zek_response2.action == "block_as_captain"
-      assert zek_response2.label == "Block as Captain"
-      assert zek_response3.action == "block_as_ambassador"
-      assert zek_response3.label == "Block as Ambassador"
+      assert zek_response2.action == "block_as_ambassador"
+      assert zek_response2.label == "Block as Ambassador"
+      assert zek_response3.action == "block_as_captain"
+      assert zek_response3.label == "Block as Captain"
     end
 
     test "should update Naz available responses to Allow, Challenge",

@@ -186,7 +186,7 @@ defmodule CoupEngine.Game do
              action.action
            ),
          {:ok, players} <-
-           Players.set_opponent_responses_after_select_target(
+           Players.target_selected_set_opponent_responses(
              players,
              player.session_id,
              target_session_id,

@@ -119,7 +119,7 @@ defmodule CoupEngine.Actions do
     {:ok, "#{player_name} received 2 coins."}
   end
 
-  def get_action_success_description("coup", _player_name, %{name: target_name} = _target) do
+  def get_action_success_description("coup", _player_name, _target) do
     {:ok, "COUP is successful."}
   end
 
@@ -209,6 +209,50 @@ defmodule CoupEngine.Actions do
   end
 
   def opponent_responses_for(_), do: default_responses()
+
+  def target_selected_target_responses_for("steal") do
+    [
+      %Action{
+        action: "allow",
+        label: "Allow",
+        state: "enabled"
+      },
+      %Action{
+        action: "challenge",
+        label: "Challenge",
+        state: "enabled"
+      },
+      %Action{
+        action: "block_as_ambassador",
+        label: "Block as Ambassador",
+        state: "enabled"
+      },
+      %Action{
+        action: "block_as_captain",
+        label: "Block as Captain",
+        state: "enabled"
+      }
+    ]
+  end
+
+  def target_selected_target_responses_for(_action), do: []
+
+  def target_selected_opponent_responses_for("steal") do
+    [
+      %Action{
+        action: "allow",
+        label: "Allow",
+        state: "enabled"
+      },
+      %Action{
+        action: "challenge",
+        label: "Challenge",
+        state: "enabled"
+      }
+    ]
+  end
+
+  def target_selected_opponent_responses_for(_action), do: []
 
   @spec player_responses_to_block() :: [%Action{}]
   def player_responses_to_block do
