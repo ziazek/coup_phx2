@@ -1,4 +1,4 @@
-defmodule CoupEngine.LoseInfluenceSelectCardTest do
+defmodule CoupEngine.ChallengeBlockSuccessLoseInfluenceSelectCardTest do
   use CoupPhx2Web.GameCase, async: true
 
   alias CoupEngine.{Card, Game, Player}
@@ -7,7 +7,7 @@ defmodule CoupEngine.LoseInfluenceSelectCardTest do
     setup do
       state =
         initial_state(%{
-          state: "lose_influence_select_card",
+          state: "challenge_block_success_target_lose_influence_select_card",
           players: [
             %Player{
               name: "Jaslyn",
@@ -37,10 +37,11 @@ defmodule CoupEngine.LoseInfluenceSelectCardTest do
       assert captain.state == "selected"
     end
 
-    test "should change game state to lose_influence_card_selected", %{
-      updated_state: updated_state
-    } do
-      assert updated_state.state == "lose_influence_card_selected"
+    test "should change game state to challenge_block_success_target_lose_influence_card_selected",
+         %{
+           updated_state: updated_state
+         } do
+      assert updated_state.state == "challenge_block_success_target_lose_influence_card_selected"
     end
   end
 
@@ -48,7 +49,7 @@ defmodule CoupEngine.LoseInfluenceSelectCardTest do
     setup do
       state =
         initial_state(%{
-          state: "lose_influence_select_card",
+          state: "challenge_block_success_target_lose_influence_select_card",
           players: [
             %Player{
               name: "Jaslyn",

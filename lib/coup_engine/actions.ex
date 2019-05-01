@@ -32,6 +32,22 @@ defmodule CoupEngine.Actions do
         state: "ok"
       },
       claimed_character: "Duke"
+    },
+    "block_as_captain" => %{
+      action: %Action{
+        action: "block_as_captain",
+        label: "Block as Captain",
+        state: "ok"
+      },
+      claimed_character: "Duke"
+    },
+    "block_as_ambassador" => %{
+      action: %Action{
+        action: "block_as_ambassador",
+        label: "Block as Ambassador",
+        state: "ok"
+      },
+      claimed_character: "Duke"
     }
   }
 
@@ -111,15 +127,19 @@ defmodule CoupEngine.Actions do
 
   def get_select_target_description(_, _, _), do: {:error, "Invalid action, cannot describe"}
 
-  def get_action_success_description("1coin", player_name, _target) do
+  def get_action_success_description("1coin", player_name, _target_name) do
     {:ok, "#{player_name} received 1 coin."}
   end
 
-  def get_action_success_description("foreignaid", player_name, _target) do
+  def get_action_success_description("foreignaid", player_name, _target_name) do
     {:ok, "#{player_name} received 2 coins."}
   end
 
-  def get_action_success_description("coup", _player_name, _target) do
+  def get_action_success_description("steal", player_name, target_name) do
+    {:ok, "#{player_name} stole 2 coins from #{target_name}."}
+  end
+
+  def get_action_success_description("coup", _player_name, _target_name) do
     {:ok, "COUP is successful."}
   end
 

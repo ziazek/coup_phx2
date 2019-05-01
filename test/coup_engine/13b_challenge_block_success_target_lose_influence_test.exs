@@ -1,13 +1,13 @@
-defmodule CoupEngine.TargetLoseInfluenceTest do
+defmodule CoupEngine.ChallengeBlockSuccessTargetLoseInfluenceTest do
   use CoupPhx2Web.GameCase, async: true
 
   alias CoupEngine.{Card, Game, Player, Turn}
 
-  describe "target_lose_influence, player has one card" do
+  describe "challenge_block_success_target_lose_influence, player has one card" do
     setup do
       state =
         initial_state(%{
-          state: "target_lose_influence",
+          state: "challenge_block_success_target_lose_influence",
           players: [
             %Player{name: "Jany", session_id: "session_id1", coins: 0},
             %Player{
@@ -45,8 +45,8 @@ defmodule CoupEngine.TargetLoseInfluenceTest do
       assert captain_card.state == "dead"
     end
 
-    test "should change game state to turn_ending", %{updated_state: updated_state} do
-      assert updated_state.state == "turn_ending"
+    test "should change game state to action_success", %{updated_state: updated_state} do
+      assert updated_state.state == "action_success"
     end
 
     test "should update toast to 'Vincent loses 1 influence. Player has died.'", %{
@@ -56,16 +56,16 @@ defmodule CoupEngine.TargetLoseInfluenceTest do
       assert latest_toast.body == "Vincent loses 1 influence. Player has died."
     end
 
-    test "should send end_turn to self" do
-      assert_receive {:end_turn, 1000}
+    test "should send action_success to self" do
+      assert_receive {:action_success, 1000}
     end
   end
 
-  describe "target_lose_influence, player has 2 cards" do
+  describe "challenge_block_success_target_lose_influence, player has 2 cards" do
     setup do
       state =
         initial_state(%{
-          state: "target_lose_influence",
+          state: "challenge_block_success_target_lose_influence",
           players: [
             %Player{name: "Jany", session_id: "session_id1", coins: 0},
             %Player{
@@ -98,8 +98,11 @@ defmodule CoupEngine.TargetLoseInfluenceTest do
       {:ok, %{updated_state: updated_state}}
     end
 
-    test "should change game state to lose_influence_select_card", %{updated_state: updated_state} do
-      assert updated_state.state == "lose_influence_select_card"
+    test "should change game state to challenge_block_success_target_lose_influence_select_card",
+         %{
+           updated_state: updated_state
+         } do
+      assert updated_state.state == "challenge_block_success_target_lose_influence_select_card"
     end
 
     test "should update player display_state to lose_influence_select_card", %{

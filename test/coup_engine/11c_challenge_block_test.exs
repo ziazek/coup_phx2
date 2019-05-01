@@ -38,8 +38,10 @@ defmodule CoupEngine.ChallengeBlockTest do
       {:ok, %{updated_state: updated_state}}
     end
 
-    test "should update game state to target_lose_influence", %{updated_state: updated_state} do
-      assert updated_state.state == "target_lose_influence"
+    test "should update game state to challenge_block_success_target_lose_influence", %{
+      updated_state: updated_state
+    } do
+      assert updated_state.state == "challenge_block_success_target_lose_influence"
     end
 
     test "should update turn player_response_to_block to challenge_block", %{

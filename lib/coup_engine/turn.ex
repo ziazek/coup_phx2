@@ -84,6 +84,22 @@ defmodule CoupEngine.Turn do
     end
   end
 
+  def set_block_target_response(turn, players, session_id, "block_as_captain") do
+    with {:ok, turn, _player} <- set_target(turn, players, session_id, "block_as_captain"),
+         {:ok, turn} <- set_target_response(turn, "block_as_captain") do
+      turn = turn |> Map.put(:blocker_claimed_character, "Captain")
+      {:ok, turn}
+    end
+  end
+
+  def set_block_target_response(turn, players, session_id, "block_as_ambassador") do
+    with {:ok, turn, _player} <- set_target(turn, players, session_id, "block_as_ambassador"),
+         {:ok, turn} <- set_target_response(turn, "block_as_ambassador") do
+      turn = turn |> Map.put(:blocker_claimed_character, "Ambassador")
+      {:ok, turn}
+    end
+  end
+
   def set_block_target_response(turn, players, session_id, _block_action) do
     {:ok, turn, _player} = set_target(turn, players, session_id, "ok")
     {:ok, turn}
@@ -125,6 +141,10 @@ defmodule CoupEngine.Turn do
   end
 
   def get_action_success_next_turn(turn, "foreignaid") do
+    {:ok, turn |> Map.put(:state, "ended")}
+  end
+
+  def get_action_success_next_turn(turn, "steal") do
     {:ok, turn |> Map.put(:state, "ended")}
   end
 

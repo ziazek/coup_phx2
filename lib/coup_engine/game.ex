@@ -349,7 +349,7 @@ defmodule CoupEngine.Game do
          {:ok, players} <- Players.reset_display_state(players) do
       toast = toast |> Toast.add(description)
 
-      @process.send_after(self(), :end_turn, 1_000)
+      lose_influence_confirm_send_after(next_state)
 
       state_data
       |> Map.put(:players, players)
@@ -449,12 +449,15 @@ defmodule CoupEngine.Game do
           turn: %{action: action, player: player, target: target} = turn
         } = state_data
       ) do
+    target_session_id = if Map.get(target, :session_id), do: target.session_id, else: nil
+    target_name = if Map.get(target, :name), do: target.name, else: nil
+
     with {:ok, next_state} <-
            GameStateMachine.check(state_data.state, :action_success, action.action),
          {:ok, players} <-
-           Players.apply_action(players, action.action, player.session_id, target),
+           Players.apply_action(players, action.action, player.session_id, target_session_id),
          {:ok, description} <-
-           Actions.get_action_success_description(action.action, player.name, target),
+           Actions.get_action_success_description(action.action, player.name, target_name),
          {:ok, turn} <- Turn.get_action_success_next_turn(turn, action.action) do
       toast = toast |> Toast.add(description)
       action_success_send_after(action.action)
@@ -487,7 +490,24 @@ defmodule CoupEngine.Game do
     live_cards = target_hand |> Enum.filter(fn card -> card.state != "dead" end)
 
     case length(live_cards) do
-      1 -> do_target_lose_influence(:die, state_data)
+      1 -> do_target_lose_influence(:die, state_data, :end_turn)
+      2 -> do_target_lose_influence(:select_card, state_data)
+    end
+  end
+
+  def handle_info(
+        :lose_influence,
+        %{
+          state: "challenge_block_success_target_lose_influence",
+          turn: %{
+            target: %{hand: target_hand}
+          }
+        } = state_data
+      ) do
+    live_cards = target_hand |> Enum.filter(fn card -> card.state != "dead" end)
+
+    case length(live_cards) do
+      1 -> do_target_lose_influence(:die, state_data, :action_success)
       2 -> do_target_lose_influence(:select_card, state_data)
     end
   end
@@ -504,7 +524,7 @@ defmodule CoupEngine.Game do
     live_cards = player_hand |> Enum.filter(fn card -> card.state != "dead" end)
 
     case length(live_cards) do
-      1 -> do_player_lose_influence(:die, state_data)
+      1 -> do_player_lose_influence(:die, state_data, :end_turn)
       2 -> do_player_lose_influence(:select_card, state_data)
     end
   end
@@ -559,6 +579,8 @@ defmodule CoupEngine.Game do
 
   ### PRIVATE HANDLER HELPERS
 
+  defp do_target_lose_influence(effect, state_data, send_after \\ nil)
+
   defp do_target_lose_influence(
          :die,
          %{
@@ -568,12 +590,13 @@ defmodule CoupEngine.Game do
              %{
                target: %{session_id: target_session_id} = target
              } = _turn
-         } = state_data
+         } = state_data,
+         send_after
        ) do
     with {:ok, next_state} <- GameStateMachine.check(state_data.state, :lose_influence, :die),
          {:ok, players} <- Players.kill_player_and_last_card(players, target_session_id) do
       toast = toast |> Toast.add("#{target.name} loses 1 influence. Player has died.")
-      @process.send_after(self(), :end_turn, 1_000)
+      if send_after, do: @process.send_after(self(), send_after, 1_000), else: :do_nothing
 
       state_data
       |> Map.put(:players, players)
@@ -597,13 +620,15 @@ defmodule CoupEngine.Game do
              %{
                target: %{session_id: target_session_id} = target
              } = _turn
-         } = state_data
+         } = state_data,
+         send_after
        ) do
     with {:ok, next_state} <-
            GameStateMachine.check(state_data.state, :lose_influence, :select_card),
          {:ok, players} <-
            Players.set_display_state(players, target_session_id, "lose_influence_select_card") do
       toast = toast |> Toast.add("#{target.name} loses 1 influence. Choosing card to discard...")
+      if send_after, do: @process.send_after(self(), send_after, 1_000), else: :do_nothing
 
       state_data
       |> Map.put(:players, players)
@@ -618,6 +643,8 @@ defmodule CoupEngine.Game do
     end
   end
 
+  defp do_player_lose_influence(effect, state_data, send_after \\ nil)
+
   defp do_player_lose_influence(
          :die,
          %{
@@ -627,12 +654,13 @@ defmodule CoupEngine.Game do
              %{
                player: %{session_id: player_session_id} = player
              } = _turn
-         } = state_data
+         } = state_data,
+         send_after
        ) do
     with {:ok, next_state} <- GameStateMachine.check(state_data.state, :lose_influence, :die),
          {:ok, players} <- Players.kill_player_and_last_card(players, player_session_id) do
       toast = toast |> Toast.add("#{player.name} loses 1 influence. Player has died.")
-      @process.send_after(self(), :end_turn, 1_000)
+      if send_after, do: @process.send_after(self(), send_after, 1_000), else: :do_nothing
 
       state_data
       |> Map.put(:players, players)
@@ -656,13 +684,15 @@ defmodule CoupEngine.Game do
              %{
                player: %{session_id: player_session_id} = player
              } = _turn
-         } = state_data
+         } = state_data,
+         send_after
        ) do
     with {:ok, next_state} <-
            GameStateMachine.check(state_data.state, :lose_influence, :select_card),
          {:ok, players} <-
            Players.set_display_state(players, player_session_id, "lose_influence_select_card") do
       toast = toast |> Toast.add("#{player.name} loses 1 influence. Choosing card to discard...")
+      if send_after, do: @process.send_after(self(), send_after, 1_000), else: :do_nothing
 
       state_data
       |> Map.put(:players, players)
@@ -736,8 +766,20 @@ defmodule CoupEngine.Game do
     @process.send_after(self(), :end_turn, 1_000)
   end
 
+  defp action_success_send_after("steal") do
+    @process.send_after(self(), :end_turn, 1_000)
+  end
+
   defp action_success_send_after(_) do
     :do_nothing
+  end
+
+  defp lose_influence_confirm_send_after("action_success") do
+    @process.send_after(self(), :action_success, 1_000)
+  end
+
+  defp lose_influence_confirm_send_after("turn_ending") do
+    @process.send_after(self(), :end_turn, 1_000)
   end
 
   defp start_next_turn(players, session_id) do

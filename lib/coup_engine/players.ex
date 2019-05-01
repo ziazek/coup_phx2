@@ -52,12 +52,37 @@ defmodule CoupEngine.Players do
     {:ok, players}
   end
 
+  def apply_action(players, "steal", session_id, target_session_id) do
+    target = players |> Enum.find(fn p -> p.session_id == target_session_id end)
+
+    players =
+      players
+      |> Enum.map(fn player ->
+        cond do
+          player.session_id == session_id ->
+            player |> Map.put(:coins, player.coins + coins_deductable(target.coins, 2))
+
+          player.session_id == target_session_id ->
+            player |> Map.put(:coins, player.coins - coins_deductable(target.coins, 2))
+
+          true ->
+            player
+        end
+      end)
+
+    {:ok, players}
+  end
+
   def apply_action(players, "coup", _session_id, _target) do
     {:ok, players}
   end
 
   def apply_action(_, _, _) do
     {:error, "Undefined action"}
+  end
+
+  defp coins_deductable(target_coins, max_amt) do
+    min(target_coins, max_amt)
   end
 
   @select_target_actions ["coup", "steal"]
