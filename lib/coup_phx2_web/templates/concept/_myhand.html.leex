@@ -35,8 +35,8 @@
     <svg viewbox="0 0 70 100">
       <rect class="card-placeholder" x="0" y="0" width="70" height="100" rx="5" ry="5"></rect>
       <%= case Enum.at(@data.current_player.hand, 0) do %>
-      <%= nil -> %>
-      <%= card -> %>
+      <% nil -> %>
+      <% card -> %>
       <%= if Map.get(card, :state) == "dead" do %>
       <g class="fadeInUp animated dead">
       <% else %>
@@ -53,8 +53,8 @@
     <svg viewbox="0 0 70 100">
       <rect class="card-placeholder" x="0" y="0" width="70" height="100" rx="5" ry="5"></rect>
       <%= case Enum.at(@data.current_player.hand, 1) do %>
-      <%= nil -> %>
-      <%= card -> %>
+      <% nil -> %>
+      <% card -> %>
       <%= if Map.get(card, :state) == "dead" do %>
       <g class="fadeInUp animated dead">
       <% else %>

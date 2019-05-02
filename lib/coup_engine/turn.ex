@@ -60,6 +60,19 @@ defmodule CoupEngine.Turn do
     {:ok, updated_turn, player}
   end
 
+  @spec put_action(%__MODULE__{}, String.t()) :: {:ok, %__MODULE__{}}
+  def put_action(turn, action) do
+    {:ok, turn_action} = Actions.get_turn_action(action)
+    {:ok, claimed_character} = Actions.get_claimed_character(action)
+
+    turn =
+      turn
+      |> Map.put(:action, turn_action)
+      |> Map.put(:player_claimed_character, claimed_character)
+
+    {:ok, turn}
+  end
+
   @spec set_opponent_allow(%__MODULE__{}, [%Player{}], String.t()) ::
           {:ok, %__MODULE__{}, %Player{}}
   def set_opponent_allow(turn, players, session_id) do

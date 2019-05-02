@@ -106,6 +106,9 @@ defmodule CoupEngine.GameStateMachine do
   def check("awaiting_opponent_response", :block, "steal", "block_as_captain"),
     do: {:ok, "awaiting_response_to_block"}
 
+  def check("awaiting_opponent_response", :block, "steal", "block_as_ambassador"),
+    do: {:ok, "awaiting_response_to_block"}
+
   def check(_, _, _, _), do: {:error, "invalid game state"}
 
   @doc """

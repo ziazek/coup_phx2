@@ -148,7 +148,10 @@ defmodule CoupEngine.Players do
   def reset_display_state(players) do
     players =
       players
-      |> Enum.map(fn player -> player |> Map.put(:display_state, "default") end)
+      |> Enum.map(fn player ->
+        player
+        |> Map.put(:display_state, "default")
+      end)
 
     {:ok, players}
   end

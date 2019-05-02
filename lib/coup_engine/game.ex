@@ -145,13 +145,11 @@ defmodule CoupEngine.Game do
         %{toast: toast, players: players, turn: turn} = state_data
       ) do
     with {:ok, next_state} <- GameStateMachine.check(state_data.state, :action, action),
-         {:ok, _claimed_character} <- Actions.get_claimed_character(action),
          {:ok, description} <- Actions.get_description(action),
-         {:ok, turn_action} <- Actions.get_turn_action(action),
+         {:ok, turn} <- Turn.put_action(turn, action),
          {:ok, players} <- Players.set_display_state(players, turn.player.session_id, action),
          {:ok, players} <- Players.set_opponent_responses(players, turn.player.session_id, action) do
       toast = toast |> Toast.add("#{turn.player.name} #{description}")
-      turn = turn |> Map.put(:action, turn_action)
       action_send_after(next_state)
 
       state_data

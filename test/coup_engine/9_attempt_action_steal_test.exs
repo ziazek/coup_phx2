@@ -33,6 +33,10 @@ defmodule CoupEngine.AttemptActionStealTest do
              }
     end
 
+    test "should set turn player_claimed_character to Captain", %{updated_state: updated_state} do
+      assert updated_state.turn.player_claimed_character == "Captain"
+    end
+
     test "should update toast to 'Ken chose STEAL. Selecting target...'", %{
       updated_state: updated_state
     } do

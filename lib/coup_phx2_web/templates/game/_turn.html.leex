@@ -44,7 +44,8 @@
   </div>
 </div>
 <% end %>
-<%= if Map.get(@data.turn.target, :state) == "ok" do %>
+<% target_states = ["ok", "block_as_captain", "block_as_ambassador"] %>
+<%= if Enum.member?(target_states, Map.get(@data.turn.target, :state)) do %>
 <div class="turn-item text-center pb-1">
   <%= render "_target_svg.html" %>
   <div class="turn-label uppercase"><%= @data.turn.target.name %></div>
