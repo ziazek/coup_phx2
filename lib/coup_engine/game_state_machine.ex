@@ -66,6 +66,12 @@ defmodule CoupEngine.GameStateMachine do
   def check("select_target", :select_target, "coup"), do: {:ok, "action_success"}
   def check("select_target", :select_target, "steal"), do: {:ok, "awaiting_opponent_response"}
 
+  def check("awaiting_opponent_response", :challenge, true),
+    do: {:ok, "player_lose_influence"}
+
+  def check("awaiting_opponent_response", :challenge, false),
+    do: {:ok, "challenger_lose_influence"}
+
   def check("awaiting_response_to_block", :challenge_block, true),
     do: {:ok, "challenge_block_success_target_lose_influence"}
 

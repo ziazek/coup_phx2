@@ -49,6 +49,10 @@ defmodule CoupEngine.Game do
   def allow(pid, session_id),
     do: GenServer.call(pid, {:allow, session_id})
 
+  @spec challenge(pid(), String.t()) :: any()
+  def challenge(pid, session_id),
+    do: GenServer.call(pid, {:challenge, session_id})
+
   @spec block(pid(), String.t(), String.t()) :: any()
   def block(pid, session_id, name),
     do: GenServer.call(pid, {:block, session_id, name})
@@ -265,6 +269,41 @@ defmodule CoupEngine.Game do
          {:ok, turn} <- Turn.set_player_allow_block(turn) do
       toast = toast |> Toast.add("#{target.name} allows the block.")
       @process.send_after(self(), :end_turn, 1_000)
+
+      state_data
+      |> Map.put(:turn, turn)
+      |> Map.put(:toast, toast)
+      |> Map.put(:state, next_state)
+      |> reply_success(:ok, :broadcast_change)
+    else
+      error -> {:reply, error, state_data}
+    end
+  end
+
+  @spec handle_call({:challenge, String.t()}, any(), map()) ::
+          {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
+  def handle_call(
+        {:challenge, challenger_session_id},
+        _from,
+        %{
+          toast: toast,
+          players: players,
+          turn: %{player: player, player_claimed_character: player_claimed_character} = turn
+        } = state_data
+      ) do
+    with {:ok, challenge_success} <-
+           Challenge.challenge(players, player.session_id, player_claimed_character),
+         {:ok, next_state} <-
+           GameStateMachine.check(state_data.state, :challenge, challenge_success),
+         {:ok, turn, player} <- Turn.set_opponent_challenge(turn, players, challenger_session_id) do
+      toast =
+        if challenge_success do
+          toast |> Toast.add("#{player.name} challenges and succeeds.")
+        else
+          toast |> Toast.add("#{player.name} challenges and fails.")
+        end
+
+      @process.send_after(self(), :lose_influence, 1_000)
 
       state_data
       |> Map.put(:turn, turn)

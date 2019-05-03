@@ -87,6 +87,20 @@ defmodule CoupEngine.Turn do
     {:ok, updated_turn, player}
   end
 
+  # {:ok, turn, player} <- Turn.set_opponent_challenge(turn, players, challenger_session_id)
+  @spec set_opponent_challenge(%__MODULE__{}, [%Player{}], String.t()) ::
+          {:ok, %__MODULE__{}, %Player{}}
+  def set_opponent_challenge(turn, players, challenger_session_id) do
+    player = players |> Enum.find(fn player -> player.session_id == challenger_session_id end)
+
+    updated_opponent_responses =
+      turn.opponent_responses |> Map.put(challenger_session_id, "challenge")
+
+    updated_turn = turn |> Map.put(:opponent_responses, updated_opponent_responses)
+
+    {:ok, updated_turn, player}
+  end
+
   @spec set_block_target_response(%__MODULE__{}, [%Player{}], String.t(), String.t()) ::
           {:ok, %__MODULE__{}}
   def set_block_target_response(turn, players, session_id, "block_as_duke") do
