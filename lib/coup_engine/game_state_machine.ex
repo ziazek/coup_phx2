@@ -86,10 +86,16 @@ defmodule CoupEngine.GameStateMachine do
   def check("target_lose_influence", :lose_influence, :select_card),
     do: {:ok, "lose_influence_select_card"}
 
+  def check("challenger_lose_influence", :lose_influence, :select_card),
+    do: {:ok, "lose_influence_select_card"}
+
   def check("challenge_block_success_target_lose_influence", :lose_influence, :select_card),
     do: {:ok, "challenge_block_success_target_lose_influence_select_card"}
 
   def check("target_lose_influence", :lose_influence, :die),
+    do: {:ok, "turn_ending"}
+
+  def check("challenger_lose_influence", :lose_influence, :die),
     do: {:ok, "turn_ending"}
 
   def check("challenge_block_success_target_lose_influence", :lose_influence, :die),
