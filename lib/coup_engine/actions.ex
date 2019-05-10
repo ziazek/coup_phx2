@@ -8,23 +8,33 @@ defmodule CoupEngine.Actions do
   @actions %{
     "1coin" => %{
       claimed_character: nil,
-      description: "chose TAKE ONE COIN."
+      description: "chose TAKE ONE COIN.",
+      cost: 0
     },
     "foreignaid" => %{
       claimed_character: nil,
-      description: "chose FOREIGN AID."
+      description: "chose FOREIGN AID.",
+      cost: 0
     },
     "coup" => %{
       claimed_character: nil,
-      description: "chose COUP. Selecting target..."
+      description: "chose COUP. Selecting target...",
+      cost: 0
     },
     "steal" => %{
       claimed_character: "Captain",
-      description: "chose STEAL. Selecting target..."
+      description: "chose STEAL. Selecting target...",
+      cost: 0
     },
     "3coins" => %{
       claimed_character: "Duke",
-      description: "chose TAKE 3 COINS. (Claims DUKE)"
+      description: "chose TAKE 3 COINS. (Claims DUKE)",
+      cost: 0
+    },
+    "assassinate" => %{
+      claimed_character: "Assassin",
+      description: "chose ASSASSINATE. Selecting target...",
+      cost: 3
     }
   }
 
@@ -43,7 +53,7 @@ defmodule CoupEngine.Actions do
         label: "Block as Captain",
         state: "ok"
       },
-      claimed_character: "Duke"
+      claimed_character: "Captain"
     },
     "block_as_ambassador" => %{
       action: %Action{
@@ -51,7 +61,15 @@ defmodule CoupEngine.Actions do
         label: "Block as Ambassador",
         state: "ok"
       },
-      claimed_character: "Duke"
+      claimed_character: "Ambassador"
+    },
+    "block_as_contessa" => %{
+      action: %Action{
+        action: "block_as_contessa",
+        label: "Block as Contessa",
+        state: "ok"
+      },
+      claimed_character: "Contessa"
     }
   }
 
@@ -103,6 +121,16 @@ defmodule CoupEngine.Actions do
     {:ok, description}
   end
 
+  @spec get_cost(String.t()) :: {:ok, pos_integer()}
+  def get_cost(action) do
+    cost =
+      @actions
+      |> Map.get(action)
+      |> Map.get(:cost)
+
+    {:ok, cost}
+  end
+
   @spec get_turn_action(String.t()) :: {:ok, %Action{}}
   def get_turn_action(action) do
     turn_action =
@@ -129,6 +157,10 @@ defmodule CoupEngine.Actions do
     {:ok, "#{player_name} STEALS from #{target_player_name}."}
   end
 
+  def get_select_target_description("assassinate", player_name, target_player_name) do
+    {:ok, "#{player_name} ASSASSINATES #{target_player_name}."}
+  end
+
   def get_select_target_description(_, _, _), do: {:error, "Invalid action, cannot describe"}
 
   def get_action_success_description("1coin", player_name, _target_name) do
@@ -143,7 +175,7 @@ defmodule CoupEngine.Actions do
     {:ok, "#{player_name} stole 2 coins from #{target_name}."}
   end
 
-  def get_action_success_description("3coins", player_name, target_name) do
+  def get_action_success_description("3coins", player_name, _target_name) do
     {:ok, "#{player_name} took 3 coins."}
   end
 
@@ -278,9 +310,44 @@ defmodule CoupEngine.Actions do
     ]
   end
 
+  def target_selected_target_responses_for("assassinate") do
+    [
+      %Action{
+        action: "allow",
+        label: "Allow",
+        state: "enabled"
+      },
+      %Action{
+        action: "challenge",
+        label: "Challenge",
+        state: "enabled"
+      },
+      %Action{
+        action: "block_as_contessa",
+        label: "Block as Contessa",
+        state: "enabled"
+      }
+    ]
+  end
+
   def target_selected_target_responses_for(_action), do: []
 
   def target_selected_opponent_responses_for("steal") do
+    [
+      %Action{
+        action: "allow",
+        label: "Allow",
+        state: "enabled"
+      },
+      %Action{
+        action: "challenge",
+        label: "Challenge",
+        state: "enabled"
+      }
+    ]
+  end
+
+  def target_selected_opponent_responses_for("assassinate") do
     [
       %Action{
         action: "allow",

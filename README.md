@@ -7,10 +7,10 @@ mix edeliver deploy release to production
 
 ## Next up
 
-- Challenge foreignaid block, when successful, should trigger action_success
-
 ## Feature roadmap
 
+- should shuffle card back into deck and draw another for player, if challenge fails.
+- assassinate, if challenge fails, should lose 2 lives immediately.
 - disable actions after an action is clicked
 - should indicate whether user is online or offline based on Presence
 - should show exclamation mark if an action is "unsafe" (is a bluff)

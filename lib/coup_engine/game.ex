@@ -146,13 +146,14 @@ defmodule CoupEngine.Game do
   def handle_call(
         {:action, action},
         _from,
-        %{toast: toast, players: players, turn: turn} = state_data
+        %{toast: toast, players: players, turn: %{player: player} = turn} = state_data
       ) do
     with {:ok, next_state} <- GameStateMachine.check(state_data.state, :action, action),
          {:ok, description} <- Actions.get_description(action),
          {:ok, turn} <- Turn.put_action(turn, action),
-         {:ok, players} <- Players.set_display_state(players, turn.player.session_id, action),
-         {:ok, players} <- Players.set_opponent_responses(players, turn.player.session_id, action) do
+         {:ok, players} <- Players.deduct_action_cost(players, player.session_id, action),
+         {:ok, players} <- Players.set_display_state(players, player.session_id, action),
+         {:ok, players} <- Players.set_opponent_responses(players, player.session_id, action) do
       toast = toast |> Toast.add("#{turn.player.name} #{description}")
       action_send_after(next_state)
 

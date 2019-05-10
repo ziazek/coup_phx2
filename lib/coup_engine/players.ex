@@ -99,7 +99,24 @@ defmodule CoupEngine.Players do
     min(target_coins, max_amt)
   end
 
-  @select_target_actions ["coup", "steal"]
+  @spec deduct_action_cost([%Player{}], String.t(), String.t()) :: {:ok, [%Player{}]}
+  def deduct_action_cost(players, session_id, action) do
+    {:ok, cost} = Actions.get_cost(action)
+
+    players =
+      players
+      |> Enum.map(fn player ->
+        if player.session_id == session_id do
+          player |> Map.put(:coins, player.coins - cost)
+        else
+          player
+        end
+      end)
+
+    {:ok, players}
+  end
+
+  @select_target_actions ["coup", "steal", "assassinate"]
   @spec set_display_state([%Player{}], String.t(), String.t()) :: {:ok, [%Player{}]}
   def set_display_state(players, session_id, action) when action in @select_target_actions do
     players =
@@ -146,7 +163,7 @@ defmodule CoupEngine.Players do
 
   def set_display_state(players, _, _), do: {:ok, players}
 
-  @opponent_responses_actions ["steal", "3coins"]
+  @opponent_responses_actions ["steal", "3coins", "assassinate"]
 
   @spec set_opponent_display_state([%Player{}], String.t(), String.t()) :: {:ok, [%Player{}]}
   def set_opponent_display_state(
@@ -224,7 +241,7 @@ defmodule CoupEngine.Players do
     {:ok, players}
   end
 
-  @targetable_actions ["steal"]
+  @targetable_actions ["steal", "assassinate"]
   @spec target_selected_set_opponent_responses([%Player{}], String.t(), String.t(), String.t()) ::
           {:ok, [%Player{}]}
   def target_selected_set_opponent_responses(
