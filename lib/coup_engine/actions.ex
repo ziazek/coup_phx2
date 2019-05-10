@@ -21,6 +21,10 @@ defmodule CoupEngine.Actions do
     "steal" => %{
       claimed_character: "Captain",
       description: "chose STEAL. Selecting target..."
+    },
+    "3coins" => %{
+      claimed_character: "Duke",
+      description: "chose TAKE 3 COINS. (Claims DUKE)"
     }
   }
 
@@ -139,6 +143,10 @@ defmodule CoupEngine.Actions do
     {:ok, "#{player_name} stole 2 coins from #{target_name}."}
   end
 
+  def get_action_success_description("3coins", player_name, target_name) do
+    {:ok, "#{player_name} took 3 coins."}
+  end
+
   def get_action_success_description("coup", _player_name, _target_name) do
     {:ok, "COUP is successful."}
   end
@@ -223,6 +231,21 @@ defmodule CoupEngine.Actions do
       %Action{
         action: "block_as_duke",
         label: "Block as Duke",
+        state: "enabled"
+      }
+    ]
+  end
+
+  def opponent_responses_for("3coins") do
+    [
+      %Action{
+        action: "allow",
+        label: "Allow",
+        state: "enabled"
+      },
+      %Action{
+        action: "challenge",
+        label: "Challenge",
         state: "enabled"
       }
     ]

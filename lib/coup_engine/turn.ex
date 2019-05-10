@@ -162,16 +162,9 @@ defmodule CoupEngine.Turn do
     {:ok, turn}
   end
 
+  @turn_ended_actions ["1coin", "foreignaid", "steal", "3coins"]
   @spec get_action_success_next_turn(%__MODULE__{}, String.t()) :: {:ok, %__MODULE__{}}
-  def get_action_success_next_turn(turn, "1coin") do
-    {:ok, turn |> Map.put(:state, "ended")}
-  end
-
-  def get_action_success_next_turn(turn, "foreignaid") do
-    {:ok, turn |> Map.put(:state, "ended")}
-  end
-
-  def get_action_success_next_turn(turn, "steal") do
+  def get_action_success_next_turn(turn, action) when action in @turn_ended_actions do
     {:ok, turn |> Map.put(:state, "ended")}
   end
 

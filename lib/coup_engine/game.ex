@@ -882,15 +882,9 @@ defmodule CoupEngine.Game do
     @process.send_after(self(), :lose_influence, 1_000)
   end
 
-  defp action_success_send_after("1coin") do
-    @process.send_after(self(), :end_turn, 1_000)
-  end
+  @send_end_turn_actions ["1coin", "foreignaid", "steal", "3coins"]
 
-  defp action_success_send_after("foreignaid") do
-    @process.send_after(self(), :end_turn, 1_000)
-  end
-
-  defp action_success_send_after("steal") do
+  defp action_success_send_after(action) when action in @send_end_turn_actions do
     @process.send_after(self(), :end_turn, 1_000)
   end
 

@@ -18,10 +18,13 @@ defmodule CoupEngine.GameStateMachine do
   def check("awaiting_opponent_response", :allow), do: {:ok, "awaiting_opponent_response"}
 
   def check("lose_influence_select_card", :select_card), do: {:ok, "lose_influence_card_selected"}
-  def check("challenger_lose_influence_select_card", :select_card), do: {:ok, "challenger_lose_influence_card_selected"}
+
+  def check("challenger_lose_influence_select_card", :select_card),
+    do: {:ok, "challenger_lose_influence_card_selected"}
 
   def check("lose_influence_card_selected", :select_card),
     do: {:ok, "lose_influence_card_selected"}
+
   def check("challenger_lose_influence_card_selected", :select_card),
     do: {:ok, "challenger_lose_influence_card_selected"}
 
@@ -33,6 +36,7 @@ defmodule CoupEngine.GameStateMachine do
 
   def check("lose_influence_card_selected", :lose_influence_confirm),
     do: {:ok, "turn_ending"}
+
   def check("challenger_lose_influence_card_selected", :lose_influence_confirm),
     do: {:ok, "action_success"}
 
@@ -67,6 +71,7 @@ defmodule CoupEngine.GameStateMachine do
   def check("player_action", :action, "foreignaid"), do: {:ok, "awaiting_opponent_response"}
   def check("player_action", :action, "coup"), do: {:ok, "select_target"}
   def check("player_action", :action, "steal"), do: {:ok, "select_target"}
+  def check("player_action", :action, "3coins"), do: {:ok, "awaiting_opponent_response"}
 
   def check("select_target", :select_target, "coup"), do: {:ok, "action_success"}
   def check("select_target", :select_target, "steal"), do: {:ok, "awaiting_opponent_response"}
@@ -86,6 +91,7 @@ defmodule CoupEngine.GameStateMachine do
   def check("action_success", :action_success, "1coin"), do: {:ok, "turn_ending"}
   def check("action_success", :action_success, "foreignaid"), do: {:ok, "turn_ending"}
   def check("action_success", :action_success, "steal"), do: {:ok, "turn_ending"}
+  def check("action_success", :action_success, "3coins"), do: {:ok, "turn_ending"}
   def check("action_success", :action_success, "coup"), do: {:ok, "target_lose_influence"}
 
   def check("target_lose_influence", :lose_influence, :select_card),
