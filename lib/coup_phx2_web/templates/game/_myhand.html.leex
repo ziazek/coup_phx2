@@ -51,7 +51,7 @@
   </div>
   <div class="button-wrapper text-center mt-4">
     <div class="text-base my-2">Select card to discard.</div>
-    <%= if (@data.state == "lose_influence_card_selected" || @data.state == "challenge_block_success_target_lose_influence_card_selected") do %> 
+    <%= if (String.ends_with?(@data.state, "lose_influence_card_selected")) do %> 
     <button class="btn btn-green" phx-click="lose_influence_confirm">Proceed</button>
     <% else %>
     <button class="btn btn-green" disabled>Proceed</button>

@@ -18,9 +18,12 @@ defmodule CoupEngine.GameStateMachine do
   def check("awaiting_opponent_response", :allow), do: {:ok, "awaiting_opponent_response"}
 
   def check("lose_influence_select_card", :select_card), do: {:ok, "lose_influence_card_selected"}
+  def check("challenger_lose_influence_select_card", :select_card), do: {:ok, "challenger_lose_influence_card_selected"}
 
   def check("lose_influence_card_selected", :select_card),
     do: {:ok, "lose_influence_card_selected"}
+  def check("challenger_lose_influence_card_selected", :select_card),
+    do: {:ok, "challenger_lose_influence_card_selected"}
 
   def check("challenge_block_success_target_lose_influence_select_card", :select_card),
     do: {:ok, "challenge_block_success_target_lose_influence_card_selected"}
@@ -30,6 +33,8 @@ defmodule CoupEngine.GameStateMachine do
 
   def check("lose_influence_card_selected", :lose_influence_confirm),
     do: {:ok, "turn_ending"}
+  def check("challenger_lose_influence_card_selected", :lose_influence_confirm),
+    do: {:ok, "action_success"}
 
   def check(
         "challenge_block_success_target_lose_influence_card_selected",
@@ -87,7 +92,7 @@ defmodule CoupEngine.GameStateMachine do
     do: {:ok, "lose_influence_select_card"}
 
   def check("challenger_lose_influence", :lose_influence, :select_card),
-    do: {:ok, "lose_influence_select_card"}
+    do: {:ok, "challenger_lose_influence_select_card"}
 
   def check("challenge_block_success_target_lose_influence", :lose_influence, :select_card),
     do: {:ok, "challenge_block_success_target_lose_influence_select_card"}
@@ -96,7 +101,7 @@ defmodule CoupEngine.GameStateMachine do
     do: {:ok, "turn_ending"}
 
   def check("challenger_lose_influence", :lose_influence, :die),
-    do: {:ok, "turn_ending"}
+    do: {:ok, "action_success"}
 
   def check("challenge_block_success_target_lose_influence", :lose_influence, :die),
     do: {:ok, "action_success"}

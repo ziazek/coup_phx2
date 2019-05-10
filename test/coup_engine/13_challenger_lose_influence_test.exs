@@ -55,7 +55,7 @@ defmodule CoupEngine.ChallengerLoseInfluenceTest do
 
     test "should change game state to action_success", %{updated_state: updated_state} do
       # TODO: shuffle card back into the deck instead
-      assert updated_state.state == "turn_ending"
+      assert updated_state.state == "action_success"
     end
 
     test "should update toast to 'Vincent loses 1 influence. Player has died.'", %{
@@ -109,8 +109,8 @@ defmodule CoupEngine.ChallengerLoseInfluenceTest do
       {:ok, %{updated_state: updated_state}}
     end
 
-    test "should change game state to lose_influence_select_card", %{updated_state: updated_state} do
-      assert updated_state.state == "lose_influence_select_card"
+    test "should change game state to challenger_lose_influence_select_card", %{updated_state: updated_state} do
+      assert updated_state.state == "challenger_lose_influence_select_card"
     end
 
     test "should update player display_state to lose_influence_select_card", %{
