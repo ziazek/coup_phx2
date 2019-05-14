@@ -1,21 +1,20 @@
-defmodule CoupEngine.ActionSuccessCoupTest do
+defmodule CoupEngine.ActionSuccessChangeCardTest do
   use CoupPhx2Web.GameCase, async: true
 
   alias CoupEngine.{Game, Player, Turn}
 
-  describe "action_success, coup" do
+  describe "action_success, changecard" do
     setup do
       state =
         initial_state(%{
           state: "action_success",
           players: [
-            %Player{name: "Jany", session_id: "session_id1"},
-            %Player{name: "Vincent", session_id: "session_id2"}
+            %Player{name: "Jany", session_id: "session_id1", coins: 0}
           ],
           turn: %Turn{
             player: %Player{name: "Jany", session_id: "session_id1"},
-            action: %{action: "coup", state: "ok"},
-            target: %Player{name: "Vincent", session_id: "session_id2"},
+            action: %{action: "changecard", state: "ok"},
+            target: %{state: "pending"},
             state: "active"
           }
         })
@@ -25,23 +24,23 @@ defmodule CoupEngine.ActionSuccessCoupTest do
       {:ok, %{updated_state: updated_state}}
     end
 
-    test "should change game state to target_lose_influence", %{updated_state: updated_state} do
-      assert updated_state.state == "target_lose_influence"
+    test "should change game state to change_card_draw_card", %{updated_state: updated_state} do
+      assert updated_state.state == "change_card_draw_card"
     end
 
-    test "should update toast to 'COUP is successful.'", %{
+    test "should update toast to 'Jany draws the top 2 cards. Selecting...'", %{
       updated_state: updated_state
     } do
       latest_toast = updated_state.toast |> Enum.at(-1)
-      assert latest_toast.body == "COUP is successful."
+      assert latest_toast.body == "Jany draws the top 2 cards. Selecting..."
     end
 
     test "should not mark turn as ended", %{updated_state: updated_state} do
       assert updated_state.turn.state == "active"
     end
 
-    test "should send lose_influence to self" do
-      assert_receive {:lose_influence, 1000}
+    test "should send change_card_draw_card to self" do
+      assert_receive {:change_card_draw_card, 1000}
     end
   end
 end

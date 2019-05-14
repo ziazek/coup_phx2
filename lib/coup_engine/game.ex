@@ -519,13 +519,14 @@ defmodule CoupEngine.Game do
   def handle_info(
         :lose_influence,
         %{
+          players: players,
           state: "target_lose_influence",
           turn: %{
-            target: %{hand: target_hand}
+            target: %{session_id: target_session_id}
           }
         } = state_data
       ) do
-    live_cards = target_hand |> Enum.filter(fn card -> card.state != "dead" end)
+    live_cards = get_live_cards(players, target_session_id)
 
     case length(live_cards) do
       1 -> do_target_lose_influence(:die, state_data, :end_turn)
@@ -536,13 +537,14 @@ defmodule CoupEngine.Game do
   def handle_info(
         :lose_influence,
         %{
+          players: players,
           state: "challenge_block_success_target_lose_influence",
           turn: %{
-            target: %{hand: target_hand}
+            target: %{session_id: target_session_id}
           }
         } = state_data
       ) do
-    live_cards = target_hand |> Enum.filter(fn card -> card.state != "dead" end)
+    live_cards = get_live_cards(players, target_session_id)
 
     case length(live_cards) do
       1 -> do_target_lose_influence(:die, state_data, :action_success)
@@ -883,6 +885,14 @@ defmodule CoupEngine.Game do
     @process.send_after(self(), :lose_influence, 1_000)
   end
 
+  defp action_success_send_after("assassinate") do
+    @process.send_after(self(), :lose_influence, 1_000)
+  end
+
+  defp action_success_send_after("changecard") do
+    @process.send_after(self(), :change_card_draw_card, 1_000)
+  end
+
   @send_end_turn_actions ["1coin", "foreignaid", "steal", "3coins"]
 
   defp action_success_send_after(action) when action in @send_end_turn_actions do
@@ -917,5 +927,12 @@ defmodule CoupEngine.Game do
     else
       next_index
     end
+  end
+
+  defp get_live_cards(players, target_session_id) do
+    players
+    |> Enum.find(fn player -> player.session_id == target_session_id end)
+    |> Map.get(:hand)
+    |> Enum.filter(fn card -> card.state != "dead" end)
   end
 end

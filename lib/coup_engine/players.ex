@@ -87,7 +87,9 @@ defmodule CoupEngine.Players do
     {:ok, players}
   end
 
-  def apply_action(players, "coup", _session_id, _target) do
+  @apply_action_do_nothing ["coup", "assassinate", "changecard"]
+  def apply_action(players, action, _session_id, _target)
+      when action in @apply_action_do_nothing do
     {:ok, players}
   end
 
@@ -132,7 +134,7 @@ defmodule CoupEngine.Players do
     {:ok, players}
   end
 
-  @awaiting_actions ["foreignaid", "3coins"]
+  @awaiting_actions ["foreignaid", "3coins", "changecard"]
   def set_display_state(players, session_id, action) when action in @awaiting_actions do
     players =
       players

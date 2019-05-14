@@ -127,6 +127,14 @@ defmodule CoupEngine.Turn do
     end
   end
 
+  def set_block_target_response(turn, players, session_id, "block_as_contessa") do
+    with {:ok, turn, _player} <- set_target(turn, players, session_id, "block_as_contessa"),
+         {:ok, turn} <- set_target_response(turn, "block_as_contessa") do
+      turn = turn |> Map.put(:blocker_claimed_character, "Contessa")
+      {:ok, turn}
+    end
+  end
+
   def set_block_target_response(turn, players, session_id, _block_action) do
     {:ok, turn, _player} = set_target(turn, players, session_id, "ok")
     {:ok, turn}

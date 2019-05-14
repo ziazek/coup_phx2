@@ -1,22 +1,26 @@
-defmodule CoupEngine.ActionSuccessCoupTest do
+defmodule CoupEngine.ActionSuccessAssassinateTest do
   use CoupPhx2Web.GameCase, async: true
 
-  alias CoupEngine.{Game, Player, Turn}
+  alias CoupEngine.{Action, Game, Player, Turn}
 
-  describe "action_success, coup" do
+  describe "action_success, steal" do
     setup do
       state =
         initial_state(%{
           state: "action_success",
           players: [
-            %Player{name: "Jany", session_id: "session_id1"},
-            %Player{name: "Vincent", session_id: "session_id2"}
+            %Player{name: "Ken", session_id: "session_id1"},
+            %Player{name: "Zek", session_id: "session_id2"}
           ],
           turn: %Turn{
-            player: %Player{name: "Jany", session_id: "session_id1"},
-            action: %{action: "coup", state: "ok"},
-            target: %Player{name: "Vincent", session_id: "session_id2"},
-            state: "active"
+            player: %Player{name: "Ken", session_id: "session_id1"},
+            action: %Action{
+              action: "assassinate",
+              label: "Assassinate",
+              state: "ok"
+            },
+            state: "active",
+            target: %Player{name: "Zek", session_id: "session_id2"}
           }
         })
 
@@ -29,11 +33,11 @@ defmodule CoupEngine.ActionSuccessCoupTest do
       assert updated_state.state == "target_lose_influence"
     end
 
-    test "should update toast to 'COUP is successful.'", %{
+    test "should update toast to 'ASSASSINATION is successful.'", %{
       updated_state: updated_state
     } do
       latest_toast = updated_state.toast |> Enum.at(-1)
-      assert latest_toast.body == "COUP is successful."
+      assert latest_toast.body == "ASSASSINATION is successful."
     end
 
     test "should not mark turn as ended", %{updated_state: updated_state} do

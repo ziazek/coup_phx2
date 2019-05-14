@@ -548,7 +548,7 @@ defmodule Concept.Game do
         },
         %{
           action: "changecard",
-          label: "Change card",
+          label: "Change Card",
           state: "enabled"
         }
       ],
@@ -777,7 +777,7 @@ defmodule Concept.Game do
       },
       %{
         action: "changecard",
-        label: "Change card",
+        label: "Change Card",
         state: "disabled"
       }
     ]

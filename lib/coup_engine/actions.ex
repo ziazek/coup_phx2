@@ -35,6 +35,11 @@ defmodule CoupEngine.Actions do
       claimed_character: "Assassin",
       description: "chose ASSASSINATE. Selecting target...",
       cost: 3
+    },
+    "changecard" => %{
+      claimed_character: "Ambassador",
+      description: "chose CHANGE CARD.",
+      cost: 0
     }
   }
 
@@ -183,6 +188,14 @@ defmodule CoupEngine.Actions do
     {:ok, "COUP is successful."}
   end
 
+  def get_action_success_description("assassinate", _player_name, _target_name) do
+    {:ok, "ASSASSINATION is successful."}
+  end
+
+  def get_action_success_description("changecard", player_name, _target_name) do
+    {:ok, "#{player_name} draws the top 2 cards. Selecting..."}
+  end
+
   def get_action_success_description(_, _, _), do: {:error, "Invalid action, cannot describe"}
 
   @spec default_actions() :: [%Action{}]
@@ -220,7 +233,7 @@ defmodule CoupEngine.Actions do
       },
       %Action{
         action: "changecard",
-        label: "Change card",
+        label: "Change Card",
         state: "disabled"
       }
     ]
@@ -269,6 +282,21 @@ defmodule CoupEngine.Actions do
   end
 
   def opponent_responses_for("3coins") do
+    [
+      %Action{
+        action: "allow",
+        label: "Allow",
+        state: "enabled"
+      },
+      %Action{
+        action: "challenge",
+        label: "Challenge",
+        state: "enabled"
+      }
+    ]
+  end
+
+  def opponent_responses_for("changecard") do
     [
       %Action{
         action: "allow",

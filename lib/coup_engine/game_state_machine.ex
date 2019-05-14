@@ -70,6 +70,7 @@ defmodule CoupEngine.GameStateMachine do
   def check("player_action", :action, "1coin"), do: {:ok, "action_success"}
   def check("player_action", :action, "foreignaid"), do: {:ok, "awaiting_opponent_response"}
   def check("player_action", :action, "3coins"), do: {:ok, "awaiting_opponent_response"}
+  def check("player_action", :action, "changecard"), do: {:ok, "awaiting_opponent_response"}
   def check("player_action", :action, "coup"), do: {:ok, "select_target"}
   def check("player_action", :action, "steal"), do: {:ok, "select_target"}
   def check("player_action", :action, "assassinate"), do: {:ok, "select_target"}
@@ -97,6 +98,8 @@ defmodule CoupEngine.GameStateMachine do
   def check("action_success", :action_success, "steal"), do: {:ok, "turn_ending"}
   def check("action_success", :action_success, "3coins"), do: {:ok, "turn_ending"}
   def check("action_success", :action_success, "coup"), do: {:ok, "target_lose_influence"}
+  def check("action_success", :action_success, "assassinate"), do: {:ok, "target_lose_influence"}
+  def check("action_success", :action_success, "changecard"), do: {:ok, "change_card_draw_card"}
 
   def check("target_lose_influence", :lose_influence, :select_card),
     do: {:ok, "lose_influence_select_card"}
@@ -134,6 +137,9 @@ defmodule CoupEngine.GameStateMachine do
     do: {:ok, "awaiting_response_to_block"}
 
   def check("awaiting_opponent_response", :block, "steal", "block_as_ambassador"),
+    do: {:ok, "awaiting_response_to_block"}
+
+  def check("awaiting_opponent_response", :block, "assassinate", "block_as_contessa"),
     do: {:ok, "awaiting_response_to_block"}
 
   def check(_, _, _, _), do: {:error, "invalid game state"}

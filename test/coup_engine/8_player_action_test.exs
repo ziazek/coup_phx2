@@ -80,7 +80,7 @@ defmodule CoupEngine.PlayerActionTest do
                },
                %Action{
                  action: "changecard",
-                 label: "Change card",
+                 label: "Change Card",
                  state: "enabled"
                }
              ]

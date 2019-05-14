@@ -112,7 +112,7 @@ defmodule CoupEngine.InitTest do
                    },
                    %Action{
                      action: "changecard",
-                     label: "Change card",
+                     label: "Change Card",
                      state: "disabled"
                    }
                  ],
