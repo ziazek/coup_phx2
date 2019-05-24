@@ -3,7 +3,12 @@ defmodule CoupEngine.Players do
   Modifies the players list
   """
 
-  alias CoupEngine.{Actions, Player}
+  alias CoupEngine.{Actions, Card, Player}
+
+  @spec get_player([%Player{}], String.t()) :: %Player{} | nil
+  def get_player(players, session_id) do
+    Enum.find(players, fn player -> player.session_id == session_id end)
+  end
 
   @spec start_turn([%Player{}], non_neg_integer()) :: {:ok, [%Player{}]}
   def start_turn(players, player_index) do
@@ -27,12 +32,8 @@ defmodule CoupEngine.Players do
   def apply_action(players, "1coin", session_id, _target) do
     players =
       players
-      |> Enum.map(fn player ->
-        if player.session_id == session_id do
-          player |> Map.put(:coins, player.coins + 1)
-        else
-          player
-        end
+      |> only_current_player(session_id, fn player ->
+        player |> Map.put(:coins, player.coins + 1)
       end)
 
     {:ok, players}
@@ -41,12 +42,8 @@ defmodule CoupEngine.Players do
   def apply_action(players, "foreignaid", session_id, _target) do
     players =
       players
-      |> Enum.map(fn player ->
-        if player.session_id == session_id do
-          player |> Map.put(:coins, player.coins + 2)
-        else
-          player
-        end
+      |> only_current_player(session_id, fn player ->
+        player |> Map.put(:coins, player.coins + 2)
       end)
 
     {:ok, players}
@@ -76,12 +73,8 @@ defmodule CoupEngine.Players do
   def apply_action(players, "3coins", session_id, _target) do
     players =
       players
-      |> Enum.map(fn player ->
-        if player.session_id == session_id do
-          player |> Map.put(:coins, player.coins + 3)
-        else
-          player
-        end
+      |> only_current_player(session_id, fn player ->
+        player |> Map.put(:coins, player.coins + 3)
       end)
 
     {:ok, players}
@@ -107,12 +100,8 @@ defmodule CoupEngine.Players do
 
     players =
       players
-      |> Enum.map(fn player ->
-        if player.session_id == session_id do
-          player |> Map.put(:coins, player.coins - cost)
-        else
-          player
-        end
+      |> only_current_player(session_id, fn player ->
+        player |> Map.put(:coins, player.coins - cost)
       end)
 
     {:ok, players}
@@ -123,12 +112,8 @@ defmodule CoupEngine.Players do
   def set_display_state(players, session_id, action) when action in @select_target_actions do
     players =
       players
-      |> Enum.map(fn player ->
-        if player.session_id == session_id do
-          player |> Map.put(:display_state, "select_target")
-        else
-          player
-        end
+      |> only_current_player(session_id, fn player ->
+        player |> Map.put(:display_state, "select_target")
       end)
 
     {:ok, players}
@@ -152,12 +137,18 @@ defmodule CoupEngine.Players do
   def set_display_state(players, session_id, "lose_influence_select_card") do
     players =
       players
-      |> Enum.map(fn player ->
-        if player.session_id == session_id do
-          player |> Map.put(:display_state, "lose_influence_select_card")
-        else
-          player
-        end
+      |> only_current_player(session_id, fn player ->
+        player |> Map.put(:display_state, "lose_influence_select_card")
+      end)
+
+    {:ok, players}
+  end
+
+  def set_display_state(players, session_id, "change_card_draw_card") do
+    players =
+      players
+      |> only_current_player(session_id, fn player ->
+        player |> Map.put(:display_state, "change_card")
       end)
 
     {:ok, players}
@@ -176,12 +167,8 @@ defmodule CoupEngine.Players do
       when action in @opponent_responses_actions do
     players =
       players
-      |> Enum.map(fn player ->
-        if player.session_id == session_id do
-          player
-        else
-          player |> Map.put(:display_state, "responses")
-        end
+      |> only_opponents(session_id, fn player ->
+        player |> Map.put(:display_state, "responses")
       end)
 
     {:ok, players}
@@ -211,17 +198,32 @@ defmodule CoupEngine.Players do
   def set_card_selected(players, session_id, index) do
     players =
       players
-      |> Enum.map(fn player ->
-        if player.session_id == session_id do
-          hand =
-            player.hand
-            |> Enum.map(fn card -> card |> Map.put(:state, "default") end)
-            |> List.update_at(index, fn card -> card |> Map.put(:state, "selected") end)
+      |> only_current_player(session_id, fn player ->
+        hand =
+          player.hand
+          |> Enum.map(fn card -> card |> Map.put(:state, "default") end)
+          |> List.update_at(index, fn card -> card |> Map.put(:state, "selected") end)
 
-          player |> Map.put(:hand, hand)
-        else
-          player
-        end
+        player |> Map.put(:hand, hand)
+      end)
+
+    {:ok, players}
+  end
+
+  @spec change_card_set_card_selected([%Player{}], String.t(), non_neg_integer()) ::
+          {:ok, [%Player{}]}
+  def change_card_set_card_selected(players, session_id, index) do
+    players =
+      players
+      |> only_current_player(session_id, fn player ->
+        hand =
+          player.change_card_hand
+          |> List.update_at(index, fn card ->
+            next_state = if card.state == "default", do: "selected", else: "default"
+            card |> Map.put(:state, next_state)
+          end)
+
+        player |> Map.put(:change_card_hand, hand)
       end)
 
     {:ok, players}
@@ -335,5 +337,74 @@ defmodule CoupEngine.Players do
       end)
 
     {:ok, players}
+  end
+
+  @spec generate_change_card_hand([%Player{}], String.t(), [%Card{}]) ::
+          {:ok, [%Player{}], [%Card{}]}
+  def generate_change_card_hand(players, session_id, deck) do
+    [top_card_1, top_card_2 | rest] = deck
+
+    players =
+      players
+      |> only_current_player(session_id, fn player ->
+        live_cards = player.hand |> Enum.filter(fn card -> card.state != "dead" end)
+
+        player
+        |> Map.put(:change_card_hand, live_cards ++ [top_card_1, top_card_2])
+      end)
+
+    {:ok, players, rest}
+  end
+
+  @doc """
+  Copies the selected cards in Player's change_card_hand to hand
+  """
+
+  @spec change_card_confirm([%Player{}], String.t()) :: {:ok, [%Player{}], String.t()}
+  def change_card_confirm(players, session_id) do
+    players =
+      players
+      |> only_current_player(session_id, fn player ->
+        selected_cards =
+          player.change_card_hand
+          |> Enum.filter(fn card -> card.state == "selected" end)
+          |> Enum.map(fn card -> card |> Map.put(:state, "default") end)
+
+        player
+        |> Map.put(:hand, selected_cards)
+        |> Map.put(:change_card_hand, [])
+      end)
+
+    player = players |> get_player(session_id)
+
+    description = "#{player.name} selected #{length(player.hand)} cards."
+
+    {:ok, players, description}
+  end
+
+  ## UTILITIES ##
+
+  @spec only_current_player([%Player{}], String.t(), fun()) :: [%Player{}]
+  defp only_current_player(players, session_id, fun) do
+    players
+    |> Enum.map(fn player ->
+      if player.session_id == session_id do
+        apply(fun, [player])
+      else
+        player
+      end
+    end)
+  end
+
+  @spec only_opponents([%Player{}], String.t(), fun()) :: [%Player{}]
+  defp only_opponents(players, session_id, fun) do
+    players
+    |> Enum.map(fn player ->
+      if player.session_id != session_id do
+        apply(fun, [player])
+      else
+        player
+      end
+    end)
   end
 end

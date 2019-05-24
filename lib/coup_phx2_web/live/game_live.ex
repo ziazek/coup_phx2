@@ -176,6 +176,29 @@ defmodule CoupPhx2Web.GameLive do
     end
   end
 
+  def handle_event("change_card_select_card", index_str, socket) do
+    session_id = socket.assigns.data.current_player.session_id
+    index = String.to_integer(index_str)
+
+    case Game.change_card_select_card(socket.assigns.game_pid, session_id, index) do
+      :ok ->
+        {:noreply, socket}
+
+      {:error, reason} ->
+        {:noreply, socket}
+    end
+  end
+
+  def handle_event("change_card_confirm", _value, socket) do
+    case Game.change_card_confirm(socket.assigns.game_pid) do
+      :ok ->
+        {:noreply, socket}
+
+      {:error, reason} ->
+        {:noreply, socket}
+    end
+  end
+
   def handle_event("lose_influence_confirm", _value, socket) do
     case Game.lose_influence_confirm(socket.assigns.game_pid) do
       :ok ->

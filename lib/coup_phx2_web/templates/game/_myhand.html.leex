@@ -2,11 +2,11 @@
 
 <div class="change-card relative bluebg flex flex-col flex-grow items-center justify-center py-2 cards-count-<%= Map.get(@data.current_player, :change_card_hand, []) |> length() %>">
   <div class="change-card-wrapper flex">
-    <%= for card <- Map.get(@data.current_player, :change_card_hand, []) do %>
+    <%= for {card, index} <- Map.get(@data.current_player, :change_card_hand, []) |> Enum.with_index() do %>
     <%= if card.state == "selected" do %>
-    <div class="my-card selected">
+    <div class="my-card selected" phx-click="change_card_select_card" phx-value="<%= index %>">
     <% else %>
-    <div class="my-card">
+    <div class="my-card" phx-click="change_card_select_card" phx-value="<%= index %>">
     <% end %>
       <svg viewbox="0 0 70 100">
         <g class="fadeInUp animated">
@@ -20,8 +20,17 @@
     <% end %>
   </div>
   <div class="button-wrapper text-center mt-4">
+    <%= if CoupEngine.Player.get_live_cards(@data.current_player) |> length() == 2 do %>
     <div class="text-base my-2">Select 2 cards.</div>
-    <button class="btn btn-green">Proceed</button>
+    <% else %>
+    <div class="text-base my-2">Select 1 card.</div>
+    <% end %>
+    
+    <%= if @data.state == "change_card_cards_selected" do %>
+    <button class="btn btn-green" phx-click="change_card_confirm">Proceed</button>
+    <% else %>
+    <button class="btn btn-green" disabled>Proceed</button>
+    <% end %>
   </div>
   <%= render "_overlay.html", data: @data, show_on: ["select_target"] %>
 </div>
@@ -51,7 +60,7 @@
   </div>
   <div class="button-wrapper text-center mt-4">
     <div class="text-base my-2">Select card to discard.</div>
-    <%= if (String.ends_with?(@data.state, "lose_influence_card_selected")) do %> 
+    <%= if (String.ends_with?(@data.state, "lose_influence_card_selected")) do %>
     <button class="btn btn-green" phx-click="lose_influence_confirm">Proceed</button>
     <% else %>
     <button class="btn btn-green" disabled>Proceed</button>

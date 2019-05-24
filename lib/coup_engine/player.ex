@@ -41,6 +41,11 @@ defmodule CoupEngine.Player do
     {:ok, player, players}
   end
 
+  @spec get_live_cards(%Player{}) :: [%Card{}]
+  def get_live_cards(player) do
+    player.hand |> Enum.filter(fn card -> card.state != "dead" end)
+  end
+
   ### PRIVATE
 
   defp get_player(players, player_index) do

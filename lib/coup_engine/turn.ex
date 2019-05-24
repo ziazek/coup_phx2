@@ -47,6 +47,11 @@ defmodule CoupEngine.Turn do
     {:ok, updated_turn}
   end
 
+  @spec set_turn_ended(%__MODULE__{}) :: {:ok, %__MODULE__{}}
+  def set_turn_ended(turn) do
+    {:ok, turn |> Map.put(:state, "ended")}
+  end
+
   @spec set_target(%__MODULE__{}, [%Player{}], String.t(), String.t()) ::
           {:ok, %__MODULE__{}, %Player{}}
   def set_target(turn, players, session_id, state \\ "ok") do

@@ -6,7 +6,7 @@ defmodule CoupEngine.GameStateMachine do
   @min_players 2
   @max_players 6
 
-  alias CoupEngine.Player
+  alias CoupEngine.{Player, Players}
 
   ### Arity 2 ###
 
@@ -16,6 +16,10 @@ defmodule CoupEngine.GameStateMachine do
   def check("drawing_cards", :draw_card), do: {:ok, "drawing_cards"}
   def check("cards_drawn", :start_turn), do: {:ok, "player_action"}
   def check("awaiting_opponent_response", :allow), do: {:ok, "awaiting_opponent_response"}
+  def check("change_card_draw_card", :change_card_draw_card), do: {:ok, "change_card_cards_drawn"}
+  def check("change_card_cards_drawn", :change_card_select_card), do: {:ok, "ok"}
+  def check("change_card_cards_selected", :change_card_select_card), do: {:ok, "ok"}
+  def check("change_card_cards_selected", :change_card_confirm), do: {:ok, "turn_ending"}
 
   def check("lose_influence_select_card", :select_card), do: {:ok, "lose_influence_card_selected"}
 
@@ -145,7 +149,7 @@ defmodule CoupEngine.GameStateMachine do
   def check(_, _, _, _), do: {:error, "invalid game state"}
 
   @doc """
-  Checks whether all players have 2 cards
+  Checks whether all players have 2 cards.
   """
   @spec check_cards_drawn(String.t(), [%Player{}]) :: {:ok, String.t()}
   def check_cards_drawn("drawing_cards", players) do
@@ -159,7 +163,7 @@ defmodule CoupEngine.GameStateMachine do
   end
 
   @doc """
-  Checks whether all opponents have allowed
+  Checks whether all opponents have allowed.
   """
   @spec check_all_opponents_allow(String.t(), map()) :: {:ok, String.t()}
   def check_all_opponents_allow(current_state, opponent_responses) do
@@ -167,6 +171,26 @@ defmodule CoupEngine.GameStateMachine do
       {:ok, "action_success"}
     else
       {:ok, current_state}
+    end
+  end
+
+  @doc """
+  For change card action. Checks that user has selected sufficient cards to proceed.
+  """
+  @spec check_change_card_required_cards([%Player{}], String.t()) :: {:ok, String.t()}
+  def check_change_card_required_cards(players, session_id) do
+    player = Players.get_player(players, session_id)
+    live_cards = Player.get_live_cards(player)
+
+    selected_cards =
+      player
+      |> Map.get(:change_card_hand)
+      |> Enum.filter(fn card -> card.state == "selected" end)
+
+    if length(selected_cards) == length(live_cards) do
+      {:ok, "change_card_cards_selected"}
+    else
+      {:ok, "change_card_selecting_cards"}
     end
   end
 end

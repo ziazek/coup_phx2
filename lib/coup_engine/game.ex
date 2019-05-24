@@ -41,6 +41,14 @@ defmodule CoupEngine.Game do
   def select_card(pid, session_id, index),
     do: GenServer.call(pid, {:select_card, session_id, index})
 
+  @spec change_card_select_card(pid(), String.t(), non_neg_integer()) :: any()
+  def change_card_select_card(pid, session_id, index),
+    do: GenServer.call(pid, {:change_card_select_card, session_id, index})
+
+  @spec change_card_confirm(pid()) :: any()
+  def change_card_confirm(pid),
+    do: GenServer.call(pid, :change_card_confirm)
+
   @spec lose_influence_confirm(pid()) :: any()
   def lose_influence_confirm(pid),
     do: GenServer.call(pid, :lose_influence_confirm)
@@ -373,6 +381,57 @@ defmodule CoupEngine.Game do
     end
   end
 
+  @spec handle_call({:change_card_select_card, String.t(), non_neg_integer()}, any(), map()) ::
+          {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
+  def handle_call(
+        {:change_card_select_card, session_id, index},
+        _from,
+        %{players: players} = state_data
+      ) do
+    with {:ok, _temp_next_state} <-
+           GameStateMachine.check(state_data.state, :change_card_select_card),
+         {:ok, players} <- Players.change_card_set_card_selected(players, session_id, index),
+         {:ok, next_state} <-
+           GameStateMachine.check_change_card_required_cards(players, session_id) do
+      state_data
+      |> Map.put(:players, players)
+      |> Map.put(:state, next_state)
+      |> reply_success(:ok, :broadcast_change)
+    else
+      error -> {:reply, error, state_data}
+    end
+  end
+
+  @spec handle_call(:change_card_confirm, any(), map()) ::
+          {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
+  def handle_call(
+        :change_card_confirm,
+        _from,
+        %{
+          players: players,
+          turn: %{player: %{session_id: session_id}} = turn,
+          toast: toast
+        } = state_data
+      ) do
+    with {:ok, next_state} <-
+           GameStateMachine.check(state_data.state, :change_card_confirm),
+         {:ok, players, description} <- Players.change_card_confirm(players, session_id),
+         {:ok, turn} <- Turn.set_turn_ended(turn) do
+      @process.send_after(self(), :end_turn, 1_000)
+
+      toast = toast |> Toast.add(description)
+
+      state_data
+      |> Map.put(:players, players)
+      |> Map.put(:toast, toast)
+      |> Map.put(:turn, turn)
+      |> Map.put(:state, next_state)
+      |> reply_success(:ok, :broadcast_change)
+    else
+      error -> {:reply, error, state_data}
+    end
+  end
+
   @spec handle_call(:lose_influence_confirm, any(), map()) ::
           {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
   def handle_call(
@@ -504,6 +563,35 @@ defmodule CoupEngine.Game do
       |> Map.put(:players, players)
       |> Map.put(:turn, turn)
       |> Map.put(:toast, toast)
+      |> Map.put(:state, next_state)
+      |> noreply(:broadcast_change)
+    else
+      {:error, reason} ->
+        toast = toast |> Toast.add(reason)
+        state_data = state_data |> Map.put(:toast, toast)
+        {:noreply, state_data}
+    end
+  end
+
+  @spec handle_info(:change_card_draw_card, map()) ::
+          {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
+  def handle_info(
+        :change_card_draw_card,
+        %{
+          players: players,
+          deck: deck,
+          turn: %{player: %{session_id: session_id}},
+          toast: toast
+        } = state_data
+      ) do
+    with {:ok, next_state} <-
+           GameStateMachine.check(state_data.state, :change_card_draw_card),
+         {:ok, players} <-
+           Players.set_display_state(players, session_id, "change_card_draw_card"),
+         {:ok, players, deck} <- Players.generate_change_card_hand(players, session_id, deck) do
+      state_data
+      |> Map.put(:players, players)
+      |> Map.put(:deck, deck)
       |> Map.put(:state, next_state)
       |> noreply(:broadcast_change)
     else

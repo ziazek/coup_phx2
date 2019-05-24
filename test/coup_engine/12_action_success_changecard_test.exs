@@ -27,6 +27,11 @@ defmodule CoupEngine.ActionSuccessChangeCardTest do
     test "should change game state to change_card_draw_card", %{updated_state: updated_state} do
       assert updated_state.state == "change_card_draw_card"
     end
+    
+    # test "should change Jany's display_state to change_card", %{updated_state: updated_state} do
+    #   jany = updated_state.players |> Enum.at(0)
+    #   assert jany.display_state == "change_card"
+    # end
 
     test "should update toast to 'Jany draws the top 2 cards. Selecting...'", %{
       updated_state: updated_state
