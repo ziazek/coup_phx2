@@ -3,7 +3,7 @@ defmodule CoupEngine.ActionSuccessAssassinateTest do
 
   alias CoupEngine.{Action, Game, Player, Turn}
 
-  describe "action_success, steal" do
+  describe "action_success, assassinate" do
     setup do
       state =
         initial_state(%{

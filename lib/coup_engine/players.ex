@@ -218,15 +218,17 @@ defmodule CoupEngine.Players do
       |> only_current_player(session_id, fn player ->
         hand =
           player.change_card_hand
-          |> List.update_at(index, fn card ->
-            next_state = if card.state == "default", do: "selected", else: "default"
-            card |> Map.put(:state, next_state)
-          end)
+          |> List.update_at(index, &toggle_card_state/1)
 
         player |> Map.put(:change_card_hand, hand)
       end)
 
     {:ok, players}
+  end
+
+  defp toggle_card_state(card) do
+    next_state = if card.state == "default", do: "selected", else: "default"
+    card |> Map.put(:state, next_state)
   end
 
   @spec set_opponent_responses([%Player{}], String.t(), String.t()) :: {:ok, [%Player{}]}
