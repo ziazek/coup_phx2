@@ -362,8 +362,13 @@ defmodule CoupEngine.Players do
   Copies the selected cards in Player's change_card_hand to hand
   """
 
-  @spec change_card_confirm([%Player{}], String.t()) :: {:ok, [%Player{}], String.t()}
+  @spec change_card_confirm([%Player{}], String.t()) :: {:ok, [%Player{}], String.t(), [%Card{}]}
   def change_card_confirm(players, session_id) do
+    player = players |> get_player(session_id)
+
+    returned_cards =
+      player.change_card_hand |> Enum.filter(fn card -> card.state != "selected" end)
+
     players =
       players
       |> only_current_player(session_id, fn player ->
@@ -372,16 +377,18 @@ defmodule CoupEngine.Players do
           |> Enum.filter(fn card -> card.state == "selected" end)
           |> Enum.map(fn card -> card |> Map.put(:state, "default") end)
 
+        dead_cards = player.hand |> Enum.filter(fn card -> card.state == "dead" end)
+
         player
-        |> Map.put(:hand, selected_cards)
+        |> Map.put(:hand, selected_cards ++ dead_cards)
         |> Map.put(:change_card_hand, [])
+        |> Map.put(:display_state, "default")
       end)
 
-    player = players |> get_player(session_id)
+    description =
+      "#{player.name} selected #{length(player.hand)} cards. Remaining cards returned, deck shuffled."
 
-    description = "#{player.name} selected #{length(player.hand)} cards."
-
-    {:ok, players, description}
+    {:ok, players, description, returned_cards}
   end
 
   ## UTILITIES ##

@@ -18,6 +18,7 @@ defmodule CoupEngine.GameStateMachine do
   def check("awaiting_opponent_response", :allow), do: {:ok, "awaiting_opponent_response"}
   def check("change_card_draw_card", :change_card_draw_card), do: {:ok, "change_card_cards_drawn"}
   def check("change_card_cards_drawn", :change_card_select_card), do: {:ok, "ok"}
+  def check("change_card_selecting_cards", :change_card_select_card), do: {:ok, "ok"}
   def check("change_card_cards_selected", :change_card_select_card), do: {:ok, "ok"}
   def check("change_card_cards_selected", :change_card_confirm), do: {:ok, "turn_ending"}
 

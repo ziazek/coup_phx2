@@ -408,14 +408,16 @@ defmodule CoupEngine.Game do
         :change_card_confirm,
         _from,
         %{
+          deck: deck,
           players: players,
           turn: %{player: %{session_id: session_id}} = turn,
           toast: toast
         } = state_data
       ) do
-    with {:ok, next_state} <-
-           GameStateMachine.check(state_data.state, :change_card_confirm),
-         {:ok, players, description} <- Players.change_card_confirm(players, session_id),
+    with {:ok, next_state} <- GameStateMachine.check(state_data.state, :change_card_confirm),
+         {:ok, players, description, returned_cards} <-
+           Players.change_card_confirm(players, session_id),
+         {:ok, deck} <- Deck.shuffle(deck ++ returned_cards),
          {:ok, turn} <- Turn.set_turn_ended(turn) do
       @process.send_after(self(), :end_turn, 1_000)
 
@@ -424,6 +426,7 @@ defmodule CoupEngine.Game do
       state_data
       |> Map.put(:players, players)
       |> Map.put(:toast, toast)
+      |> Map.put(:deck, deck)
       |> Map.put(:turn, turn)
       |> Map.put(:state, next_state)
       |> reply_success(:ok, :broadcast_change)
@@ -584,8 +587,7 @@ defmodule CoupEngine.Game do
           toast: toast
         } = state_data
       ) do
-    with {:ok, next_state} <-
-           GameStateMachine.check(state_data.state, :change_card_draw_card),
+    with {:ok, next_state} <- GameStateMachine.check(state_data.state, :change_card_draw_card),
          {:ok, players} <-
            Players.set_display_state(players, session_id, "change_card_draw_card"),
          {:ok, players, deck} <- Players.generate_change_card_hand(players, session_id, deck) do

@@ -17,4 +17,9 @@ defmodule CoupEngine.Deck do
   def draw_top_card([head | tail] = _deck) do
     {:ok, head, tail}
   end
+
+  @spec shuffle([%Card{}]) :: {:ok, [%Card{}]}
+  def shuffle(deck) do
+    {:ok, Enum.shuffle(deck)}
+  end
 end
