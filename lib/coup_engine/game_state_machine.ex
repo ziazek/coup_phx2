@@ -52,7 +52,7 @@ defmodule CoupEngine.GameStateMachine do
       do: {:ok, "action_success"}
 
   def check("awaiting_response_to_block", :allow_block), do: {:ok, "turn_ending"}
-  def check("turn_ending", :end_turn), do: {:ok, "turn_ended"}
+  def check("turn_ending", :end_turn), do: {:ok, "checking_for_win"}
   def check("turn_ended", :start_turn), do: {:ok, "player_action"}
   def check(_, _), do: {:error, "invalid game state"}
 
@@ -129,6 +129,9 @@ defmodule CoupEngine.GameStateMachine do
 
   def check("player_lose_influence", :lose_influence, :die),
     do: {:ok, "turn_ending"}
+
+  def check("checking_for_win", :check_for_win, true), do: {:ok, "won"}
+  def check("checking_for_win", :check_for_win, false), do: {:ok, "turn_ended"}
 
   def check(_, _, _), do: {:error, "invalid game state"}
 

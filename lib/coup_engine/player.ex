@@ -14,7 +14,7 @@ defmodule CoupEngine.Player do
             display_state: "default",
             actions: [],
             responses: [],
-            state: nil
+            state: "alive"
 
   alias __MODULE__
   alias CoupEngine.{Actions, Card}

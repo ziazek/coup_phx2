@@ -25,23 +25,18 @@ defmodule CoupEngine.EndTurnTest do
       {:ok, %{updated_state: updated_state}}
     end
 
+    test "should update game state to checking_for_win", %{updated_state: updated_state} do
+      assert updated_state.state == "checking_for_win"
+    end
+
     test "should add current turn to past_turns", %{updated_state: updated_state} do
       assert length(updated_state.past_turns) == 1
       last_past_turn = updated_state.past_turns |> Enum.at(-1)
       assert last_past_turn.player.name == "Jany"
     end
 
-    test "should reset turn to all attributes pending", %{updated_state: updated_state} do
-      turn = updated_state.turn
-      assert turn.player.state == "pending"
-      assert turn.action.state == "pending"
-      assert turn.target.state == "pending"
-      assert turn.target_response.state == "pending"
-      assert turn.player_response_to_block.state == "pending"
-    end
-
-    test "should send start_turn for next alive player" do
-      assert_receive {{:start_turn, 2}, 200}
+    test "should send check_for_win to self" do
+      assert_receive {:check_for_win, 10}
     end
   end
 end

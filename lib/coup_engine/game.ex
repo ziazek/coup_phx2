@@ -687,16 +687,41 @@ defmodule CoupEngine.Game do
           {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
   def handle_info(
         :end_turn,
-        %{players: players, toast: toast, past_turns: past_turns, turn: %{player: player} = turn} =
-          state_data
+        %{toast: toast, past_turns: past_turns, turn: turn} = state_data
       ) do
     with {:ok, next_state} <- GameStateMachine.check(state_data.state, :end_turn) do
-      start_next_turn(players, player.session_id)
+      @process.send_after(self(), :check_for_win, 10)
 
       state_data
       |> Map.put(:past_turns, past_turns ++ [turn])
-      |> Map.put(:turn, Turn.initialize())
       |> Map.put(:state, next_state)
+      |> noreply(:broadcast_change)
+    else
+      {:error, reason} ->
+        toast = toast |> Toast.add(reason)
+        state_data = state_data |> Map.put(:toast, toast)
+        {:noreply, state_data}
+    end
+  end
+
+  @spec handle_info(:check_for_win, map()) ::
+          {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
+  def handle_info(
+        :check_for_win,
+        %{players: players, toast: toast, turn: %{player: player} = turn} = state_data
+      ) do
+    with {:ok, is_win} <- Players.check_for_win(players),
+         {:ok, next_state} <- GameStateMachine.check(state_data.state, :check_for_win, is_win),
+         {:ok, players, winner} <- Players.assign_win(players, is_win) do
+      if is_win, do: nil, else: start_next_turn(players, player.session_id)
+      turn = if is_win, do: turn, else: Turn.initialize()
+      toast = if is_win, do: toast |> Toast.add("#{winner.name} has won!"), else: toast
+
+      state_data
+      |> Map.put(:state, next_state)
+      |> Map.put(:toast, toast)
+      |> Map.put(:turn, turn)
+      |> Map.put(:players, players)
       |> noreply(:broadcast_change)
     else
       {:error, reason} ->

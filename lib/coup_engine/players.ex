@@ -10,6 +10,11 @@ defmodule CoupEngine.Players do
     Enum.find(players, fn player -> player.session_id == session_id end)
   end
 
+  @spec get_winner([%Player{}]) :: %Player{} | nil
+  def get_winner(players) do
+    Enum.find(players, fn player -> player.state == "won" end)
+  end
+
   @spec start_turn([%Player{}], non_neg_integer()) :: {:ok, [%Player{}]}
   def start_turn(players, player_index) do
     players =
@@ -390,6 +395,39 @@ defmodule CoupEngine.Players do
 
     {:ok, players, description, returned_cards}
   end
+
+  @doc """
+  Checks whether there is a winner
+  """
+
+  @spec check_for_win([%Player{}]) :: {:ok, boolean()}
+  def check_for_win(players) do
+    alive = players |> Enum.filter(fn player -> player.state == "alive" end)
+    {:ok, length(alive) == 1}
+  end
+
+  @doc """
+  Assigns state "win" to winner
+  """
+
+  @spec assign_win([%Player{}], boolean()) :: {:ok, [%Player{}]}
+  def assign_win(players, true) do
+    players =
+      players
+      |> Enum.map(fn player ->
+        if player.state == "alive" do
+          player |> Map.put(:state, "won")
+        else
+          player
+        end
+      end)
+
+    winner = players |> get_winner()
+
+    {:ok, players, winner}
+  end
+
+  def assign_win(players, false), do: {:ok, players, nil}
 
   ## UTILITIES ##
 
