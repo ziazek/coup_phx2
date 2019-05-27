@@ -26,7 +26,9 @@ defmodule CoupEngine.Players do
           |> Map.put(:actions_panel_mode, "actions")
           |> Map.put(:actions, Actions.enable_actions_for_coins(player.coins))
         else
-          player |> Map.put(:actions_panel_mode, "responses")
+          player
+          |> Map.put(:actions_panel_mode, "responses")
+          |> Map.put(:responses, Actions.default_responses())
         end
       end)
 

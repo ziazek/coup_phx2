@@ -1,7 +1,7 @@
 defmodule CoupEngine.StartTurnTest do
   use CoupPhx2Web.GameCase, async: true
 
-  alias CoupEngine.{Game, Player, Turn}
+  alias CoupEngine.{Action, Game, Player, Turn}
 
   describe "start_turn" do
     setup do
@@ -56,8 +56,29 @@ defmodule CoupEngine.StartTurnTest do
     test "should set opponents actions_panel_mode to responses", %{
       updated_state: updated_state
     } do
-      player = updated_state.players |> Enum.at(1)
-      assert player.actions_panel_mode == "responses"
+      naz = updated_state.players |> Enum.at(1)
+      assert naz.actions_panel_mode == "responses"
+    end
+
+    test "should reset opponent responses panel to disabled", %{updated_state: updated_state} do
+      naz = updated_state.players |> Enum.at(1)
+      assert naz.responses == [
+        %Action{
+          action: "allow",
+          label: "Allow",
+          state: "disabled"
+        },
+        %Action{
+          action: "challenge",
+          label: "Challenge",
+          state: "disabled"
+        },
+        %Action{
+          action: "block",
+          label: "Block",
+          state: "disabled"
+        }
+      ]
     end
   end
 end

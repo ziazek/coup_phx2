@@ -5,6 +5,8 @@ defmodule CoupEngine.Actions do
 
   alias CoupEngine.Action
 
+  @must_coup_at 10
+
   @actions %{
     "1coin" => %{
       claimed_character: nil,
@@ -19,7 +21,7 @@ defmodule CoupEngine.Actions do
     "coup" => %{
       claimed_character: nil,
       description: "chose COUP. Selecting target...",
-      cost: 0
+      cost: 7
     },
     "steal" => %{
       claimed_character: "Captain",
@@ -147,10 +149,25 @@ defmodule CoupEngine.Actions do
   end
 
   @spec enable_actions_for_coins(non_neg_integer()) :: [%Action{}]
-  def enable_actions_for_coins(_coins) do
+  def enable_actions_for_coins(coins) when coins >= 10 do
     default_actions()
     |> Enum.map(fn action ->
-      action |> Map.put(:state, "enabled")
+      if action.action == "coup" do
+        action |> Map.put(:state, "enabled")
+      else
+        action
+      end
+    end)
+  end
+
+  def enable_actions_for_coins(coins) do
+    default_actions()
+    |> Enum.map(fn action ->
+      if coins >= @actions[action.action].cost do
+        action |> Map.put(:state, "enabled")
+      else
+        action
+      end
     end)
   end
 

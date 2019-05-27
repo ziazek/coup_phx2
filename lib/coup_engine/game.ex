@@ -892,12 +892,13 @@ defmodule CoupEngine.Game do
          :die,
          %{
            players: players,
+           turn: %{action: action},
            toast: toast
          } = state_data,
          challenger_session_id,
          send_after
        ) do
-    with {:ok, next_state} <- GameStateMachine.check(state_data.state, :lose_influence, :die),
+    with {:ok, next_state} <- GameStateMachine.check(state_data.state, :lose_influence, :die, action.action),
          {:ok, players} <- Players.kill_player_and_last_card(players, challenger_session_id) do
       challenger = players |> Enum.find(fn p -> p.session_id == challenger_session_id end)
       toast = toast |> Toast.add("#{challenger.name} loses 1 influence. Player has died.")

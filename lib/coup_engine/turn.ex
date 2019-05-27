@@ -38,7 +38,7 @@ defmodule CoupEngine.Turn do
 
     opponent_responses =
       players
-      |> Enum.filter(fn p -> p.session_id != player.session_id end)
+      |> Enum.filter(fn p -> p.session_id != player.session_id && p.state == "alive" end)
       |> Enum.map(fn p -> {p.session_id, "pending"} end)
       |> Enum.into(%{})
 

@@ -118,9 +118,6 @@ defmodule CoupEngine.GameStateMachine do
   def check("target_lose_influence", :lose_influence, :die),
     do: {:ok, "turn_ending"}
 
-  def check("challenger_lose_influence", :lose_influence, :die),
-    do: {:ok, "action_success"}
-
   def check("challenge_block_success_target_lose_influence", :lose_influence, :die),
     do: {:ok, "action_success"}
 
@@ -135,8 +132,14 @@ defmodule CoupEngine.GameStateMachine do
 
   def check(_, _, _), do: {:error, "invalid game state"}
 
-  @spec check(String.t(), atom(), String.t(), String.t()) ::
+  @spec check(String.t(), atom(), String.t() | atom(), String.t()) ::
           {:ok, String.t()} | {:error, String.t()}
+
+  def check("challenger_lose_influence", :lose_influence, :die, "assassinate"),
+    do: {:ok, "turn_ending"}
+
+  def check("challenger_lose_influence", :lose_influence, :die, _action),
+    do: {:ok, "action_success"}
 
   def check("awaiting_opponent_response", :block, "foreignaid", "block_as_duke"),
     do: {:ok, "awaiting_response_to_block"}
