@@ -25,7 +25,7 @@
     <% else %>
     <div class="text-base my-2">Select 1 card.</div>
     <% end %>
-    
+
     <%= if @data.state == "change_card_cards_selected" do %>
     <button class="btn btn-green" phx-click="change_card_confirm">Proceed</button>
     <% else %>

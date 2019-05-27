@@ -238,6 +238,34 @@ defmodule CoupEngine.Players do
     card |> Map.put(:state, next_state)
   end
 
+  @spec reveal_card([%Player{}], boolean(), String.t(), String.t()) :: {:ok, [%Player{}]}
+  def reveal_card(players, false = _challenge_success, session_id, claimed_character) do
+    players =
+      players
+      |> only_current_player(session_id, fn player ->
+        hand =
+          player.hand
+          |> do_reveal_card(claimed_character)
+
+        player |> Map.put(:hand, hand)
+      end)
+
+    {:ok, players}
+  end
+
+  def reveal_card(players, true, _, _), do: {:ok, players}
+
+  defp do_reveal_card(cards, claimed_character) do
+    cards
+    |> Enum.map(fn card ->
+      if card.type == claimed_character do
+        card |> Map.put(:state, "revealed")
+      else
+        card
+      end
+    end)
+  end
+
   @spec set_opponent_responses([%Player{}], String.t(), String.t()) :: {:ok, [%Player{}]}
   def set_opponent_responses(players, session_id, action) do
     players =

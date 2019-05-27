@@ -111,6 +111,16 @@ defmodule CoupEngine.ChallengeTest do
       assert latest_toast.body == "Zek challenges and fails."
     end
 
+    test "should change Captain card state to revealed", %{updated_state: updated_state} do
+      captain =
+        updated_state.players
+        |> Enum.at(0)
+        |> Map.get(:hand)
+        |> Enum.at(0)
+
+      assert captain.state == "revealed"
+    end
+
     test "should update opponent_responses session_id2 to challenge", %{
       updated_state: updated_state
     } do

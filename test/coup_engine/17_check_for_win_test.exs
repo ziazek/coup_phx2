@@ -25,10 +25,11 @@ defmodule CoupEngine.CheckForWinTest do
       {:ok, %{updated_state: updated_state}}
     end
 
-    test "should update game state to turn_ended", %{updated_state: updated_state} do
-      assert updated_state.state == "turn_ended"
+    test "should update game state to checking_revealed_card", %{updated_state: updated_state} do
+      assert updated_state.state == "checking_revealed_card"
     end
 
+    # TODO: move this to a last step
     test "should reset turn to all attributes pending", %{updated_state: updated_state} do
       turn = updated_state.turn
       assert turn.player.state == "pending"

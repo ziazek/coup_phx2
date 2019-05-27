@@ -116,6 +116,16 @@ defmodule CoupEngine.ChallengeBlockTest do
              }
     end
 
+    test "should change Duke card state to revealed", %{updated_state: updated_state} do
+      duke =
+        updated_state.players
+        |> Enum.at(1)
+        |> Map.get(:hand)
+        |> Enum.at(1)
+
+      assert duke.state == "revealed"
+    end
+
     test "should update toast to 'Challenge fails.'", %{updated_state: updated_state} do
       latest_toast = updated_state.toast |> Enum.at(-1)
       assert latest_toast.body == "Challenge fails."

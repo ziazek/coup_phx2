@@ -304,6 +304,13 @@ defmodule CoupEngine.Game do
            Challenge.challenge(players, player.session_id, player_claimed_character),
          {:ok, next_state} <-
            GameStateMachine.check(state_data.state, :challenge, challenge_success),
+         {:ok, players} <-
+           Players.reveal_card(
+             players,
+             challenge_success,
+             player.session_id,
+             player_claimed_character
+           ),
          {:ok, turn, player} <- Turn.set_opponent_challenge(turn, players, challenger_session_id) do
       toast =
         if challenge_success do
@@ -316,6 +323,7 @@ defmodule CoupEngine.Game do
 
       state_data
       |> Map.put(:turn, turn)
+      |> Map.put(:players, players)
       |> Map.put(:toast, toast)
       |> Map.put(:state, next_state)
       |> reply_success(:ok, :broadcast_change)
@@ -343,6 +351,13 @@ defmodule CoupEngine.Game do
            Challenge.challenge_block(players, target.session_id, blocker_claimed_character),
          {:ok, next_state} <-
            GameStateMachine.check(state_data.state, :challenge_block, challenge_success),
+         {:ok, players} <-
+           Players.reveal_card(
+             players,
+             challenge_success,
+             target.session_id,
+             blocker_claimed_character
+           ),
          {:ok, turn} <- Turn.set_player_challenge_block(turn) do
       toast =
         if challenge_success do
@@ -355,6 +370,7 @@ defmodule CoupEngine.Game do
 
       state_data
       |> Map.put(:turn, turn)
+      |> Map.put(:players, players)
       |> Map.put(:toast, toast)
       |> Map.put(:state, next_state)
       |> reply_success(:ok, :broadcast_change)
@@ -679,8 +695,16 @@ defmodule CoupEngine.Game do
     live_cards = challenger.hand |> Enum.filter(fn card -> card.state != "dead" end)
 
     case length(live_cards) do
-      1 -> do_challenger_lose_influence(:die, state_data, challenger_session_id, :action_success)
-      2 -> do_challenger_lose_influence(:select_card, state_data, challenger_session_id, :action_success)
+      1 ->
+        do_challenger_lose_influence(:die, state_data, challenger_session_id, :action_success)
+
+      2 ->
+        do_challenger_lose_influence(
+          :select_card,
+          state_data,
+          challenger_session_id,
+          :action_success
+        )
     end
   end
 
@@ -906,7 +930,7 @@ defmodule CoupEngine.Game do
     end
   end
 
-  defp do_challenger_lose_influence(effect, state_data, challenger_session_id, send_after \\ nil)
+  # defp do_challenger_lose_influence(effect, state_data, challenger_session_id, send_after \\ nil)
 
   defp do_challenger_lose_influence(
          :die,
