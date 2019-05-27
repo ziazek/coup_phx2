@@ -410,7 +410,7 @@ defmodule CoupEngine.Players do
   Assigns state "win" to winner
   """
 
-  @spec assign_win([%Player{}], boolean()) :: {:ok, [%Player{}]}
+  @spec assign_win([%Player{}], boolean()) :: {:ok, [%Player{}], %Player{}}
   def assign_win(players, true) do
     players =
       players
