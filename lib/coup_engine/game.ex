@@ -619,6 +619,7 @@ defmodule CoupEngine.Game do
     live_cards = get_live_cards(players, target_session_id)
 
     case length(live_cards) do
+      0 -> do_target_lose_influence(:already_dead, state_data, :end_turn)
       1 -> do_target_lose_influence(:die, state_data, :end_turn)
       2 -> do_target_lose_influence(:select_card, state_data)
     end
@@ -678,8 +679,8 @@ defmodule CoupEngine.Game do
     live_cards = challenger.hand |> Enum.filter(fn card -> card.state != "dead" end)
 
     case length(live_cards) do
-      1 -> do_challenger_lose_influence(:die, state_data, challenger_session_id, :end_turn)
-      2 -> do_challenger_lose_influence(:select_card, state_data, challenger_session_id)
+      1 -> do_challenger_lose_influence(:die, state_data, challenger_session_id, :action_success)
+      2 -> do_challenger_lose_influence(:select_card, state_data, challenger_session_id, :action_success)
     end
   end
 
@@ -759,6 +760,25 @@ defmodule CoupEngine.Game do
   ### PRIVATE HANDLER HELPERS
 
   defp do_target_lose_influence(effect, state_data, send_after \\ nil)
+
+  defp do_target_lose_influence(
+         :already_dead,
+         %{toast: toast} = state_data,
+         send_after
+       ) do
+    with {:ok, next_state} <- GameStateMachine.check(state_data.state, :lose_influence, :die) do
+      if send_after, do: @process.send_after(self(), send_after, 1_000), else: :do_nothing
+
+      state_data
+      |> Map.put(:state, next_state)
+      |> noreply(:broadcast_change)
+    else
+      {:error, reason} ->
+        toast = toast |> Toast.add(reason)
+        state_data = state_data |> Map.put(:toast, toast)
+        {:noreply, state_data}
+    end
+  end
 
   defp do_target_lose_influence(
          :die,
@@ -892,13 +912,13 @@ defmodule CoupEngine.Game do
          :die,
          %{
            players: players,
-           turn: %{action: action},
+           # turn: %{action: action},
            toast: toast
          } = state_data,
          challenger_session_id,
          send_after
        ) do
-    with {:ok, next_state} <- GameStateMachine.check(state_data.state, :lose_influence, :die, action.action),
+    with {:ok, next_state} <- GameStateMachine.check(state_data.state, :lose_influence, :die),
          {:ok, players} <- Players.kill_player_and_last_card(players, challenger_session_id) do
       challenger = players |> Enum.find(fn p -> p.session_id == challenger_session_id end)
       toast = toast |> Toast.add("#{challenger.name} loses 1 influence. Player has died.")

@@ -65,8 +65,8 @@ defmodule CoupEngine.ChallengerLoseInfluenceTest do
       assert latest_toast.body == "Vincent loses 1 influence. Player has died."
     end
 
-    test "should send end_turn to self" do
-      assert_receive {:end_turn, 1000}
+    test "should send action_success to self" do
+      assert_receive {:action_success, 1000}
     end
   end
 
