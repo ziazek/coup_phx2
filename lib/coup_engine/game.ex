@@ -733,19 +733,17 @@ defmodule CoupEngine.Game do
           {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
   def handle_info(
         :check_for_win,
-        %{players: players, toast: toast, turn: %{player: player} = turn} = state_data
+        %{players: players, toast: toast} = state_data
       ) do
     with {:ok, is_win} <- Players.check_for_win(players),
          {:ok, next_state} <- GameStateMachine.check(state_data.state, :check_for_win, is_win),
          {:ok, players, winner} <- Players.assign_win(players, is_win) do
-      if is_win, do: nil, else: start_next_turn(players, player.session_id)
-      turn = if is_win, do: turn, else: Turn.initialize()
+      if is_win, do: nil, else: @process.send_after(self(), :check_revealed_card, 10)
       toast = if is_win, do: toast |> Toast.add("#{winner.name} has won!"), else: toast
 
       state_data
       |> Map.put(:state, next_state)
       |> Map.put(:toast, toast)
-      |> Map.put(:turn, turn)
       |> Map.put(:players, players)
       |> noreply(:broadcast_change)
     else
@@ -760,20 +758,94 @@ defmodule CoupEngine.Game do
           {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
   def handle_info(
         :check_revealed_card,
-        %{players: players, toast: toast, turn: %{player: %{session_id: session_id}} = turn} = state_data
+        %{players: players, toast: toast} = state_data
       ) do
-    with {:ok, revealed_card_exists} <- Players.check_revealed_card(players, session_id),
-         {:ok, next_state} <- GameStateMachine.check(state_data.state, :check_revealed_card, revelaed_card_exists),
-         {:ok, players, winner} <- Players.assign_win(players, is_win) do
-      if is_win, do: nil, else: start_next_turn(players, player.session_id)
-      turn = if is_win, do: turn, else: Turn.initialize()
-      toast = if is_win, do: toast |> Toast.add("#{winner.name} has won!"), else: toast
+    with {:ok, revealed_card_exists} <- Players.check_revealed_card(players),
+         {:ok, next_state} <-
+           GameStateMachine.check(state_data.state, :check_revealed_card, revealed_card_exists) do
+      if revealed_card_exists,
+        do: @process.send_after(self(), :return_revealed_card, 10),
+        else: @process.send_after(self(), :prep_next_turn, 200)
+
+      toast =
+        if revealed_card_exists,
+          do: toast |> Toast.add("Returning the revealed card and shuffling it into the deck..."),
+          else: nil
+
+      # start_next_turn(players, player.session_id)
 
       state_data
       |> Map.put(:state, next_state)
       |> Map.put(:toast, toast)
-      |> Map.put(:turn, turn)
       |> Map.put(:players, players)
+      |> noreply(:broadcast_change)
+    else
+      {:error, reason} ->
+        toast = toast |> Toast.add(reason)
+        state_data = state_data |> Map.put(:toast, toast)
+        {:noreply, state_data}
+    end
+  end
+
+  @spec handle_info(:return_revealed_card, map()) ::
+          {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
+  def handle_info(
+        :return_revealed_card,
+        %{players: players, deck: deck, toast: toast} = state_data
+      ) do
+    with {:ok, next_state} <- GameStateMachine.check(state_data.state, :return_revealed_card),
+         {:ok, players, deck} <- Players.return_revealed_card(players, deck) do
+      @process.send_after(self(), :draw_revealed_replacement_card, 1000)
+
+      state_data
+      |> Map.put(:state, next_state)
+      |> Map.put(:deck, Enum.shuffle(deck))
+      |> Map.put(:players, players)
+      |> noreply(:broadcast_change)
+    else
+      {:error, reason} ->
+        toast = toast |> Toast.add(reason)
+        state_data = state_data |> Map.put(:toast, toast)
+        {:noreply, state_data}
+    end
+  end
+
+  @spec handle_info(:draw_revealed_replacement_card, map()) ::
+          {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
+  def handle_info(
+        :draw_revealed_replacement_card,
+        %{players: players, deck: deck, toast: toast} = state_data
+      ) do
+    with {:ok, next_state} <-
+           GameStateMachine.check(state_data.state, :draw_revealed_replacement_card),
+         {:ok, players, deck} <- Players.draw_revealed_replacement_card(players, deck) do
+      @process.send_after(self(), :prep_next_turn, 200)
+
+      state_data
+      |> Map.put(:state, next_state)
+      |> Map.put(:deck, Enum.shuffle(deck))
+      |> Map.put(:players, players)
+      |> noreply(:broadcast_change)
+    else
+      {:error, reason} ->
+        toast = toast |> Toast.add(reason)
+        state_data = state_data |> Map.put(:toast, toast)
+        {:noreply, state_data}
+    end
+  end
+
+  @spec handle_info(:prep_next_turn, map()) ::
+          {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
+  def handle_info(
+        :prep_next_turn,
+        %{players: players, turn: %{player: player}, toast: toast} = state_data
+      ) do
+    with {:ok, next_state} <- GameStateMachine.check(state_data.state, :prep_next_turn) do
+      start_next_turn(players, player.session_id)
+
+      state_data
+      |> Map.put(:state, next_state)
+      |> Map.put(:turn, Turn.initialize())
       |> noreply(:broadcast_change)
     else
       {:error, reason} ->

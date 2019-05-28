@@ -29,18 +29,8 @@ defmodule CoupEngine.CheckForWinTest do
       assert updated_state.state == "checking_revealed_card"
     end
 
-    # TODO: move this to a last step
-    test "should reset turn to all attributes pending", %{updated_state: updated_state} do
-      turn = updated_state.turn
-      assert turn.player.state == "pending"
-      assert turn.action.state == "pending"
-      assert turn.target.state == "pending"
-      assert turn.target_response.state == "pending"
-      assert turn.player_response_to_block.state == "pending"
-    end
-
-    test "should send start_turn for next alive player" do
-      assert_receive {{:start_turn, 2}, 200}
+    test "should send check_revealed_card for next alive player" do
+      assert_receive {:check_revealed_card, 10}
     end
   end
 

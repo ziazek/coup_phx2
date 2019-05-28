@@ -42,13 +42,17 @@ defmodule CoupEngine.CheckRevealedCardTest do
       assert updated_state.state == "return_revealed_card"
     end
 
+    test "should update toast to 'Returning the revealed card and shuffling it into the deck...'",
+         %{
+           updated_state: updated_state
+         } do
+      latest_toast = updated_state.toast |> Enum.at(-1)
+      assert latest_toast.body == "Returning the revealed card and shuffling it into the deck..."
+    end
+
     test "should send return_revealed_card to self" do
       assert_received {:return_revealed_card, 10}
     end
-
-    # test "should send start_turn for next alive player" do
-    #   assert_receive {{:start_turn, 2}, 200}
-    # end
   end
 
   describe "revealed card doesn't exist" do

@@ -459,6 +459,95 @@ defmodule CoupEngine.Players do
 
   def assign_win(players, false), do: {:ok, players, nil}
 
+  @doc """
+  Checks whether any of the players' cards state is 'revealed'
+  """
+
+  @spec check_revealed_card([%Player{}]) :: {:ok, boolean()}
+  def check_revealed_card(players) do
+    result =
+      players
+      |> Enum.any?(fn player ->
+        Enum.any?(player.hand, fn card -> card.state == "revealed" end)
+      end)
+
+    {:ok, result}
+  end
+
+  @doc """
+  Returns any revealed cards to the deck
+  """
+
+  @spec return_revealed_card([%Player{}], [%Card{}]) :: {:ok, [%Player{}], [%Card{}]}
+  def return_revealed_card(players, deck) do
+    {players, deck} =
+      players
+      |> Enum.map_reduce(deck, fn player, deck_acc ->
+        revealed_cards = player.hand |> find_revealed_cards()
+        converted_hand = player.hand |> convert_revealed_cards_to_replacing()
+        updated_player = player |> Map.put(:hand, converted_hand)
+
+        {updated_player, deck_acc ++ revealed_cards}
+      end)
+
+    {:ok, players, deck}
+  end
+
+  defp find_revealed_cards(cards) do
+    cards
+    |> Enum.filter(fn card -> card.state == "revealed" end)
+    |> Enum.map(fn card -> card |> Map.put(:state, "default") end)
+  end
+
+  defp convert_revealed_cards_to_replacing(cards) do
+    cards
+    |> Enum.map(fn card ->
+      if card.state == "revealed" do
+        card
+        |> Map.put(:state, "replacing")
+        |> Map.put(:type, "")
+      else
+        card
+      end
+    end)
+  end
+
+  @doc """
+  Replaces any pending-replacement card with the top card from deck
+  """
+
+  @spec draw_revealed_replacement_card([%Player{}], [%Card{}]) :: {:ok, [%Player{}], [%Card{}]}
+  def draw_revealed_replacement_card(players, deck) do
+    {players, deck} =
+      players
+      |> Enum.map_reduce(deck, fn player, deck_acc ->
+        if has_replacing?(player.hand) do
+          [first_card | rest] = deck_acc
+
+          hand =
+            player.hand
+            |> Enum.map(fn card ->
+              if card.state == "replacing" do
+                first_card
+              else
+                card
+              end
+            end)
+
+          updated_player = player |> Map.put(:hand, hand)
+          {updated_player, rest}
+        else
+          {player, deck_acc}
+        end
+      end)
+
+    {:ok, players, deck}
+  end
+
+  defp has_replacing?(cards) do
+    cards |> Enum.any?(fn card -> card.state == "replacing" end)
+  end
+
   ## UTILITIES ##
 
   @spec only_current_player([%Player{}], String.t(), fun()) :: [%Player{}]

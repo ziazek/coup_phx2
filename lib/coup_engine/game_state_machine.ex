@@ -52,8 +52,16 @@ defmodule CoupEngine.GameStateMachine do
       do: {:ok, "action_success"}
 
   def check("awaiting_response_to_block", :allow_block), do: {:ok, "turn_ending"}
+
+  def check("return_revealed_card", :return_revealed_card),
+    do: {:ok, "draw_revealed_replacement_card"}
+
+  def check("draw_revealed_replacement_card", :draw_revealed_replacement_card),
+    do: {:ok, "turn_ended"}
+
   def check("turn_ending", :end_turn), do: {:ok, "checking_for_win"}
-  def check("turn_ended", :start_turn), do: {:ok, "player_action"}
+  def check("turn_ended", :prep_next_turn), do: {:ok, "next_turn_prepped"}
+  def check("next_turn_prepped", :start_turn), do: {:ok, "player_action"}
   def check(_, _), do: {:error, "invalid game state"}
 
   ### Arity 3 ###
@@ -119,7 +127,7 @@ defmodule CoupEngine.GameStateMachine do
     do: {:ok, "turn_ending"}
 
   def check("challenger_lose_influence", :lose_influence, :die),
-      do: {:ok, "action_success"}
+    do: {:ok, "action_success"}
 
   def check("challenge_block_success_target_lose_influence", :lose_influence, :die),
     do: {:ok, "action_success"}
@@ -132,6 +140,12 @@ defmodule CoupEngine.GameStateMachine do
 
   def check("checking_for_win", :check_for_win, true), do: {:ok, "won"}
   def check("checking_for_win", :check_for_win, false), do: {:ok, "checking_revealed_card"}
+
+  def check("checking_revealed_card", :check_revealed_card, true = _revealed_card_exists),
+    do: {:ok, "return_revealed_card"}
+
+  def check("checking_revealed_card", :check_revealed_card, false = _revealed_card_exists),
+    do: {:ok, "turn_ended"}
 
   def check(_, _, _), do: {:error, "invalid game state"}
 
