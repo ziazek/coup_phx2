@@ -131,7 +131,7 @@ defmodule CoupEngine.GameStateMachine do
     do: {:ok, "turn_ending"}
 
   def check("checking_for_win", :check_for_win, true), do: {:ok, "won"}
-  def check("checking_for_win", :check_for_win, false), do: {:ok, "turn_ended"}
+  def check("checking_for_win", :check_for_win, false), do: {:ok, "checking_revealed_card"}
 
   def check(_, _, _), do: {:error, "invalid game state"}
 

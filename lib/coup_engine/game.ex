@@ -756,6 +756,33 @@ defmodule CoupEngine.Game do
     end
   end
 
+  @spec handle_info(:check_revealed_card, map()) ::
+          {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
+  def handle_info(
+        :check_revealed_card,
+        %{players: players, toast: toast, turn: %{player: %{session_id: session_id}} = turn} = state_data
+      ) do
+    with {:ok, revealed_card_exists} <- Players.check_revealed_card(players, session_id),
+         {:ok, next_state} <- GameStateMachine.check(state_data.state, :check_revealed_card, revelaed_card_exists),
+         {:ok, players, winner} <- Players.assign_win(players, is_win) do
+      if is_win, do: nil, else: start_next_turn(players, player.session_id)
+      turn = if is_win, do: turn, else: Turn.initialize()
+      toast = if is_win, do: toast |> Toast.add("#{winner.name} has won!"), else: toast
+
+      state_data
+      |> Map.put(:state, next_state)
+      |> Map.put(:toast, toast)
+      |> Map.put(:turn, turn)
+      |> Map.put(:players, players)
+      |> noreply(:broadcast_change)
+    else
+      {:error, reason} ->
+        toast = toast |> Toast.add(reason)
+        state_data = state_data |> Map.put(:toast, toast)
+        {:noreply, state_data}
+    end
+  end
+
   ### SERVER UTILITIES
 
   @spec reply_success(map(), any(), atom()) ::
