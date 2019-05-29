@@ -703,8 +703,7 @@ defmodule CoupEngine.Game do
         do_challenger_lose_influence(
           :select_card,
           state_data,
-          challenger_session_id,
-          :action_success
+          challenger_session_id
         )
     end
   end
@@ -1030,7 +1029,7 @@ defmodule CoupEngine.Game do
     end
   end
 
-  # defp do_challenger_lose_influence(effect, state_data, challenger_session_id, send_after \\ nil)
+  defp do_challenger_lose_influence(effect, state_data, challenger_session_id, send_after \\ nil)
 
   defp do_challenger_lose_influence(
          :die,
@@ -1046,7 +1045,7 @@ defmodule CoupEngine.Game do
          {:ok, players} <- Players.kill_player_and_last_card(players, challenger_session_id) do
       challenger = players |> Enum.find(fn p -> p.session_id == challenger_session_id end)
       toast = toast |> Toast.add("#{challenger.name} loses 1 influence. Player has died.")
-      @process.send_after(self(), send_after, 1_000)
+      if send_after, do: @process.send_after(self(), send_after, 1_000), else: nil
 
       state_data
       |> Map.put(:players, players)
@@ -1079,7 +1078,7 @@ defmodule CoupEngine.Game do
       toast =
         toast |> Toast.add("#{challenger.name} loses 1 influence. Choosing card to discard...")
 
-      @process.send_after(self(), send_after, 1_000)
+      if send_after, do: @process.send_after(self(), send_after, 1_000), else: nil
 
       state_data
       |> Map.put(:players, players)

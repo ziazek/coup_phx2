@@ -256,13 +256,12 @@ defmodule CoupEngine.Players do
   def reveal_card(players, true, _, _), do: {:ok, players}
 
   defp do_reveal_card(cards, claimed_character) do
+    first_matching_card_index =
+      cards |> Enum.find_index(fn card -> card.type == claimed_character end)
+
     cards
-    |> Enum.map(fn card ->
-      if card.type == claimed_character do
-        card |> Map.put(:state, "revealed")
-      else
-        card
-      end
+    |> List.update_at(first_matching_card_index, fn card ->
+      card |> Map.put(:state, "revealed")
     end)
   end
 
