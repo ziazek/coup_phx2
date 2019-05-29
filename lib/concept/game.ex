@@ -302,7 +302,7 @@ defmodule Concept.Game do
         name: "Penguin",
         session_id: "session1",
         role: "creator",
-        actions: default_actions,
+        actions: default_actions(),
         actions_panel_mode: "actions_disabled",
         display_state: "default",
         hand: [
@@ -375,7 +375,7 @@ defmodule Concept.Game do
         name: "Penguin",
         session_id: "session1",
         role: "creator",
-        actions: default_actions,
+        actions: default_actions(),
         actions_panel_mode: "actions_disabled",
         hand: [
           %{type: "Captain"},
@@ -685,7 +685,7 @@ defmodule Concept.Game do
     })
   end
 
-  defp state_template(map_to_merge \\ %{}) do
+  defp state_template(map_to_merge) do
     %{
       game_name: "CONCEPT1",
       next_step: :adduser1,
@@ -700,7 +700,7 @@ defmodule Concept.Game do
         change_card_hand: [],
         actions_panel_mode: "actions_disabled",
         display_state: "default",
-        actions: default_actions,
+        actions: default_actions(),
         responses: [],
         coins: 0,
         classes: "player"

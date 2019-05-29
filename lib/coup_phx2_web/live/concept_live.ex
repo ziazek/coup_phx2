@@ -5,7 +5,6 @@ defmodule CoupPhx2Web.ConceptLive do
   use Phoenix.LiveView
 
   # alias CoupEngine.{Game, GameSupervisor}
-  alias __MODULE__
   alias Concept.{Game, GameSupervisor}
 
   def render(assigns), do: CoupPhx2Web.ConceptView.render("index.html", assigns)
