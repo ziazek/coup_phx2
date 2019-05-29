@@ -51,6 +51,28 @@ defmodule CoupEngine.ChallengeTest do
       assert latest_toast.body == "Zek challenges and succeeds."
     end
 
+    test "should reset opponent responses to disabled", %{updated_state: updated_state} do
+      responses = updated_state.players |> Enum.at(1) |> Map.get(:responses)
+
+      assert responses == [
+               %Action{
+                 action: "allow",
+                 label: "Allow",
+                 state: "disabled"
+               },
+               %Action{
+                 action: "challenge",
+                 label: "Challenge",
+                 state: "disabled"
+               },
+               %Action{
+                 action: "block",
+                 label: "Block",
+                 state: "disabled"
+               }
+             ]
+    end
+
     test "should update opponent_responses session_id2 to challenge", %{
       updated_state: updated_state
     } do
@@ -109,6 +131,28 @@ defmodule CoupEngine.ChallengeTest do
     test "should update toast to 'Zek challenges and fails.'", %{updated_state: updated_state} do
       latest_toast = updated_state.toast |> Enum.at(-1)
       assert latest_toast.body == "Zek challenges and fails."
+    end
+
+    test "should reset opponent responses to disabled", %{updated_state: updated_state} do
+      responses = updated_state.players |> Enum.at(1) |> Map.get(:responses)
+
+      assert responses == [
+               %Action{
+                 action: "allow",
+                 label: "Allow",
+                 state: "disabled"
+               },
+               %Action{
+                 action: "challenge",
+                 label: "Challenge",
+                 state: "disabled"
+               },
+               %Action{
+                 action: "block",
+                 label: "Block",
+                 state: "disabled"
+               }
+             ]
     end
 
     test "should change Captain card state to revealed", %{updated_state: updated_state} do

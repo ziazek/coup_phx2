@@ -311,6 +311,7 @@ defmodule CoupEngine.Game do
              player.session_id,
              player_claimed_character
            ),
+         {:ok, players} <- Players.reset_opponent_responses(players, player.session_id),
          {:ok, turn, player} <- Turn.set_opponent_challenge(turn, players, challenger_session_id) do
       toast =
         if challenge_success do

@@ -62,7 +62,7 @@ defmodule CoupEngine.GameStateMachine do
   def check("turn_ending", :end_turn), do: {:ok, "checking_for_win"}
   def check("turn_ended", :prep_next_turn), do: {:ok, "next_turn_prepped"}
   def check("next_turn_prepped", :start_turn), do: {:ok, "player_action"}
-  def check(_, _), do: {:error, "invalid game state"}
+  def check(curr_state, action), do: {:error, "invalid game state, #{curr_state} #{action}"}
 
   ### Arity 3 ###
 
@@ -147,7 +147,8 @@ defmodule CoupEngine.GameStateMachine do
   def check("checking_revealed_card", :check_revealed_card, false = _revealed_card_exists),
     do: {:ok, "turn_ended"}
 
-  def check(_, _, _), do: {:error, "invalid game state"}
+  def check(curr_state, action, _),
+    do: {:error, "invalid game state, #{curr_state} #{action} arity3"}
 
   @spec check(String.t(), atom(), String.t() | atom(), String.t()) ::
           {:ok, String.t()} | {:error, String.t()}
@@ -170,7 +171,8 @@ defmodule CoupEngine.GameStateMachine do
   def check("awaiting_opponent_response", :block, "assassinate", "block_as_contessa"),
     do: {:ok, "awaiting_response_to_block"}
 
-  def check(_, _, _, _), do: {:error, "invalid game state"}
+  def check(curr_state, action, player_action, _),
+    do: {:error, "invalid game state, #{curr_state} #{action} #{player_action} arity4"}
 
   @doc """
   Checks whether all players have 2 cards.

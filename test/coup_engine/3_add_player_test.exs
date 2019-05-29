@@ -50,7 +50,7 @@ defmodule CoupEngine.AddPlayerTest do
 
       result = Game.handle_call({:add_player, "session_id2", "A1"}, "_pid", state)
 
-      assert result == {:reply, {:error, "invalid game state"}, state}
+      assert result == {:reply, {:error, "invalid game state, started add_player arity3"}, state}
     end
 
     test "should use handle_continue to broadcast to game channel that game state has changed", %{

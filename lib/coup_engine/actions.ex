@@ -5,8 +5,6 @@ defmodule CoupEngine.Actions do
 
   alias CoupEngine.Action
 
-  @must_coup_at 10
-
   @actions %{
     "1coin" => %{
       claimed_character: nil,

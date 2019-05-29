@@ -282,6 +282,18 @@ defmodule CoupEngine.Players do
     {:ok, players}
   end
 
+  @spec reset_opponent_responses([%Player{}], String.t()) :: {:ok, [%Player{}]}
+  def reset_opponent_responses(players, session_id) do
+    players =
+      players
+      |> only_opponents(session_id, fn player ->
+        player
+        |> Map.put(:responses, Actions.default_responses())
+      end)
+
+    {:ok, players}
+  end
+
   @targetable_actions ["steal", "assassinate"]
   @spec target_selected_set_opponent_responses([%Player{}], String.t(), String.t(), String.t()) ::
           {:ok, [%Player{}]}

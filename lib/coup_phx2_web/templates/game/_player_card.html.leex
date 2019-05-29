@@ -6,6 +6,6 @@
 <rect class="card fadeInUp animated revealed" x="<%= @x %>" y="40" width="35" height="50" rx="5" ry="5" ></rect>
 <text class="card-text" text-anchor="middle" x="<%= @x + 16 %>" y="65"><%= @card.type %></text>
 <% end %>
-<%= if Map.get(@card, :state) == "default" do %>
+<%= if Map.get(@card, :state) == "default" || Map.get(@card, :state) == "selected" do %>
 <rect class="card fadeInUp animated" x="<%= @x %>" y="40" width="35" height="50" rx="5" ry="5" ></rect>
 <% end %>
