@@ -1,12 +1,12 @@
 <%= if @data.current_player.state == "alive" do %>
   <%= for action <- Map.get(@data.current_player, :responses, []) do %>
   <%= if action.state == "enabled" do %>
-    <div class="action-item text-center pb-1" phx-click="response" phx-value="<%= Map.get(action, :action) %>:<%= @data.current_player.session_id %>">
+    <a class="action-item text-center pb-1" href="#" phx-click="response" phx-value="<%= Map.get(action, :action) %>:<%= @data.current_player.session_id %>">
   <% else %>
-    <div class="action-item text-center pb-1 disabled">
+    <a class="action-item text-center pb-1 disabled">
   <% end %>
     <%= render "_#{Map.get(action, :action)}_svg.html" %>
     <div class="action-label uppercase text-green-darker"><%= action.label %></div>
-  </div>
+  </a>
   <% end %>
 <% end %>

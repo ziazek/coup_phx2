@@ -1,8 +1,12 @@
 .game-container
   height: 100vh
+  max-height: calc(var(--vh, 0.1vh) * 100)
 
-div[phx-click]
-  cursor: pointer
+  a
+    text-decoration: none
+
+div[phx-click], a[phx-click]
+  cursor: pointer !important
 
 .bluebg
   background-image: linear-gradient(rgba(188, 222, 250, 0), rgba(188, 222, 250, 1))
@@ -194,9 +198,14 @@ div[phx-click]
 
   .reactions, .actions
     position: absolute
+    z-index: 100
 
   .hide
     display: none
+    z-index: 0
+
+  .start-game
+    z-index: 200
 
 .overlay
   background: rgba(0,0,0, 0.6)

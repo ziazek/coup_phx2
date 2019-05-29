@@ -272,11 +272,11 @@ defmodule CoupEngine.Game do
   def handle_call(
         :allow_block,
         _from,
-        %{toast: toast, turn: %{target: target} = turn} = state_data
+        %{toast: toast, turn: %{player: player} = turn} = state_data
       ) do
     with {:ok, next_state} <- GameStateMachine.check(state_data.state, :allow_block),
          {:ok, turn} <- Turn.set_player_allow_block(turn) do
-      toast = toast |> Toast.add("#{target.name} allows the block.")
+      toast = toast |> Toast.add("#{player.name} allows the block.")
       @process.send_after(self(), :end_turn, 1_000)
 
       state_data

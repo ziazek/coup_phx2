@@ -45,9 +45,9 @@ defmodule CoupEngine.AllowBlockTest do
              }
     end
 
-    test "should update toast to 'Naz allows the block.'", %{updated_state: updated_state} do
+    test "should update toast to 'Ken allows the block.'", %{updated_state: updated_state} do
       latest_toast = updated_state.toast |> Enum.at(-1)
-      assert latest_toast.body == "Naz allows the block."
+      assert latest_toast.body == "Ken allows the block."
     end
 
     test "should mark turn as ended", %{updated_state: updated_state} do

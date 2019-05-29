@@ -4,9 +4,9 @@
   <div class="change-card-wrapper flex">
     <%= for {card, index} <- Map.get(@data.current_player, :change_card_hand, []) |> Enum.with_index() do %>
     <%= if card.state == "selected" do %>
-    <div class="my-card selected" phx-click="change_card_select_card" phx-value="<%= index %>">
+    <a href="#" class="my-card selected" phx-click="change_card_select_card" phx-value="<%= index %>">
     <% else %>
-    <div class="my-card" phx-click="change_card_select_card" phx-value="<%= index %>">
+    <a href="#" class="my-card" phx-click="change_card_select_card" phx-value="<%= index %>">
     <% end %>
       <svg viewbox="0 0 70 100">
         <g class="fadeInUp animated">
@@ -16,7 +16,7 @@
           </text>
         </g>
       </svg>
-    </div>
+    </a>
     <% end %>
   </div>
   <div class="button-wrapper text-center mt-4">
@@ -43,9 +43,9 @@
   <div class="change-card-wrapper flex">
     <%= for {card, index} <- Map.get(@data.current_player, :hand, []) |> Enum.with_index() do %>
     <%= if card.state == "selected" do %>
-    <div class="my-card selected">
+    <a class="my-card selected">
     <% else %>
-    <div class="my-card" phx-click="select_card" phx-value="<%= index %>">
+    <a href="#" class="my-card" phx-click="select_card" phx-value="<%= index %>">
     <% end %>
       <svg viewbox="0 0 70 100">
         <g class="fadeInUp animated">
@@ -55,7 +55,7 @@
           </text>
         </g>
       </svg>
-    </div>
+    </a>
     <% end %>
   </div>
   <div class="button-wrapper text-center mt-4">
