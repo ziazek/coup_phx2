@@ -4,7 +4,7 @@ defmodule CoupPhx2.MixProject do
   def project do
     [
       app: :coup_phx2,
-      version: "0.1.9",
+      version: "0.2.0",
       elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),

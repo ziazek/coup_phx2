@@ -56,7 +56,7 @@ defmodule CoupPhx2Web.GameLive do
       :ok ->
         {:noreply, socket}
 
-      {:error, reason} ->
+      {:error, _reason} ->
         {:noreply, socket}
         # {:noreply, socket |> append_toast(:danger, reason)}
     end
@@ -67,7 +67,7 @@ defmodule CoupPhx2Web.GameLive do
       :ok ->
         {:noreply, socket}
 
-      {:error, reason} ->
+      {:error, _reason} ->
         {:noreply, socket}
         # {:noreply, socket |> append_toast(:danger, reason)}
     end
@@ -78,7 +78,7 @@ defmodule CoupPhx2Web.GameLive do
       :ok ->
         {:noreply, socket}
 
-      {:error, reason} ->
+      {:error, _reason} ->
         {:noreply, socket}
     end
   end
@@ -88,7 +88,7 @@ defmodule CoupPhx2Web.GameLive do
       :ok ->
         {:noreply, socket}
 
-      {:error, reason} ->
+      {:error, _reason} ->
         {:noreply, socket}
     end
   end
@@ -98,7 +98,7 @@ defmodule CoupPhx2Web.GameLive do
       :ok ->
         {:noreply, socket}
 
-      {:error, reason} ->
+      {:error, _reason} ->
         {:noreply, socket}
     end
   end
@@ -108,7 +108,7 @@ defmodule CoupPhx2Web.GameLive do
       :ok ->
         {:noreply, socket}
 
-      {:error, reason} ->
+      {:error, _reason} ->
         {:noreply, socket}
     end
   end
@@ -118,7 +118,7 @@ defmodule CoupPhx2Web.GameLive do
       :ok ->
         {:noreply, socket}
 
-      {:error, reason} ->
+      {:error, _reason} ->
         {:noreply, socket}
     end
   end
@@ -128,7 +128,7 @@ defmodule CoupPhx2Web.GameLive do
       :ok ->
         {:noreply, socket}
 
-      {:error, reason} ->
+      {:error, _reason} ->
         {:noreply, socket}
     end
   end
@@ -138,7 +138,7 @@ defmodule CoupPhx2Web.GameLive do
       :ok ->
         {:noreply, socket}
 
-      {:error, reason} ->
+      {:error, _reason} ->
         {:noreply, socket}
     end
   end
@@ -148,7 +148,7 @@ defmodule CoupPhx2Web.GameLive do
       :ok ->
         {:noreply, socket}
 
-      {:error, reason} ->
+      {:error, _reason} ->
         {:noreply, socket}
     end
   end
@@ -158,7 +158,7 @@ defmodule CoupPhx2Web.GameLive do
       :ok ->
         {:noreply, socket}
 
-      {:error, reason} ->
+      {:error, _reason} ->
         {:noreply, socket}
     end
   end
@@ -171,7 +171,7 @@ defmodule CoupPhx2Web.GameLive do
       :ok ->
         {:noreply, socket}
 
-      {:error, reason} ->
+      {:error, _reason} ->
         {:noreply, socket}
     end
   end
@@ -184,7 +184,7 @@ defmodule CoupPhx2Web.GameLive do
       :ok ->
         {:noreply, socket}
 
-      {:error, reason} ->
+      {:error, _reason} ->
         {:noreply, socket}
     end
   end
@@ -194,7 +194,7 @@ defmodule CoupPhx2Web.GameLive do
       :ok ->
         {:noreply, socket}
 
-      {:error, reason} ->
+      {:error, _reason} ->
         {:noreply, socket}
     end
   end
@@ -204,7 +204,7 @@ defmodule CoupPhx2Web.GameLive do
       :ok ->
         {:noreply, socket}
 
-      {:error, reason} ->
+      {:error, _reason} ->
         {:noreply, socket}
     end
   end

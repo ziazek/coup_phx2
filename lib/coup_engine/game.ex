@@ -770,7 +770,7 @@ defmodule CoupEngine.Game do
       toast =
         if revealed_card_exists,
           do: toast |> Toast.add("Returning the revealed card and shuffling it into the deck..."),
-          else: nil
+          else: toast
 
       # start_next_turn(players, player.session_id)
 
@@ -1045,7 +1045,7 @@ defmodule CoupEngine.Game do
          {:ok, players} <- Players.kill_player_and_last_card(players, challenger_session_id) do
       challenger = players |> Enum.find(fn p -> p.session_id == challenger_session_id end)
       toast = toast |> Toast.add("#{challenger.name} loses 1 influence. Player has died.")
-      if send_after, do: @process.send_after(self(), send_after, 1_000), else: :do_nothing
+      @process.send_after(self(), send_after, 1_000)
 
       state_data
       |> Map.put(:players, players)
@@ -1078,7 +1078,7 @@ defmodule CoupEngine.Game do
       toast =
         toast |> Toast.add("#{challenger.name} loses 1 influence. Choosing card to discard...")
 
-      if send_after, do: @process.send_after(self(), send_after, 1_000), else: :do_nothing
+      @process.send_after(self(), send_after, 1_000)
 
       state_data
       |> Map.put(:players, players)
