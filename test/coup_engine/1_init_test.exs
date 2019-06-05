@@ -37,7 +37,8 @@ defmodule CoupEngine.InitTest do
     end
 
     test "should have a toast 'Waiting for players'", %{toast: toast} do
-      assert toast == [%Toast{body: "Waiting for players"}]
+      assert [%Toast{body: body}] = toast
+      assert body == "Waiting for players"
     end
 
     test "should have a turn with all attributes pending", %{turn: turn} do

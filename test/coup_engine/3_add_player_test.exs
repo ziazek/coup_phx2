@@ -33,10 +33,13 @@ defmodule CoupEngine.AddPlayerTest do
       {:reply, :ok, updated_state, _continue} =
         Game.handle_call({:add_player, "session_id2", "A1"}, "_pid", state)
 
-      assert updated_state.toast == [
-               %Toast{body: "Waiting for players"},
-               %Toast{body: "A1 has joined the game."}
-             ]
+      assert [
+               %Toast{body: body1},
+               %Toast{body: body2}
+             ] = updated_state.toast
+
+      assert body1 == "Waiting for players"
+      assert body2 == "A1 has joined the game."
     end
 
     test "given duplicate session_id, should return error", %{state: state} do

@@ -257,7 +257,8 @@ defmodule CoupEngine.Players do
 
   defp do_reveal_card(cards, claimed_character) do
     first_matching_card_index =
-      cards |> Enum.find_index(fn card -> card.type == claimed_character end)
+      cards
+      |> Enum.find_index(fn card -> card.type == claimed_character && card.state == "default" end)
 
     cards
     |> List.update_at(first_matching_card_index, fn card ->

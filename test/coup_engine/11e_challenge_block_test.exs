@@ -75,7 +75,7 @@ defmodule CoupEngine.ChallengeBlockTest do
               name: "Naz",
               session_id: "session_id2",
               hand: [
-                %Card{type: "Captain", state: "default"},
+                %Card{type: "Duke", state: "dead"},
                 %Card{type: "Duke", state: "default"}
               ]
             }
@@ -114,6 +114,16 @@ defmodule CoupEngine.ChallengeBlockTest do
                label: "Challenge",
                state: "ok"
              }
+    end
+
+    test "should not change dead Duke", %{updated_state: updated_state} do
+      duke =
+        updated_state.players
+        |> Enum.at(1)
+        |> Map.get(:hand)
+        |> Enum.at(0)
+
+      assert duke.state == "dead"
     end
 
     test "should change Duke card state to revealed", %{updated_state: updated_state} do

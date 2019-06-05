@@ -95,7 +95,7 @@ defmodule CoupEngine.ChallengeTest do
               name: "Ken",
               session_id: "session_id1",
               hand: [
-                %Card{type: "Captain", state: "default"},
+                %Card{type: "Captain", state: "dead"},
                 %Card{type: "Captain", state: "default"}
               ]
             },
@@ -155,24 +155,24 @@ defmodule CoupEngine.ChallengeTest do
              ]
     end
 
-    test "should change Captain card state to revealed", %{updated_state: updated_state} do
+    test "should not change dead Captain state", %{updated_state: updated_state} do
       captain =
         updated_state.players
         |> Enum.at(0)
         |> Map.get(:hand)
         |> Enum.at(0)
 
-      assert captain.state == "revealed"
+      assert captain.state == "dead"
     end
 
-    test "should maintain second Captain card as default", %{updated_state: updated_state} do
-      second_captain =
+    test "should change second Captain card state to revealed", %{updated_state: updated_state} do
+      captain =
         updated_state.players
         |> Enum.at(0)
         |> Map.get(:hand)
         |> Enum.at(1)
 
-      assert second_captain.state == "default"
+      assert captain.state == "revealed"
     end
 
     test "should update opponent_responses session_id2 to challenge", %{
