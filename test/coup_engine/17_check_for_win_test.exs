@@ -71,5 +71,9 @@ defmodule CoupEngine.CheckForWinTest do
       latest_toast = updated_state.toast |> Enum.at(-1)
       assert latest_toast.body == "Jany has won!"
     end
+
+    test "should send play_again_question to self" do
+      assert_receive {:play_again_question, 2000}
+    end
   end
 end
