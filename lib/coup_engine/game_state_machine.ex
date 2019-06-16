@@ -62,6 +62,8 @@ defmodule CoupEngine.GameStateMachine do
   def check("turn_ending", :end_turn), do: {:ok, "checking_for_win"}
   def check("turn_ended", :prep_next_turn), do: {:ok, "next_turn_prepped"}
   def check("next_turn_prepped", :start_turn), do: {:ok, "player_action"}
+  def check("won", :play_again_invitation), do: {:ok, "play_again_invitation"}
+  def check("play_again_invitation", :play_again), do: {:ok, "play_again_invitation"}
   def check(curr_state, action), do: {:error, "invalid game state, #{curr_state} #{action}"}
 
   ### Arity 3 ###

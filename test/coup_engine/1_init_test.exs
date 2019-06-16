@@ -14,7 +14,8 @@ defmodule CoupEngine.InitTest do
          deck: deck,
          state: state,
          toast: toast,
-         turn: turn
+         turn: turn,
+         play_again: play_again
        }} = result
 
       {:ok,
@@ -24,7 +25,8 @@ defmodule CoupEngine.InitTest do
          deck: deck,
          state: state,
          toast: toast,
-         turn: turn
+         turn: turn,
+         play_again: play_again
        }}
     end
 
@@ -136,6 +138,10 @@ defmodule CoupEngine.InitTest do
                  ]
                }
              ]
+    end
+
+    test "should initialise play_again to nil", %{play_again: play_again} do
+      assert is_nil(play_again)
     end
   end
 end

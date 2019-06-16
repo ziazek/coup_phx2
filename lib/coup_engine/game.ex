@@ -5,7 +5,17 @@ defmodule CoupEngine.Game do
 
   use GenServer
 
-  alias CoupEngine.{Actions, Challenge, Deck, GameStateMachine, Player, Players, Toast, Turn}
+  alias CoupEngine.{
+    Actions,
+    Challenge,
+    Deck,
+    GameStateMachine,
+    PlayAgain,
+    Player,
+    Players,
+    Toast,
+    Turn
+  }
 
   @pubsub Application.get_env(:coup_phx2, :game_pubsub)
   @process Application.get_env(:coup_phx2, :game_process)
@@ -73,6 +83,10 @@ defmodule CoupEngine.Game do
   def challenge_block(pid),
     do: GenServer.call(pid, :challenge_block)
 
+  @spec play_again(pid()) :: any()
+  def play_again(pid),
+    do: GenServer.call(pid, :play_again)
+
   ### SERVER ###
 
   @spec init({String.t(), String.t(), String.t()}) :: {:ok, map()}
@@ -89,7 +103,8 @@ defmodule CoupEngine.Game do
          Toast.initialize("Waiting for players")
        ],
        turn: Turn.initialize(),
-       past_turns: []
+       past_turns: [],
+       play_again: nil
      }}
   end
 
@@ -478,6 +493,21 @@ defmodule CoupEngine.Game do
     end
   end
 
+  @spec handle_call(:play_again, any(), map()) :: {:reply, {:ok, String.t()}, map()}
+  def handle_call(
+        :play_again,
+        _from,
+        %{
+          play_again: play_again
+        } = state_data
+      ) do
+    with {:ok, _next_state} <- GameStateMachine.check(state_data.state, :play_again) do
+      {:reply, {:ok, play_again}, state_data}
+    else
+      error -> {:reply, error, state_data}
+    end
+  end
+
   @spec handle_continue(:broadcast_change, map()) :: {:noreply, map()}
   def handle_continue(:broadcast_change, %{game_name: game_name} = state) do
     @pubsub.broadcast(:game_pubsub, game_name, :game_data_changed)
@@ -738,7 +768,10 @@ defmodule CoupEngine.Game do
     with {:ok, is_win} <- Players.check_for_win(players),
          {:ok, next_state} <- GameStateMachine.check(state_data.state, :check_for_win, is_win),
          {:ok, players, winner} <- Players.assign_win(players, is_win) do
-      if is_win, do: nil, else: @process.send_after(self(), :check_revealed_card, 10)
+      if is_win,
+        do: @process.send_after(self(), :play_again_invitation, 2000),
+        else: @process.send_after(self(), :check_revealed_card, 10)
+
       toast = if is_win, do: toast |> Toast.add("#{winner.name} has won!"), else: toast
 
       state_data
@@ -846,6 +879,26 @@ defmodule CoupEngine.Game do
       state_data
       |> Map.put(:state, next_state)
       |> Map.put(:turn, Turn.initialize())
+      |> noreply(:broadcast_change)
+    else
+      {:error, reason} ->
+        toast = toast |> Toast.add(reason)
+        state_data = state_data |> Map.put(:toast, toast)
+        {:noreply, state_data}
+    end
+  end
+
+  @spec handle_info(:play_again_invitation, map()) ::
+          {:noreply, map()} | {:noreply, map(), {:continue, atom()}}
+  def handle_info(
+        :play_again_invitation,
+        %{toast: toast} = state_data
+      ) do
+    with {:ok, next_state} <- GameStateMachine.check(state_data.state, :play_again_invitation),
+         {:ok, play_again} <- PlayAgain.init() do
+      state_data
+      |> Map.put(:state, next_state)
+      |> Map.put(:play_again, play_again)
       |> noreply(:broadcast_change)
     else
       {:error, reason} ->

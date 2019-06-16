@@ -72,8 +72,8 @@ defmodule CoupEngine.CheckForWinTest do
       assert latest_toast.body == "Jany has won!"
     end
 
-    test "should send play_again_question to self" do
-      assert_receive {:play_again_question, 2000}
+    test "should send play_again_invitation to self" do
+      assert_receive {:play_again_invitation, 2000}
     end
   end
 end

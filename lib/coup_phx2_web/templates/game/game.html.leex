@@ -76,4 +76,18 @@
 
     <%= render "_overlay.html", data: @data, show_on: ["select_target", "change_card"] %>
   </div><!-- actions-wrapper -->
+
+  <%= if Map.get(@data, :state) == "play_again_invitation" do %>
+  <div class="modal-backdrop"></div>
+  <div class="modal fadeIn animated">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body">
+          <h4 class="text-2xl mb-5 text-grey-dark">Play again?</h4>
+          <button class="btn btn-blue" phx-click="play_again">Join the next game</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <% end %>
 </div><!-- game-container -->

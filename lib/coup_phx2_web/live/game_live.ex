@@ -209,6 +209,18 @@ defmodule CoupPhx2Web.GameLive do
     end
   end
 
+  def handle_event("play_again", _value, socket) do
+    case Game.play_again(socket.assigns.game_pid) do
+      {:ok, game_name} ->
+        {:stop,
+         socket
+         |> redirect(to: "/game/#{game_name}")}
+
+      {:error, _reason} ->
+        {:noreply, socket}
+    end
+  end
+
   def handle_info(:tick, socket) do
     socket =
       socket
