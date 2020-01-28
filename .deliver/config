@@ -1,10 +1,10 @@
 APP="coup_phx2"
 
-BUILD_HOST="128.199.220.61"
+BUILD_HOST="167.99.102.51"
 BUILD_USER="deploy"
 BUILD_AT="/tmp/edeliver/coup_phx2/builds"
 
-PRODUCTION_HOSTS="128.199.220.61"
+PRODUCTION_HOSTS="167.99.102.51"
 PRODUCTION_USER="deploy"
 DELIVER_TO="/home/deploy"
 
