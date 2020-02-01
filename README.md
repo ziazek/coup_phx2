@@ -1,5 +1,22 @@
 # CoupPhx2
 
+This is a web-based version of the popular card game [Coup](https://boardgamegeek.com/boardgame/131357/coup).
+
+Best played on mobile screens.
+
+## Demo
+
+Visit [coup.ziazek.com](https://coup.ziazek.com)
+
+1. Enter your name.
+2. You'll be redirected to a new game. Copy the URL (e.g. http://coup.ziazek.com/game/YkxcrG)
+3. Share the link with your friends (or test it in an incognito window).
+4. Once they're in, click "Start Game".
+
+View the Rules [here](https://www.ultraboardgames.com/coup/game-rules.php).
+
+## Deploying
+
 ```
 mix edeliver build release production --verbose
 mix edeliver deploy release to production
